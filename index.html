@@ -115,7 +115,7 @@
         <div class="equipment-grid">
             <div class="col-slots">
                 <div class="slot">🧿<div class="slot-name">Амулет</div></div>
-                <div class="slot">🗡️<div class="slot-name">Прав.рука</div></div>
+                <div class="slot">🗡️<div class="slot-name">Правая рука</div></div>
                 <div class="slot">💍<div class="slot-name">Кольцо 1</div></div>
                 <div class="slot">📿<div class="slot-name">Браслет</div></div>
             </div>
@@ -130,7 +130,7 @@
             <div class="col-slots">
                 <div class="slot">🧥<div class="slot-name">Накидка</div></div>
                 <div class="slot">🛡️<div class="slot-name">Броня</div></div>
-                <div class="slot">🏹<div class="slot-name">Лев.рука</div></div>
+                <div class="slot">🏹<div class="slot-name">Левая рука</div></div>
                 <div class="slot">💍<div class="slot-name">Кольцо 2</div></div>
             </div>
         </div>
@@ -162,7 +162,7 @@
     <div class="box" style="padding: 10px 5px;">
         
         <div class="box" style="padding: 10px 5px;">
-        <h2>ЗАДАЧИ НА СЕГОДНЯ</h2>
+        <h2>КВЕСТЫ</h2>
         <div id="quests-container"></div>
     </div>
         
@@ -211,6 +211,14 @@
             { id: "m5", type: "monthly", title: "Прыжок (Замер высоты)", xp: 80, gold: 25, stat: "Ловкость" },
             { id: "m6", type: "monthly", title: "Челлендж (Без сахара)", xp: 100, gold: 30, stat: "Сила духа" }
         ];
+        // База всех предметов в игре
+        const itemsDatabase = {
+            "sword_1": { name: "Ржавый меч", type: "Правая рука", stat: "Сила", bonus: 1, icon: "🗡️", price: 10 },
+            "shoes_1": { name: "Старые кроссовки", type: "Обувь", stat: "Выносливость", bonus: 2, icon: "👢", price: 15 }
+        };
+
+        // Рюкзак игрока (сохраняется в памяти)
+        let playerInventory = JSON.parse(localStorage.getItem('rpg_inventory')) || ["sword_1", "shoes_1"];
 // 1. СИСТЕМА СОХРАНЕНИЙ И УРОВНЕЙ
         let currentGold = parseInt(localStorage.getItem('rpg_gold')) || 0;
         let currentXp = parseInt(localStorage.getItem('rpg_xp')) || 0;

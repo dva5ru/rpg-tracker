@@ -170,6 +170,7 @@
 
     <div class="menu-buttons">
         <div class="btn-menu" onclick="openInventory()">ИНВЕНТАРЬ</div>
+        <div class="btn-menu" onclick="openShop()">МАГАЗИН</div>
         <div class="btn-menu">МЕТРИКИ</div>
         <div class="btn-menu">ТАЛАНТЫ</div>
     </div>
@@ -180,7 +181,7 @@
         <h2>КВЕСТЫ</h2>
         <div id="quests-container"></div>
     </div>
-        
+                <!-- Модальное окно инвентаря -->
 <div id="modal-inventory" class="modal-overlay">
         <div class="modal-content">
             <button class="close-btn" onclick="closeInventory()">✖</button>
@@ -201,6 +202,18 @@
             </div>
         </div>
     </div>
+
+        <!-- Модальное окно магазина -->
+<div id="modal-shop" class="modal-overlay">
+    <div class="modal-content">
+        <button class="close-btn" onclick="closeShop()">✖</button>
+        <h2>МАГАЗИН</h2>
+        <div id="shop-items" class="inventory-grid" style="grid-template-columns: repeat(2, 1fr);">
+            <!-- Товары будут заполняться скриптом -->
+        </div>
+        <div id="shop-message" style="margin-top: 10px; font-size: 8px; color: var(--accent-yellow); text-align: center;"></div>
+    </div>
+</div>
 
     <script>
         // Инициализация Telegram Web App
@@ -556,6 +569,107 @@
 
         // При загрузке страницы рисуем экипировку на персонаже
         renderEquipment();
+// ========== МАГАЗИН ==========
+// Товары в магазине
+const shopItems = [
+    { id: "sword", name: "Меч тренировок", price: 100, type: "item" },
+    { id: "shoes", name: "Кроссовки", price: 150, type: "item" },
+    { name: "Сундук", price: 200, type: "chest" }
+];
+
+// Открыть магазин
+function openShop() {
+    document.getElementById('modal-shop').style.display = 'flex';
+    renderShop();
+}
+
+// Закрыть магазин
+function closeShop() {
+    document.getElementById('modal-shop').style.display = 'none';
+}
+
+// Показать товары
+function renderShop() {
+    const container = document.getElementById('shop-items');
+    container.innerHTML = '';
+    shopItems.forEach((item, index) => {
+        const div = document.createElement('div');
+        div.className = 'inv-slot';
+        div.style.flexDirection = 'column';
+        div.style.fontSize = '10px';
+        if (item.type === 'item') {
+            const base = itemsDatabase[item.id];
+            div.innerHTML = `${base.img}<br><span style="font-size:6px;">${item.price}💰</span>`;
+        } else {
+            div.innerHTML = `📦<br><span style="font-size:6px;">${item.price}💰</span>`;
+        }
+        div.onclick = () => buyItem(index);
+        container.appendChild(div);
+    });
+}
+
+// Купить товар
+function buyItem(index) {
+    const item = shopItems[index];
+
+    // Проверка: хватает ли золота
+    if (currentGold < item.price) {
+        document.getElementById('shop-message').innerText = '❌ Недостаточно золота!';
+        setTimeout(() => document.getElementById('shop-message').innerText = '', 2000);
+        return;
+    }
+
+    // Проверка: не переполнен ли инвентарь (макс 20)
+    if (playerInventory.length >= 20) {
+        document.getElementById('shop-message').innerText = '❌ Инвентарь полон!';
+        setTimeout(() => document.getElementById('shop-message').innerText = '', 2000);
+        return;
+    }
+
+    if (item.type === 'item') {
+        // Добавляем обычный предмет (редкость 1)
+        playerInventory.push({ id: item.id, rarity: 1 });
+        document.getElementById('shop-message').innerText = `✅ Куплен ${item.name}!`;
+    } 
+    else if (item.type === 'chest') {
+        // Сундук: случайный предмет со случайной редкостью
+        const itemIds = Object.keys(itemsDatabase);
+        const randomId = itemIds[Math.floor(Math.random() * itemIds.length)];
+        
+        // Шансы редкости: 0:20%, 1:50%, 2:20%, 3:8%, 4:2%
+        const r = Math.random();
+        let rarity;
+        if (r < 0.2) rarity = 0;          // Сломанный
+        else if (r < 0.7) rarity = 1;      // Обычный
+        else if (r < 0.9) rarity = 2;      // Редкий
+        else if (r < 0.98) rarity = 3;     // Эпический
+        else rarity = 4;                    // Легендарный
+
+        playerInventory.push({ id: randomId, rarity: rarity });
+
+        // Даём немного опыта за открытие сундука
+        currentXp += 50;
+        updateXPdisplay();
+
+        const baseItem = itemsDatabase[randomId];
+        document.getElementById('shop-message').innerHTML = `📦 Из сундука выпало: ${baseItem.img} ${baseItem.name}<br>+50 XP!`;
+    }
+
+    // Списываем золото
+    currentGold -= item.price;
+    localStorage.setItem('rpg_gold', currentGold);
+    localStorage.setItem('rpg_inv_v2', JSON.stringify(playerInventory));
+
+    // Обновляем золото на экране
+    document.getElementById('gold').innerText = currentGold;
+
+    // Очищаем сообщение через 3 секунды
+    setTimeout(() => {
+        const msg = document.getElementById('shop-message');
+        if (msg) msg.innerText = '';
+    }, 3000);
+}
+        
     </script>
 </body>
 </html>

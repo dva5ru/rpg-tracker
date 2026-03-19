@@ -199,7 +199,9 @@
                     <button class="btn-action" id="btn-merge" style="flex: 1; padding: 10px; font-size: 5px;">СЛИТЬ (0/3)</button>
                 </div>
             </div>
-        
+        </div>
+    </div>
+
     <script>
         // Инициализация Telegram Web App
         const tg = window.Telegram.WebApp;
@@ -264,12 +266,9 @@
             { id: "shoes", rarity: 0 }  // Сломанный
         ];
 
-        // Надетые вещи (Словарь: ID слота -> Объект вещи)
+// Надетые вещи (Словарь: ID слота -> Объект вещи)
         let equippedItems = JSON.parse(localStorage.getItem('rpg_equipped_v2')) || {};
-        };
-
-        // Рюкзак игрока (сохраняется в памяти)
-        let playerInventory = JSON.parse(localStorage.getItem('rpg_inventory')) || ["sword_1", "shoes_1"];
+        
 // 1. СИСТЕМА СОХРАНЕНИЙ И УРОВНЕЙ
         let currentGold = parseInt(localStorage.getItem('rpg_gold')) || 0;
         let currentXp = parseInt(localStorage.getItem('rpg_xp')) || 0;

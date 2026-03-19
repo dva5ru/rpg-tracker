@@ -212,17 +212,60 @@
             { id: "m5", type: "monthly", title: "Прыжок (Замер высоты)", xp: 80, gold: 25, stat: "Ловкость" },
             { id: "m6", type: "monthly", title: "Челлендж (Без сахара)", xp: 100, gold: 30, stat: "Сила духа" }
         ];
+// Текущие ресурсы игрока
+        let currentGold = 450;
+        let currentXp = 250;
+        const maxXp = 1000;
 
-        // Простая функция выполнения (для визуала)
-        function done(btn) {
+        // Функция: Вывести квесты на экран
+        function renderQuests() {
+            const container = document.getElementById('quests-container');
+            container.innerHTML = ''; // Очищаем контейнер
+
+            questsDatabase.forEach(quest => {
+                // Создаем HTML для каждой задачи
+                const taskDiv = document.createElement('div');
+                taskDiv.className = 'task';
+                taskDiv.innerHTML = `
+                    <div class="task-info">
+                        <div class="task-title">${quest.title}</div>
+                        <div class="task-reward">+${quest.stat} | ${quest.gold}💰 | ${quest.xp} XP</div>
+                    </div>
+                    <button class="btn-action" onclick="completeQuest(this, ${quest.xp}, ${quest.gold})">СДЕЛАТЬ</button>
+                `;
+                container.appendChild(taskDiv);
+            });
+        }
+
+        // Функция: Выполнение квеста
+        function completeQuest(btn, xpReward, goldReward) {
+            // 1. Делаем кнопку серой
             btn.innerText = "✓";
             btn.style.background = "#333";
             btn.style.color = "#666";
             btn.disabled = true;
+
+            // 2. Прибавляем ресурсы
+            currentGold += goldReward;
+            currentXp += xpReward;
+
+            // 3. Обновляем цифры на экране
+            document.getElementById('gold').innerText = currentGold;
             
-            // Вызываем тактильный отклик телефона (вибрацию), если открыто в ТГ
-            tg.HapticFeedback.impactOccurred('light');
+            // 4. Двигаем полоску опыта
+            let xpPercent = (currentXp / maxXp) * 100;
+            if (xpPercent > 100) xpPercent = 100; // Пока ограничиваем до 100%
+            document.querySelector('.xp-bar').style.width = xpPercent + '%';
+
+            // 5. Легкая вибрация в Telegram
+            if (window.Telegram && window.Telegram.WebApp) {
+                window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
+            }
         }
+
+        // Запускаем отрисовку квестов сразу при загрузке игры
+        renderQuests();
+
     </script>
 </body>
 </html>

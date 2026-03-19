@@ -88,6 +88,18 @@
         .btn-menu { flex: 1; background: #111; color: var(--text-main); border: 1px solid var(--border-gray); padding: 10px 0; text-align: center; font-size: 7px; border-radius: 4px; }
         .btn-menu:active { background: var(--accent-yellow); color: #000; }
 
+        /* --- ВСПЛЫВАЮЩИЕ ОКНА --- */
+        .modal-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.85); justify-content: center; align-items: center; z-index: 1000;
+        }
+        .modal-content {
+            background: var(--panel-gray); border: 1px solid var(--border-gray); border-radius: 6px;
+            width: 90%; max-height: 80%; overflow-y: auto; padding: 15px; position: relative;
+        }
+        .close-btn { position: absolute; top: 10px; right: 10px; background: none; border: none; color: var(--text-main); font-size: 16px; cursor: pointer; }
+        .inventory-item { display: flex; justify-content: space-between; align-items: center; background: #111; padding: 10px; margin-bottom: 8px; border: 1px solid var(--border-gray); border-radius: 4px; }
+
         /* --- КВЕСТЫ (Гармошка / Details) --- */
         details { background: #111; border: 1px solid var(--border-gray); border-radius: 4px; margin-bottom: 8px; }
         summary { padding: 10px; font-size: 8px; color: var(--accent-yellow); cursor: pointer; outline: none; list-style: none; display: flex; justify-content: space-between;}
@@ -112,27 +124,28 @@
     </div>
 
     <div class="box">
-        <div class="equipment-grid">
+<div class="equipment-grid">
             <div class="col-slots">
-                <div class="slot">🧿<div class="slot-name">Амулет</div></div>
-                <div class="slot">🗡️<div class="slot-name">Правая рука</div></div>
-                <div class="slot">💍<div class="slot-name">Кольцо 1</div></div>
-                <div class="slot">📿<div class="slot-name">Браслет</div></div>
+                <div class="slot" id="slot-amulet"><div class="slot-name">Амулет</div></div>
+                <div class="slot" id="slot-right-hand"><div class="slot-name">Правая рука</div></div>
+                <div class="slot" id="slot-ring-1"><div class="slot-name">Кольцо 1</div></div>
+                <div class="slot" id="slot-bracelet"><div class="slot-name">Браслет</div></div>
             </div>
 
             <div class="col-slots" style="gap: 2px;">
-                <div class="slot" style="margin-bottom: 5px;">🪖<div class="slot-name">Голова</div></div>
-                <div class="character-sprite">🥷</div>
-                <div class="slot" style="margin-top: 5px;">👖<div class="slot-name">Штаны</div></div>
-                <div class="slot" style="margin-top: 8px;">👢<div class="slot-name">Обувь</div></div>
+                <div class="slot" id="slot-head" style="margin-bottom: 5px;"><div class="slot-name">Голова</div></div>
+                <div class="character-sprite" id="hero-sprite" style="font-size: 10px; display: flex; align-items: center; justify-content: center; border: 1px dashed #555; width: 60px; height: 60px;">ГЕРОЙ</div>
+                <div class="slot" id="slot-legs" style="margin-top: 5px;"><div class="slot-name">Штаны</div></div>
+                <div class="slot" id="slot-shoes" style="margin-top: 8px;"><div class="slot-name">Обувь</div></div>
             </div>
 
             <div class="col-slots">
-                <div class="slot">🧥<div class="slot-name">Накидка</div></div>
-                <div class="slot">🛡️<div class="slot-name">Броня</div></div>
-                <div class="slot">🏹<div class="slot-name">Левая рука</div></div>
-                <div class="slot">💍<div class="slot-name">Кольцо 2</div></div>
+                <div class="slot" id="slot-cape"><div class="slot-name">Накидка</div></div>
+                <div class="slot" id="slot-armor"><div class="slot-name">Броня</div></div>
+                <div class="slot" id="slot-left-hand"><div class="slot-name">Левая рука</div></div>
+                <div class="slot" id="slot-ring-2"><div class="slot-name">Кольцо 2</div></div>
             </div>
+        </div>
         </div>
 
         <div style="font-size: 7px;">HP: 100/100</div>
@@ -154,7 +167,7 @@
     </div>
 
     <div class="menu-buttons">
-        <div class="btn-menu">ИНВЕНТАРЬ</div>
+        <div class="btn-menu" onclick="openInventory()">ИНВЕНТАРЬ</div>
         <div class="btn-menu">МЕТРИКИ</div>
         <div class="btn-menu">ТАЛАНТЫ</div>
     </div>
@@ -165,6 +178,14 @@
         <h2>КВЕСТЫ</h2>
         <div id="quests-container"></div>
     </div>
+        
+      <div id="modal-inventory" class="modal-overlay">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeInventory()">✖</button>
+            <h2 style="margin-top: 10px;">РЮКЗАК</h2>
+            <div id="inventory-list"></div>
+        </div>
+    </div>  
         
     <script>
         // Инициализация Telegram Web App
@@ -211,10 +232,10 @@
             { id: "m5", type: "monthly", title: "Прыжок (Замер высоты)", xp: 80, gold: 25, stat: "Ловкость" },
             { id: "m6", type: "monthly", title: "Челлендж (Без сахара)", xp: 100, gold: 30, stat: "Сила духа" }
         ];
-        // База всех предметов в игре
+// База всех предметов в игре
         const itemsDatabase = {
-            "sword_1": { name: "Ржавый меч", type: "Правая рука", stat: "Сила", bonus: 1, icon: "🗡️", price: 10 },
-            "shoes_1": { name: "Старые кроссовки", type: "Обувь", stat: "Выносливость", bonus: 2, icon: "👢", price: 15 }
+            "sword_1": { name: "Ржавый меч", type: "Правая рука", stat: "Сила", bonus: 1, img: "sword_1.png", price: 10 },
+            "shoes_1": { name: "Старые кроссовки", type: "Обувь", stat: "Выносливость", bonus: 2, img: "shoes_1.png", price: 15 }
         };
 
         // Рюкзак игрока (сохраняется в памяти)
@@ -327,7 +348,39 @@
 
         // Запускаем отрисовку
         renderQuests();
+// 5. ЛОГИКА ИНВЕНТАРЯ
+        function openInventory() {
+            const modal = document.getElementById('modal-inventory');
+            const list = document.getElementById('inventory-list');
+            list.innerHTML = ''; // Очищаем старый список
 
+            if (playerInventory.length === 0) {
+                list.innerHTML = '<div style="text-align: center; color: #777; font-size: 8px;">Рюкзак пуст</div>';
+            } else {
+                // Перебираем вещи в рюкзаке
+                playerInventory.forEach(itemId => {
+                    const item = itemsDatabase[itemId];
+                    if (item) {
+                        const itemDiv = document.createElement('div');
+                        itemDiv.className = 'inventory-item';
+                        itemDiv.innerHTML = `
+                            <div>
+                                <div style="font-size: 8px; color: var(--accent-yellow);">${item.name}</div>
+                                <div style="font-size: 6px; color: #777; margin-top: 4px;">Слот: ${item.type} | +${item.bonus} ${item.stat}</div>
+                            </div>
+                            <button class="btn-action" style="font-size: 6px; padding: 5px;" onclick="alert('Функция надевания будет в следующем шаге')">НАДЕТЬ</button>
+                        `;
+                        list.appendChild(itemDiv);
+                    }
+                });
+            }
+            modal.style.display = 'flex'; // Показываем окно
+        }
+
+        function closeInventory() {
+            document.getElementById('modal-inventory').style.display = 'none'; // Скрываем окно
+        }
+        
     </script>
 </body>
 </html>

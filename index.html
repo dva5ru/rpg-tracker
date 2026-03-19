@@ -20,7 +20,6 @@
             --hp-red: #8b0000;
         }
 
-        /* Адаптация под телефон: убираем скролл, запрещаем выделение текста */
         * { box-sizing: border-box; user-select: none; }
         
         body {
@@ -44,13 +43,11 @@
 
         h2 { color: var(--accent-yellow); font-size: 10px; text-align: center; margin-top: 0; margin-bottom: 15px; border-bottom: 1px dashed #333; padding-bottom: 5px;}
 
-        /* --- ТОП ПАНЕЛЬ --- */
         .top-bar { display: flex; justify-content: space-between; margin-bottom: 10px; color: var(--accent-yellow); font-size: 9px; }
 
-        /* --- СЕТКА ЭКИПИРОВКИ И ПЕРСОНАЖ --- */
         .equipment-grid {
             display: grid;
-            grid-template-columns: 40px 1fr 40px; /* Левая колонка, центр (герой), правая колонка */
+            grid-template-columns: 40px 1fr 40px;
             gap: 10px;
             align-items: center;
             justify-items: center;
@@ -70,24 +67,20 @@
         }
         .slot-name { position: absolute; bottom: -8px; font-size: 5px; color: #777; width: 100%; text-align: center; }
 
-.character-sprite { font-size: 70px; }
+        .character-sprite { font-size: 70px; }
 
-        /* --- ПОЛОСКИ HP и XP --- */
         .bar-container { background: #000; border: 1px solid var(--border-gray); height: 10px; margin: 3px 0 10px 0; border-radius: 3px; overflow: hidden;}
         .hp-bar { background: var(--hp-red); height: 100%; width: 100%; }
         .xp-bar { background: var(--accent-green); height: 100%; width: 25%; }
 
-        /* --- СТАТЫ (8 штук) --- */
         .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
         .stat-item { background: #111; border: 1px solid var(--border-gray); padding: 6px; font-size: 7px; display: flex; justify-content: space-between; border-radius: 3px;}
         .stat-value { color: var(--accent-yellow); }
 
-        /* --- КНОПКИ МЕНЮ --- */
         .menu-buttons { display: flex; gap: 5px; margin-bottom: 15px; }
         .btn-menu { flex: 1; background: #111; color: var(--text-main); border: 1px solid var(--border-gray); padding: 10px 0; text-align: center; font-size: 7px; border-radius: 4px; }
         .btn-menu:active { background: var(--accent-yellow); color: #000; }
 
-        /* --- ВСПЛЫВАЮЩИЕ ОКНА --- */
         .modal-overlay {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.85); justify-content: center; align-items: center; z-index: 1000;
@@ -102,7 +95,6 @@
         .inv-slot:active { border-color: var(--accent-yellow); background: #222; }
         .item-details-panel { background: #0a0a0a; border: 1px solid var(--accent-yellow); border-radius: 4px; padding: 15px; margin-top: 15px; position: relative; text-align: center; }
 
-        /* --- КВЕСТЫ (Гармошка / Details) --- */
         details { background: #111; border: 1px solid var(--border-gray); border-radius: 4px; margin-bottom: 8px; }
         summary { padding: 10px; font-size: 8px; color: var(--accent-yellow); cursor: pointer; outline: none; list-style: none; display: flex; justify-content: space-between;}
         summary::after { content: '▼'; color: #555;}
@@ -115,7 +107,6 @@
         .task-title { font-size: 7px; margin-bottom: 4px; line-height: 1.3;}
         .task-reward { color: var(--accent-green); font-size: 6px; }
         .btn-action { background: var(--accent-green); color: white; border: none; padding: 6px 8px; font-size: 6px; border-radius: 3px; font-family: 'Press Start 2P', cursive; }
-
     </style>
 </head>
 <body>
@@ -126,7 +117,7 @@
     </div>
 
     <div class="box">
-<div class="equipment-grid">
+        <div class="equipment-grid">
             <div class="col-slots">
                 <div class="slot" id="slot-amulet"><div class="slot-name">Амулет</div></div>
                 <div class="slot" id="slot-right-hand"><div class="slot-name">Правая рука</div></div>
@@ -148,15 +139,16 @@
                 <div class="slot" id="slot-ring-2"><div class="slot-name">Кольцо 2</div></div>
             </div>
         </div>
-        </div>
+    </div>
 
-        <div style="font-size: 7px;">HP: 100/100</div>
-        <div class="bar-container"><div class="hp-bar"></div></div>
+    <div style="font-size: 7px;">HP: 100/100</div>
+    <div class="bar-container"><div class="hp-bar"></div></div>
 
-        <div style="font-size: 7px;">XP: <span id="xp-current">250</span>/<span id="xp-max">1000</span></div>
-        <div class="bar-container"><div class="xp-bar"></div></div>
+    <div style="font-size: 7px;">XP: <span id="xp-current">250</span>/<span id="xp-max">1000</span></div>
+    <div class="bar-container"><div class="xp-bar"></div></div>
 
-<div class="stats-grid">
+    <div class="box">
+        <div class="stats-grid">
             <div class="stat-item">Сила <span class="stat-value" id="stat-Сила">10</span></div>
             <div class="stat-item">Ловкость <span class="stat-value" id="stat-Ловкость">10</span></div>
             <div class="stat-item">Выносливость <span class="stat-value" id="stat-Выносливость">10</span></div>
@@ -171,30 +163,26 @@
     <div class="menu-buttons">
         <div class="btn-menu" onclick="openInventory()">ИНВЕНТАРЬ</div>
         <div class="btn-menu" onclick="openShop()">МАГАЗИН</div>
+        <div class="btn-menu" onclick="openTalents()">ТАЛАНТЫ</div>
         <div class="btn-menu">МЕТРИКИ</div>
-        <div class="btn-menu">ТАЛАНТЫ</div>
     </div>
 
     <div class="box" style="padding: 10px 5px;">
-        
-        <div class="box" style="padding: 10px 5px;">
         <h2>КВЕСТЫ</h2>
         <div id="quests-container"></div>
     </div>
-                <!-- Модальное окно инвентаря -->
-<div id="modal-inventory" class="modal-overlay">
+
+    <!-- Модальное окно инвентаря -->
+    <div id="modal-inventory" class="modal-overlay">
         <div class="modal-content">
             <button class="close-btn" onclick="closeInventory()">✖</button>
             <h2 style="margin-top: 10px;">ИНВЕНТАРЬ</h2>
-            
             <div id="inventory-grid" class="inventory-grid"></div>
-            
-                <div id="item-details" class="item-details-panel" style="display: none;">
+            <div id="item-details" class="item-details-panel" style="display: none;">
                 <button class="close-btn" style="top: 5px; right: 5px; font-size: 10px;" onclick="hideItemDetails()">✖</button>
                 <div id="detail-image" style="font-size: 40px; margin: 10px 0;"></div>
                 <div id="detail-name" style="font-size: 10px; margin-bottom: 5px;"></div>
                 <div id="detail-stats" style="color: #aaa; font-size: 7px; margin-bottom: 15px;"></div>
-                
                 <div style="display: flex; gap: 5px;">
                     <button class="btn-action" id="btn-equip" style="flex: 1; padding: 10px;">НАДЕТЬ</button>
                     <button class="btn-action" id="btn-merge" style="flex: 1; padding: 10px; font-size: 5px;">СЛИТЬ (0/3)</button>
@@ -203,25 +191,33 @@
         </div>
     </div>
 
-        <!-- Модальное окно магазина -->
-<div id="modal-shop" class="modal-overlay">
-    <div class="modal-content">
-        <button class="close-btn" onclick="closeShop()">✖</button>
-        <h2>МАГАЗИН</h2>
-        <div id="shop-items" class="inventory-grid" style="grid-template-columns: repeat(2, 1fr);">
-            <!-- Товары будут заполняться скриптом -->
+    <!-- Модальное окно магазина -->
+    <div id="modal-shop" class="modal-overlay">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeShop()">✖</button>
+            <h2>МАГАЗИН</h2>
+            <div id="shop-items" class="inventory-grid" style="grid-template-columns: repeat(2, 1fr);"></div>
+            <div id="shop-message" style="margin-top: 10px; font-size: 8px; color: var(--accent-yellow); text-align: center;"></div>
         </div>
-        <div id="shop-message" style="margin-top: 10px; font-size: 8px; color: var(--accent-yellow); text-align: center;"></div>
     </div>
-</div>
+
+    <!-- Модальное окно талантов -->
+    <div id="modal-talents" class="modal-overlay">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeTalents()">✖</button>
+            <h2>ТАЛАНТЫ</h2>
+            <div style="font-size: 9px; margin-bottom: 15px; text-align: center;">Очки талантов: <span id="talent-points-display">0</span></div>
+            <div id="talents-container" style="display: flex; flex-direction: column; gap: 10px;"></div>
+        </div>
+    </div>
 
     <script>
         // Инициализация Telegram Web App
         const tg = window.Telegram.WebApp;
-        tg.ready();   // Сообщаем телеграму, что приложение готово
-        tg.expand();  // Растягиваем на весь экран
+        tg.ready();
+        tg.expand();
 
-        // База данных всех квестов
+        // База данных всех квестов (можно расширить позже)
         const questsDatabase = [
             // Ежедневные
             { id: "d1", type: "daily", title: "Шаги (10к)", xp: 10, gold: 2, stat: "Выносливость" },
@@ -239,7 +235,6 @@
             { id: "d13", type: "daily", title: "Планка (2 мин)", xp: 10, gold: 2, stat: "Сила духа" },
             { id: "d14", type: "daily", title: "Сон (8ч)", xp: 15, gold: 3, stat: "Концентрация" },
             { id: "d15", type: "daily", title: "Растяжка (5 мин)", xp: 10, gold: 2, stat: "Гибкость" },
-
             // Еженедельные
             { id: "w1", type: "weekly", title: "Взвешивание", xp: 20, gold: 5, stat: "Концентрация" },
             { id: "w2", type: "weekly", title: "Волейбол (Тренировка 1)", xp: 50, gold: 15, stat: "Ловкость" },
@@ -251,7 +246,6 @@
             { id: "w8", type: "weekly", title: "Скакалка (15 мин)", xp: 30, gold: 10, stat: "Ловкость" },
             { id: "w9", type: "weekly", title: "Пробежка (Лёгкая)", xp: 40, gold: 15, stat: "Выносливость" },
             { id: "w10", type: "weekly", title: "Массаж (МФР валик)", xp: 30, gold: 10, stat: "Гибкость" },
-
             // Ежемесячные
             { id: "m1", type: "monthly", title: "Пробежка (5 км)", xp: 100, gold: 30, stat: "Выносливость" },
             { id: "m2", type: "monthly", title: "Турнир (Волейбол)", xp: 150, gold: 50, stat: "Ловкость" },
@@ -260,74 +254,226 @@
             { id: "m5", type: "monthly", title: "Прыжок (Замер высоты)", xp: 80, gold: 25, stat: "Ловкость" },
             { id: "m6", type: "monthly", title: "Челлендж (Без сахара)", xp: 100, gold: 30, stat: "Сила духа" }
         ];
-// --- СИСТЕМА РЕДКОСТИ ---
-        const rarities = ["Сломанный", "Обычный", "Редкий", "Эпический", "Легендарный"];
-        const rarityColors = ["#777777", "#ffffff", "#0070dd", "#a335ee", "#ff8000"]; // Цвета как в RPG
-        const statMultipliers = [1, 2, 4, 8, 15]; // Во сколько раз вещь сильнее
 
-        // База предметов (добавлен slotId — чтобы скрипт знал, куда надевать)
+        // Редкости
+        const rarities = ["Сломанный", "Обычный", "Редкий", "Эпический", "Легендарный"];
+        const rarityColors = ["#777777", "#ffffff", "#0070dd", "#a335ee", "#ff8000"];
+        const statMultipliers = [1, 2, 4, 8, 15];
+
+        // База предметов
         const itemsDatabase = {
-            "sword": { name: "Меч тренировок", type: "Правая рука", slotId: "slot-right-hand", stat: "Сила", baseBonus: 1, img: "sword.png" },
-            "shoes": { name: "Кроссовки", type: "Обувь", slotId: "slot-shoes", stat: "Выносливость", baseBonus: 2, img: "shoes.png" }
+            "sword": { name: "Меч тренировок", type: "Правая рука", slotId: "slot-right-hand", stat: "Сила", baseBonus: 1, img: "⚔️" },
+            "shoes": { name: "Кроссовки", type: "Обувь", slotId: "slot-shoes", stat: "Выносливость", baseBonus: 2, img: "👟" }
         };
 
-        // Рюкзак v2 (теперь хранит ОБЪЕКТЫ: что за вещь и какой у нее уровень редкости)
+        // Рюкзак
         let playerInventory = JSON.parse(localStorage.getItem('rpg_inv_v2')) || [
-            { id: "sword", rarity: 1 }, // Обычный
-            { id: "sword", rarity: 1 }, // Обычный
-            { id: "sword", rarity: 1 }, // Обычный (Готово для слияния!)
-            { id: "shoes", rarity: 0 }  // Сломанный
+            { id: "sword", rarity: 1 },
+            { id: "sword", rarity: 1 },
+            { id: "sword", rarity: 1 },
+            { id: "shoes", rarity: 0 }
         ];
 
-// Надетые вещи (Словарь: ID слота -> Объект вещи)
+        // Надетые вещи
         let equippedItems = JSON.parse(localStorage.getItem('rpg_equipped_v2')) || {};
-        
-// 1. СИСТЕМА СОХРАНЕНИЙ И УРОВНЕЙ
-        let currentGold = parseInt(localStorage.getItem('rpg_gold')) || 0;
-        let currentXp = parseInt(localStorage.getItem('rpg_xp')) || 0;
-        let currentLevel = parseInt(localStorage.getItem('rpg_level')) || 1;
-        let maxXp = 1000; // Опыт до следующего уровня
 
-        // Базовые статы героя (начинаем с 10)
+        // Ресурсы
+        let currentGold = parseInt(localStorage.getItem('rpg_gold')) || 450;
+        let currentXp = parseInt(localStorage.getItem('rpg_xp')) || 250;
+        let currentLevel = parseInt(localStorage.getItem('rpg_level')) || 12;
+        let maxXp = 1000;
+
+        // Очки талантов
+        let talentPoints = parseInt(localStorage.getItem('rpg_talent_points')) || 0;
+
+        // Базовые статы (будут пересчитаны с учётом экипировки и талантов)
         let playerStats = JSON.parse(localStorage.getItem('rpg_stats')) || {
             "Сила": 10, "Ловкость": 10, "Выносливость": 10, "Интеллект": 10,
             "Сила духа": 10, "Гибкость": 10, "Концентрация": 10, "Креативность": 10
         };
 
-        // 2. ДАТА И СБРОС КВЕСТОВ
+        // Выполненные квесты и дата
         let completedQuests = JSON.parse(localStorage.getItem('rpg_completed')) || [];
         const today = new Date().toISOString().split('T')[0];
         let lastLoginDate = localStorage.getItem('rpg_last_login');
-
         if (lastLoginDate !== today) {
-            completedQuests = []; 
+            completedQuests = [];
             localStorage.setItem('rpg_last_login', today);
             localStorage.setItem('rpg_completed', JSON.stringify(completedQuests));
         }
 
-        // Обновляем интерфейс при старте
+        // Обновление XP на экране
+        function updateXPdisplay() {
+            document.getElementById('xp-current').innerText = currentXp;
+            document.getElementById('xp-max').innerText = maxXp;
+            document.querySelector('.xp-bar').style.width = Math.min((currentXp / maxXp) * 100, 100) + '%';
+        }
+        updateXPdisplay();
         document.getElementById('gold').innerText = currentGold;
         document.getElementById('level').innerText = currentLevel;
-        document.querySelector('.xp-bar').style.width = Math.min((currentXp / maxXp) * 100, 100) + '%';
-        
-        // Загружаем сохраненные статы на экран
-        for (let stat in playerStats) {
-            let statElement = document.getElementById('stat-' + stat);
-            if (statElement) statElement.innerText = playerStats[stat];
+
+        // Функция пересчёта статов
+        function recalcStats() {
+            let newStats = {
+                "Сила": 10, "Ловкость": 10, "Выносливость": 10, "Интеллект": 10,
+                "Сила духа": 10, "Гибкость": 10, "Концентрация": 10, "Креативность": 10
+            };
+            // Бонусы от экипировки
+            for (let slotId in equippedItems) {
+                let item = equippedItems[slotId];
+                let baseItem = itemsDatabase[item.id];
+                if (baseItem) {
+                    let bonus = baseItem.baseBonus * statMultipliers[item.rarity];
+                    newStats[baseItem.stat] += bonus;
+                }
+            }
+            // Бонусы от талантов
+            talentsData.forEach(talent => {
+                if (talent.effectType === 'stat') {
+                    const level = getTalentLevel(talent.id);
+                    newStats[talent.stat] += level * talent.baseEffect;
+                }
+            });
+            playerStats = newStats;
+            localStorage.setItem('rpg_stats', JSON.stringify(playerStats));
+            for (let stat in playerStats) {
+                let el = document.getElementById('stat-' + stat);
+                if (el) el.innerText = playerStats[stat];
+            }
         }
 
-        // 3. Функция: Вывести квесты
+        // Таланты
+        const talentsData = [
+            { id: 'str', name: 'Сила', description: 'Увеличивает силу на +1 за уровень', maxLevel: 5, baseEffect: 1, effectType: 'stat', stat: 'Сила', cost: 1, dependencies: [] },
+            { id: 'dex', name: 'Ловкость', description: 'Увеличивает ловкость на +1 за уровень', maxLevel: 5, baseEffect: 1, effectType: 'stat', stat: 'Ловкость', cost: 1, dependencies: [] },
+            { id: 'end', name: 'Выносливость', description: 'Увеличивает выносливость на +1 за уровень', maxLevel: 5, baseEffect: 1, effectType: 'stat', stat: 'Выносливость', cost: 1, dependencies: [] },
+            { id: 'int', name: 'Интеллект', description: 'Увеличивает интеллект на +1 за уровень', maxLevel: 5, baseEffect: 1, effectType: 'stat', stat: 'Интеллект', cost: 1, dependencies: [] },
+            { id: 'spirit', name: 'Сила духа', description: 'Увеличивает силу духа на +1 за уровень', maxLevel: 5, baseEffect: 1, effectType: 'stat', stat: 'Сила духа', cost: 1, dependencies: [] },
+            { id: 'flex', name: 'Гибкость', description: 'Увеличивает гибкость на +1 за уровень', maxLevel: 5, baseEffect: 1, effectType: 'stat', stat: 'Гибкость', cost: 1, dependencies: [] },
+            { id: 'conc', name: 'Концентрация', description: 'Увеличивает концентрацию на +1 за уровень', maxLevel: 5, baseEffect: 1, effectType: 'stat', stat: 'Концентрация', cost: 1, dependencies: [] },
+            { id: 'crea', name: 'Креативность', description: 'Увеличивает креативность на +1 за уровень', maxLevel: 5, baseEffect: 1, effectType: 'stat', stat: 'Креативность', cost: 1, dependencies: [] },
+            { id: 'xp_boost', name: 'Опыт', description: 'Увеличивает получаемый опыт на 5% за уровень', maxLevel: 5, baseEffect: 5, effectType: 'xp_mult', cost: 2, dependencies: [] },
+            { id: 'gold_boost', name: 'Золото', description: 'Увеличивает получаемое золото на 5% за уровень', maxLevel: 5, baseEffect: 5, effectType: 'gold_mult', cost: 2, dependencies: [] },
+            { id: 'luck', name: 'Удача', description: 'Увеличивает шанс выпадения редких предметов на 2% за уровень', maxLevel: 5, baseEffect: 2, effectType: 'luck', cost: 3, dependencies: ['xp_boost', 'gold_boost'] }
+        ];
+
+        let talentsState = JSON.parse(localStorage.getItem('rpg_talents_state')) || {};
+
+        function getTalentLevel(talentId) {
+            return talentsState[talentId] || 0;
+        }
+
+        function canUpgradeTalent(talent) {
+            if (talentPoints < talent.cost) return false;
+            const currentLevel = getTalentLevel(talent.id);
+            if (currentLevel >= talent.maxLevel) return false;
+            for (let depId of talent.dependencies) {
+                if (getTalentLevel(depId) < 1) return false;
+            }
+            return true;
+        }
+
+        function openTalents() {
+            document.getElementById('modal-talents').style.display = 'flex';
+            renderTalents();
+            document.getElementById('talent-points-display').innerText = talentPoints;
+        }
+
+        function closeTalents() {
+            document.getElementById('modal-talents').style.display = 'none';
+        }
+
+        function renderTalents() {
+            const container = document.getElementById('talents-container');
+            container.innerHTML = '';
+            talentsData.forEach(talent => {
+                const currentLevel = getTalentLevel(talent.id);
+                const canUp = canUpgradeTalent(talent);
+                const talentDiv = document.createElement('div');
+                talentDiv.style.background = '#111';
+                talentDiv.style.border = '1px solid var(--border-gray)';
+                talentDiv.style.borderRadius = '4px';
+                talentDiv.style.padding = '8px';
+                const header = document.createElement('div');
+                header.style.display = 'flex';
+                header.style.justifyContent = 'space-between';
+                header.style.marginBottom = '4px';
+                header.innerHTML = `<span style="color: var(--accent-yellow);">${talent.name}</span> <span>${currentLevel}/${talent.maxLevel}</span>`;
+                talentDiv.appendChild(header);
+                const desc = document.createElement('div');
+                desc.style.fontSize = '6px';
+                desc.style.marginBottom = '6px';
+                desc.innerText = talent.description;
+                talentDiv.appendChild(desc);
+                const bonus = document.createElement('div');
+                bonus.style.fontSize = '5px';
+                bonus.style.color = '#aaa';
+                bonus.style.marginBottom = '8px';
+                if (talent.effectType === 'stat') {
+                    bonus.innerText = `Текущий бонус: +${currentLevel * talent.baseEffect} ${talent.stat}`;
+                } else if (talent.effectType === 'xp_mult') {
+                    bonus.innerText = `Текущий бонус: +${currentLevel * talent.baseEffect}% к опыту`;
+                } else if (talent.effectType === 'gold_mult') {
+                    bonus.innerText = `Текущий бонус: +${currentLevel * talent.baseEffect}% к золоту`;
+                } else if (talent.effectType === 'luck') {
+                    bonus.innerText = `Текущий бонус: +${currentLevel * talent.baseEffect}% к удаче`;
+                }
+                talentDiv.appendChild(bonus);
+                const btn = document.createElement('button');
+                btn.className = 'btn-action';
+                btn.style.padding = '6px';
+                btn.style.width = '100%';
+                btn.style.fontSize = '6px';
+                btn.innerText = `Улучшить (${talent.cost} очков)`;
+                btn.disabled = !canUp;
+                btn.style.background = canUp ? 'var(--accent-green)' : '#333';
+                btn.onclick = () => upgradeTalent(talent.id);
+                talentDiv.appendChild(btn);
+                container.appendChild(talentDiv);
+            });
+        }
+
+        function upgradeTalent(talentId) {
+            const talent = talentsData.find(t => t.id === talentId);
+            if (!talent || !canUpgradeTalent(talent)) return;
+            talentPoints -= talent.cost;
+            if (!talentsState[talentId]) talentsState[talentId] = 0;
+            talentsState[talentId] += 1;
+            localStorage.setItem('rpg_talent_points', talentPoints);
+            localStorage.setItem('rpg_talents_state', JSON.stringify(talentsState));
+            recalcStats();
+            document.getElementById('talent-points-display').innerText = talentPoints;
+            renderTalents();
+        }
+
+        function getXpMultiplier() {
+            let mult = 1.0;
+            const xpTalent = talentsData.find(t => t.id === 'xp_boost');
+            if (xpTalent) mult += (getTalentLevel('xp_boost') * xpTalent.baseEffect) / 100;
+            return mult;
+        }
+
+        function getGoldMultiplier() {
+            let mult = 1.0;
+            const goldTalent = talentsData.find(t => t.id === 'gold_boost');
+            if (goldTalent) mult += (getTalentLevel('gold_boost') * goldTalent.baseEffect) / 100;
+            return mult;
+        }
+
+        function getLuckBonus() {
+            const luckTalent = talentsData.find(t => t.id === 'luck');
+            if (luckTalent) return getTalentLevel('luck') * luckTalent.baseEffect;
+            return 0;
+        }
+
+        // Квесты
         function renderQuests() {
             const container = document.getElementById('quests-container');
-            container.innerHTML = ''; 
-
+            container.innerHTML = '';
             questsDatabase.forEach(quest => {
-                // Если квест выполнен — ПРОПУСКАЕМ ЕГО (он исчезает из списка)
-                if (completedQuests.includes(quest.id)) return; 
-                
+                if (completedQuests.includes(quest.id)) return;
                 const taskDiv = document.createElement('div');
                 taskDiv.className = 'task';
-                
                 taskDiv.innerHTML = `
                     <div class="task-info">
                         <div class="task-title">${quest.title}</div>
@@ -339,75 +485,53 @@
             });
         }
 
-        // 4. Функция: Выполнение квеста
         function completeQuest(questId, xpReward, goldReward, statName) {
-            // Прибавляем ресурсы
-            currentGold += goldReward;
-            currentXp += xpReward;
-            
-            // Качаем конкретный стат (+1)
+            currentGold += Math.floor(goldReward * getGoldMultiplier());
+            currentXp += Math.floor(xpReward * getXpMultiplier());
             if (playerStats[statName] !== undefined) {
                 playerStats[statName] += 1;
             }
-
-            // Механика повышения уровня (когда XP больше 1000)
-            if (currentXp >= maxXp) {
+            while (currentXp >= maxXp) {
                 currentLevel++;
-                currentXp -= maxXp; // Остаток опыта переходит на новый уровень
+                currentXp -= maxXp;
+                talentPoints++;
                 localStorage.setItem('rpg_level', currentLevel);
+                localStorage.setItem('rpg_talent_points', talentPoints);
                 document.getElementById('level').innerText = currentLevel;
-                
-                // Уведомление о новом уровне
-                if (window.Telegram && window.Telegram.WebApp) {
-                    window.Telegram.WebApp.showAlert(`УРОВЕНЬ ПОВЫШЕН! Теперь ты ${currentLevel} уровня.`);
-                } else {
-                    alert(`УРОВЕНЬ ПОВЫШЕН! Теперь ты ${currentLevel} уровня.`);
-                }
+                tg.showPopup({ title: 'Уровень повышен!', message: `Теперь ты ${currentLevel} уровня.`, buttons: [{ type: 'ok' }] });
             }
-
-            // Сохраняем всё в память
             completedQuests.push(questId);
             localStorage.setItem('rpg_completed', JSON.stringify(completedQuests));
             localStorage.setItem('rpg_gold', currentGold);
             localStorage.setItem('rpg_xp', currentXp);
             localStorage.setItem('rpg_stats', JSON.stringify(playerStats));
-
-            // Обновляем полоску опыта, золото и цифру стата на экране
             document.getElementById('gold').innerText = currentGold;
-            document.querySelector('.xp-bar').style.width = Math.min((currentXp / maxXp) * 100, 100) + '%';
+            updateXPdisplay();
             if (document.getElementById('stat-' + statName)) {
                 document.getElementById('stat-' + statName).innerText = playerStats[statName];
             }
-
-            // Вибрация
             if (window.Telegram && window.Telegram.WebApp) {
                 window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
             }
-
-            // Перерисовываем список квестов (чтобы нажатый квест мгновенно исчез)
             renderQuests();
         }
 
-        // Запускаем отрисовку
-        renderQuests();
-// 5. ЛОГИКА ИНВЕНТАРЯ, ЭКИПИРОВКИ И СЛИЯНИЯ
+        // Инвентарь и экипировка
         function openInventory() {
             const modal = document.getElementById('modal-inventory');
             const grid = document.getElementById('inventory-grid');
-            grid.innerHTML = ''; 
-            hideItemDetails(); 
-
+            grid.innerHTML = '';
+            hideItemDetails();
             for (let i = 0; i < 20; i++) {
                 const slotDiv = document.createElement('div');
                 slotDiv.className = 'inv-slot';
-                
                 if (i < playerInventory.length) {
                     const itemData = playerInventory[i];
                     const baseItem = itemsDatabase[itemData.id];
                     if (baseItem) {
                         slotDiv.style.borderColor = rarityColors[itemData.rarity];
-                        slotDiv.innerHTML = `<span style="font-size: 5px; color: ${rarityColors[itemData.rarity]};">${baseItem.img}</span>`; 
-                        slotDiv.onclick = () => showItemDetails(i); // Передаем индекс ячейки
+                        slotDiv.innerHTML = `<span style="font-size: 5px; color: ${rarityColors[itemData.rarity]};">${baseItem.img}</span>`;
+                        slotDiv.onclick = () => showItemDetails(i);
                     }
                 }
                 grid.appendChild(slotDiv);
@@ -415,10 +539,13 @@
             modal.style.display = 'flex';
         }
 
-        function closeInventory() { document.getElementById('modal-inventory').style.display = 'none'; }
-        function hideItemDetails() { 
-            document.getElementById('item-details').style.display = 'none'; 
-            document.getElementById('inventory-grid').style.display = 'grid'; // Возвращаем сетку рюкзака
+        function closeInventory() {
+            document.getElementById('modal-inventory').style.display = 'none';
+        }
+
+        function hideItemDetails() {
+            document.getElementById('item-details').style.display = 'none';
+            document.getElementById('inventory-grid').style.display = 'grid';
         }
 
         function showItemDetails(index) {
@@ -426,22 +553,18 @@
             const baseItem = itemsDatabase[itemData.id];
             const totalBonus = baseItem.baseBonus * statMultipliers[itemData.rarity];
             const rColor = rarityColors[itemData.rarity];
-
             document.getElementById('detail-image').innerHTML = `<span style="font-size: 10px; color: ${rColor};">${baseItem.img}</span>`;
             document.getElementById('detail-name').innerHTML = `<span style="color: ${rColor};">${rarities[itemData.rarity]} ${baseItem.name}</span>`;
             document.getElementById('detail-stats').innerText = `Слот: ${baseItem.type} | +${totalBonus} ${baseItem.stat}`;
-            
             const btnEquip = document.getElementById('btn-equip');
-            btnEquip.innerText = "НАДЕТЬ"; // Возвращаем текст
+            btnEquip.innerText = "НАДЕТЬ";
             btnEquip.onclick = () => equipItem(index);
-
             const btnMerge = document.getElementById('btn-merge');
             let count = 0;
             for (let i = 0; i < playerInventory.length; i++) {
                 if (playerInventory[i].id === itemData.id && playerInventory[i].rarity === itemData.rarity) count++;
             }
-
-            if (itemData.rarity < 4) { 
+            if (itemData.rarity < 4) {
                 btnMerge.style.display = 'block';
                 btnMerge.innerText = `СЛИТЬ (${count}/3)`;
                 btnMerge.disabled = count < 3;
@@ -450,76 +573,59 @@
             } else {
                 btnMerge.style.display = 'none';
             }
-
             document.getElementById('item-details').style.display = 'block';
         }
 
         function equipItem(invIndex) {
             const itemData = playerInventory[invIndex];
             const baseItem = itemsDatabase[itemData.id];
-            
-            // Если в этом слоте на герое уже есть вещь - снимаем её в инвентарь
             if (equippedItems[baseItem.slotId]) {
                 playerInventory.push(equippedItems[baseItem.slotId]);
             }
-            
-            equippedItems[baseItem.slotId] = itemData; // Надеваем
-            playerInventory.splice(invIndex, 1); // Удаляем из рюкзака
-            
+            equippedItems[baseItem.slotId] = itemData;
+            playerInventory.splice(invIndex, 1);
             localStorage.setItem('rpg_inv_v2', JSON.stringify(playerInventory));
             localStorage.setItem('rpg_equipped_v2', JSON.stringify(equippedItems));
-            
+            recalcStats();
             hideItemDetails();
-            openInventory(); 
-            renderEquipment(); 
+            openInventory();
+            renderEquipment();
         }
 
         function mergeItem(invIndex) {
             const itemData = playerInventory[invIndex];
             let sameItemsIndexes = [];
-            
-            // Ищем 3 одинаковые вещи
             for (let i = 0; i < playerInventory.length; i++) {
                 if (playerInventory[i].id === itemData.id && playerInventory[i].rarity === itemData.rarity) {
                     sameItemsIndexes.push(i);
                 }
             }
-
             if (sameItemsIndexes.length >= 3) {
-                // Удаляем 3 вещи (с конца, чтобы индексы не сместились)
                 let toRemove = sameItemsIndexes.slice(0, 3).sort((a,b) => b - a);
                 for(let idx of toRemove) playerInventory.splice(idx, 1);
-                
-                // Добавляем 1 вещь новой редкости (+1)
                 playerInventory.push({ id: itemData.id, rarity: itemData.rarity + 1 });
-                
                 localStorage.setItem('rpg_inv_v2', JSON.stringify(playerInventory));
                 hideItemDetails();
                 openInventory();
-                tg.showPopup({ title: 'Успех', message: 'Предмет улучшен', buttons: [{ type: 'ok' }] });
+                tg.showPopup({ title: 'Успех', message: '⚔️ УСПЕШНОЕ СЛИЯНИЕ! Предмет улучшен.', buttons: [{ type: 'ok' }] });
             }
         }
-            function showEquippedItemDetails(slotId) {
+
+        function showEquippedItemDetails(slotId) {
             const itemData = equippedItems[slotId];
             if (!itemData) return;
-            
             const baseItem = itemsDatabase[itemData.id];
             const totalBonus = baseItem.baseBonus * statMultipliers[itemData.rarity];
             const rColor = rarityColors[itemData.rarity];
-
             document.getElementById('detail-image').innerHTML = `<span style="font-size: 10px; color: ${rColor};">${baseItem.img}</span>`;
             document.getElementById('detail-name').innerHTML = `<span style="color: ${rColor};">${rarities[itemData.rarity]} ${baseItem.name}</span>`;
             document.getElementById('detail-stats').innerText = `Слот: ${baseItem.type} | +${totalBonus} ${baseItem.stat}`;
-            
-            // Настраиваем кнопку на СНЯТИЕ
             const btnEquip = document.getElementById('btn-equip');
             btnEquip.innerText = "СНЯТЬ";
             btnEquip.onclick = () => unequipItem(slotId);
-
-            document.getElementById('btn-merge').style.display = 'none'; // Сливать можно только в рюкзаке
-
-            document.getElementById('modal-inventory').style.display = 'flex'; // Открываем окно
-            document.getElementById('inventory-grid').style.display = 'none'; // Прячем пустые квадратики
+            document.getElementById('btn-merge').style.display = 'none';
+            document.getElementById('modal-inventory').style.display = 'flex';
+            document.getElementById('inventory-grid').style.display = 'none';
             document.getElementById('item-details').style.display = 'block';
         }
 
@@ -528,149 +634,128 @@
                 alert("Рюкзак полон! Продай вещи.");
                 return;
             }
-            playerInventory.push(equippedItems[slotId]); // В рюкзак
-            delete equippedItems[slotId]; // Удаляем с тела
-            
+            playerInventory.push(equippedItems[slotId]);
+            delete equippedItems[slotId];
             localStorage.setItem('rpg_inv_v2', JSON.stringify(playerInventory));
             localStorage.setItem('rpg_equipped_v2', JSON.stringify(equippedItems));
-            
+            recalcStats();
             hideItemDetails();
-            openInventory(); 
-            renderEquipment(); 
+            openInventory();
+            renderEquipment();
         }
-// Отрисовка надетых вещей на герое
+
         function renderEquipment() {
-            // Сначала очищаем все слоты (чтобы снятая вещь пропадала с экрана)
             const allSlotIds = ["slot-amulet", "slot-right-hand", "slot-ring-1", "slot-bracelet", "slot-head", "slot-legs", "slot-shoes", "slot-cape", "slot-armor", "slot-left-hand", "slot-ring-2"];
             const slotNames = ["Амулет", "Правая рука", "Кольцо 1", "Браслет", "Голова", "Штаны", "Обувь", "Накидка", "Броня", "Левая рука", "Кольцо 2"];
-            
             for (let i = 0; i < allSlotIds.length; i++) {
                 const slotHtml = document.getElementById(allSlotIds[i]);
                 if (slotHtml) {
                     slotHtml.style.borderColor = "var(--border-gray)";
                     slotHtml.innerHTML = `<div class="slot-name">${slotNames[i]}</div>`;
-                    slotHtml.onclick = null; // Убираем клик с пустого слота
+                    slotHtml.onclick = null;
                 }
             }
-
-            // Рисуем надетые вещи и добавляем им клик
             for (let slotId in equippedItems) {
                 const itemData = equippedItems[slotId];
                 const baseItem = itemsDatabase[itemData.id];
                 const slotHtml = document.getElementById(slotId);
-                
                 if (slotHtml && baseItem) {
                     slotHtml.style.borderColor = rarityColors[itemData.rarity];
                     slotHtml.innerHTML = `<span style="font-size: 5px; color: ${rarityColors[itemData.rarity]}">${baseItem.img}</span><div class="slot-name">${baseItem.type}</div>`;
-                    slotHtml.onclick = () => showEquippedItemDetails(slotId); // <-- ДЕЛАЕМ ПРЕДМЕТ КЛИКАБЕЛЬНЫМ
+                    slotHtml.onclick = () => showEquippedItemDetails(slotId);
                 }
             }
         }
-
-        // При загрузке страницы рисуем экипировку на персонаже
         renderEquipment();
-// ========== МАГАЗИН ==========
-// Товары в магазине
-const shopItems = [
-    { id: "sword", name: "Меч тренировок", price: 100, type: "item" },
-    { id: "shoes", name: "Кроссовки", price: 150, type: "item" },
-    { name: "Сундук", price: 200, type: "chest" }
-];
 
-// Открыть магазин
-function openShop() {
-    document.getElementById('modal-shop').style.display = 'flex';
-    renderShop();
-}
+        // Магазин
+        const shopItems = [
+            { id: "sword", name: "Меч тренировок", price: 100, type: "item" },
+            { id: "shoes", name: "Кроссовки", price: 150, type: "item" },
+            { name: "Сундук", price: 200, type: "chest" }
+        ];
 
-// Закрыть магазин
-function closeShop() {
-    document.getElementById('modal-shop').style.display = 'none';
-}
-
-// Показать товары
-function renderShop() {
-    const container = document.getElementById('shop-items');
-    container.innerHTML = '';
-    shopItems.forEach((item, index) => {
-        const div = document.createElement('div');
-        div.className = 'inv-slot';
-        div.style.flexDirection = 'column';
-        div.style.fontSize = '10px';
-        if (item.type === 'item') {
-            const base = itemsDatabase[item.id];
-            div.innerHTML = `${base.img}<br><span style="font-size:6px;">${item.price}💰</span>`;
-        } else {
-            div.innerHTML = `📦<br><span style="font-size:6px;">${item.price}💰</span>`;
+        function openShop() {
+            document.getElementById('modal-shop').style.display = 'flex';
+            renderShop();
         }
-        div.onclick = () => buyItem(index);
-        container.appendChild(div);
-    });
-}
 
-// Купить товар
-function buyItem(index) {
-    const item = shopItems[index];
+        function closeShop() {
+            document.getElementById('modal-shop').style.display = 'none';
+        }
 
-    // Проверка: хватает ли золота
-    if (currentGold < item.price) {
-        document.getElementById('shop-message').innerText = '❌ Недостаточно золота!';
-        setTimeout(() => document.getElementById('shop-message').innerText = '', 2000);
-        return;
-    }
+        function renderShop() {
+            const container = document.getElementById('shop-items');
+            container.innerHTML = '';
+            shopItems.forEach((item, index) => {
+                const div = document.createElement('div');
+                div.className = 'inv-slot';
+                div.style.flexDirection = 'column';
+                div.style.fontSize = '10px';
+                if (item.type === 'item') {
+                    const base = itemsDatabase[item.id];
+                    div.innerHTML = `${base.img}<br><span style="font-size:6px;">${item.price}💰</span>`;
+                } else {
+                    div.innerHTML = `📦<br><span style="font-size:6px;">${item.price}💰</span>`;
+                }
+                div.onclick = () => buyItem(index);
+                container.appendChild(div);
+            });
+        }
 
-    // Проверка: не переполнен ли инвентарь (макс 20)
-    if (playerInventory.length >= 20) {
-        document.getElementById('shop-message').innerText = '❌ Инвентарь полон!';
-        setTimeout(() => document.getElementById('shop-message').innerText = '', 2000);
-        return;
-    }
+        function buyItem(index) {
+            const item = shopItems[index];
+            if (currentGold < item.price) {
+                document.getElementById('shop-message').innerText = '❌ Недостаточно золота!';
+                setTimeout(() => document.getElementById('shop-message').innerText = '', 2000);
+                return;
+            }
+            if (playerInventory.length >= 20) {
+                document.getElementById('shop-message').innerText = '❌ Инвентарь полон!';
+                setTimeout(() => document.getElementById('shop-message').innerText = '', 2000);
+                return;
+            }
+            if (item.type === 'item') {
+                playerInventory.push({ id: item.id, rarity: 1 });
+                document.getElementById('shop-message').innerText = `✅ Куплен ${item.name}!`;
+            } else if (item.type === 'chest') {
+                const itemIds = Object.keys(itemsDatabase);
+                const randomId = itemIds[Math.floor(Math.random() * itemIds.length)];
+                const r = Math.random();
+                let rarity;
+                const luck = getLuckBonus() / 100;
+                let thresholdCommon = 0.2 - luck;
+                let thresholdRare = 0.7 - luck;
+                let thresholdEpic = 0.9 - luck;
+                let thresholdLegendary = 0.98 - luck;
+                thresholdCommon = Math.max(0, thresholdCommon);
+                thresholdRare = Math.max(thresholdCommon, thresholdRare);
+                thresholdEpic = Math.max(thresholdRare, thresholdEpic);
+                thresholdLegendary = Math.max(thresholdEpic, thresholdLegendary);
+                if (r < thresholdCommon) rarity = 0;
+                else if (r < thresholdRare) rarity = 1;
+                else if (r < thresholdEpic) rarity = 2;
+                else if (r < thresholdLegendary) rarity = 3;
+                else rarity = 4;
+                playerInventory.push({ id: randomId, rarity: rarity });
+                currentXp += Math.floor(50 * getXpMultiplier());
+                updateXPdisplay();
+                const baseItem = itemsDatabase[randomId];
+                document.getElementById('shop-message').innerHTML = `📦 Из сундука выпало: ${baseItem.img} ${baseItem.name}<br>+50 XP!`;
+            }
+            currentGold -= item.price;
+            localStorage.setItem('rpg_gold', currentGold);
+            localStorage.setItem('rpg_inv_v2', JSON.stringify(playerInventory));
+            document.getElementById('gold').innerText = currentGold;
+            setTimeout(() => {
+                const msg = document.getElementById('shop-message');
+                if (msg) msg.innerText = '';
+            }, 3000);
+        }
 
-    if (item.type === 'item') {
-        // Добавляем обычный предмет (редкость 1)
-        playerInventory.push({ id: item.id, rarity: 1 });
-        document.getElementById('shop-message').innerText = `✅ Куплен ${item.name}!`;
-    } 
-    else if (item.type === 'chest') {
-        // Сундук: случайный предмет со случайной редкостью
-        const itemIds = Object.keys(itemsDatabase);
-        const randomId = itemIds[Math.floor(Math.random() * itemIds.length)];
-        
-        // Шансы редкости: 0:20%, 1:50%, 2:20%, 3:8%, 4:2%
-        const r = Math.random();
-        let rarity;
-        if (r < 0.2) rarity = 0;          // Сломанный
-        else if (r < 0.7) rarity = 1;      // Обычный
-        else if (r < 0.9) rarity = 2;      // Редкий
-        else if (r < 0.98) rarity = 3;     // Эпический
-        else rarity = 4;                    // Легендарный
-
-        playerInventory.push({ id: randomId, rarity: rarity });
-
-        // Даём немного опыта за открытие сундука
-        currentXp += 50;
-        updateXPdisplay();
-
-        const baseItem = itemsDatabase[randomId];
-        document.getElementById('shop-message').innerHTML = `📦 Из сундука выпало: ${baseItem.img} ${baseItem.name}<br>+50 XP!`;
-    }
-
-    // Списываем золото
-    currentGold -= item.price;
-    localStorage.setItem('rpg_gold', currentGold);
-    localStorage.setItem('rpg_inv_v2', JSON.stringify(playerInventory));
-
-    // Обновляем золото на экране
-    document.getElementById('gold').innerText = currentGold;
-
-    // Очищаем сообщение через 3 секунды
-    setTimeout(() => {
-        const msg = document.getElementById('shop-message');
-        if (msg) msg.innerText = '';
-    }, 3000);
-}
-        
+        // Инициализация
+        renderQuests();
+        recalcStats();
     </script>
 </body>
 </html>
-

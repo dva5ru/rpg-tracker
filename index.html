@@ -141,15 +141,15 @@
         <div style="font-size: 7px;">XP: 250/1000</div>
         <div class="bar-container"><div class="xp-bar"></div></div>
 
-        <div class="stats-grid">
-            <div class="stat-item">Сила <span class="stat-value">14</span></div>
-            <div class="stat-item">Ловкость <span class="stat-value">18</span></div>
-            <div class="stat-item">Выносливость <span class="stat-value">15</span></div>
-            <div class="stat-item">Интеллект <span class="stat-value">12</span></div>
-            <div class="stat-item">Сила духа <span class="stat-value">10</span></div>
-            <div class="stat-item">Гибкость <span class="stat-value">18</span></div>
-            <div class="stat-item">Концентрация <span class="stat-value">16</span></div>
-            <div class="stat-item">Креативность <span class="stat-value">14</span></div>
+<div class="stats-grid">
+            <div class="stat-item">Сила <span class="stat-value" id="stat-Сила">10</span></div>
+            <div class="stat-item">Ловкость <span class="stat-value" id="stat-Ловкость">10</span></div>
+            <div class="stat-item">Выносливость <span class="stat-value" id="stat-Выносливость">10</span></div>
+            <div class="stat-item">Интеллект <span class="stat-value" id="stat-Интеллект">10</span></div>
+            <div class="stat-item">Сила духа <span class="stat-value" id="stat-Сила духа">10</span></div>
+            <div class="stat-item">Гибкость <span class="stat-value" id="stat-Гибкость">10</span></div>
+            <div class="stat-item">Концентрация <span class="stat-value" id="stat-Концентрация">10</span></div>
+            <div class="stat-item">Креативность <span class="stat-value" id="stat-Креативность">10</span></div>
         </div>
     </div>
 
@@ -211,87 +211,113 @@
             { id: "m5", type: "monthly", title: "Прыжок (Замер высоты)", xp: 80, gold: 25, stat: "Ловкость" },
             { id: "m6", type: "monthly", title: "Челлендж (Без сахара)", xp: 100, gold: 30, stat: "Сила духа" }
         ];
-// 1. СИСТЕМА СОХРАНЕНИЙ (Загружаем из памяти или ставим 0)
+// 1. СИСТЕМА СОХРАНЕНИЙ И УРОВНЕЙ
         let currentGold = parseInt(localStorage.getItem('rpg_gold')) || 0;
         let currentXp = parseInt(localStorage.getItem('rpg_xp')) || 0;
         let currentLevel = parseInt(localStorage.getItem('rpg_level')) || 1;
-        const maxXp = 1000;
+        let maxXp = 1000; // Опыт до следующего уровня
+
+        // Базовые статы героя (начинаем с 10)
+        let playerStats = JSON.parse(localStorage.getItem('rpg_stats')) || {
+            "Сила": 10, "Ловкость": 10, "Выносливость": 10, "Интеллект": 10,
+            "Сила духа": 10, "Гибкость": 10, "Концентрация": 10, "Креативность": 10
+        };
 
         // 2. ДАТА И СБРОС КВЕСТОВ
         let completedQuests = JSON.parse(localStorage.getItem('rpg_completed')) || [];
-        const today = new Date().toISOString().split('T')[0]; // Получаем дату (например, 2026-03-19)
+        const today = new Date().toISOString().split('T')[0];
         let lastLoginDate = localStorage.getItem('rpg_last_login');
 
-        // Если зашли в новый день - обнуляем список выполненных задач
         if (lastLoginDate !== today) {
             completedQuests = []; 
-            // Позже мы добавим сюда фильтр, чтобы еженедельные задачи не сбрасывались каждый день
             localStorage.setItem('rpg_last_login', today);
             localStorage.setItem('rpg_completed', JSON.stringify(completedQuests));
         }
 
-        // Обновляем цифры интерфейса при загрузке
+        // Обновляем интерфейс при старте
         document.getElementById('gold').innerText = currentGold;
         document.getElementById('level').innerText = currentLevel;
         document.querySelector('.xp-bar').style.width = Math.min((currentXp / maxXp) * 100, 100) + '%';
+        
+        // Загружаем сохраненные статы на экран
+        for (let stat in playerStats) {
+            let statElement = document.getElementById('stat-' + stat);
+            if (statElement) statElement.innerText = playerStats[stat];
+        }
 
-        // 3. Функция: Вывести квесты на экран
+        // 3. Функция: Вывести квесты
         function renderQuests() {
             const container = document.getElementById('quests-container');
             container.innerHTML = ''; 
 
             questsDatabase.forEach(quest => {
-                // Проверяем, выполнена ли задача
-                const isCompleted = completedQuests.includes(quest.id);
+                // Если квест выполнен — ПРОПУСКАЕМ ЕГО (он исчезает из списка)
+                if (completedQuests.includes(quest.id)) return; 
                 
                 const taskDiv = document.createElement('div');
                 taskDiv.className = 'task';
                 
-                // Если выполнена — кнопка серая и не нажимается
-                let buttonHTML = isCompleted 
-                    ? `<button class="btn-action" style="background: #333; color: #666;" disabled>✓</button>`
-                    : `<button class="btn-action" onclick="completeQuest('${quest.id}', this, ${quest.xp}, ${quest.gold})">СДЕЛАТЬ</button>`;
-
                 taskDiv.innerHTML = `
                     <div class="task-info">
-                        <div class="task-title" style="${isCompleted ? 'color: #555;' : ''}">${quest.title}</div>
-                        <div class="task-reward">+${quest.stat} | ${quest.gold}💰 | ${quest.xp} XP</div>
+                        <div class="task-title">${quest.title}</div>
+                        <div class="task-reward">+1 ${quest.stat} | ${quest.gold}💰 | ${quest.xp} XP</div>
                     </div>
-                    ${buttonHTML}
+                    <button class="btn-action" onclick="completeQuest('${quest.id}', ${quest.xp}, ${quest.gold}, '${quest.stat}')">СДЕЛАТЬ</button>
                 `;
                 container.appendChild(taskDiv);
             });
         }
 
         // 4. Функция: Выполнение квеста
-        function completeQuest(questId, btn, xpReward, goldReward) {
-            // Визуально отключаем кнопку
-            btn.innerText = "✓";
-            btn.style.background = "#333";
-            btn.style.color = "#666";
-            btn.disabled = true;
-
+        function completeQuest(questId, xpReward, goldReward, statName) {
             // Прибавляем ресурсы
             currentGold += goldReward;
             currentXp += xpReward;
+            
+            // Качаем конкретный стат (+1)
+            if (playerStats[statName] !== undefined) {
+                playerStats[statName] += 1;
+            }
 
-            // Сохраняем в память телефона/браузера
+            // Механика повышения уровня (когда XP больше 1000)
+            if (currentXp >= maxXp) {
+                currentLevel++;
+                currentXp -= maxXp; // Остаток опыта переходит на новый уровень
+                localStorage.setItem('rpg_level', currentLevel);
+                document.getElementById('level').innerText = currentLevel;
+                
+                // Уведомление о новом уровне
+                if (window.Telegram && window.Telegram.WebApp) {
+                    window.Telegram.WebApp.showAlert(`УРОВЕНЬ ПОВЫШЕН! Теперь ты ${currentLevel} уровня.`);
+                } else {
+                    alert(`УРОВЕНЬ ПОВЫШЕН! Теперь ты ${currentLevel} уровня.`);
+                }
+            }
+
+            // Сохраняем всё в память
             completedQuests.push(questId);
             localStorage.setItem('rpg_completed', JSON.stringify(completedQuests));
             localStorage.setItem('rpg_gold', currentGold);
             localStorage.setItem('rpg_xp', currentXp);
+            localStorage.setItem('rpg_stats', JSON.stringify(playerStats));
 
-            // Обновляем экран
+            // Обновляем полоску опыта, золото и цифру стата на экране
             document.getElementById('gold').innerText = currentGold;
             document.querySelector('.xp-bar').style.width = Math.min((currentXp / maxXp) * 100, 100) + '%';
+            if (document.getElementById('stat-' + statName)) {
+                document.getElementById('stat-' + statName).innerText = playerStats[statName];
+            }
 
-            // Легкая вибрация в ТГ
+            // Вибрация
             if (window.Telegram && window.Telegram.WebApp) {
                 window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
             }
+
+            // Перерисовываем список квестов (чтобы нажатый квест мгновенно исчез)
+            renderQuests();
         }
 
-        // Запускаем отрисовку квестов при старте
+        // Запускаем отрисовку
         renderQuests();
 
     </script>

@@ -441,20 +441,6 @@
             document.getElementById('item-details').style.display = 'block';
         }
 
-            document.getElementById('detail-image').innerHTML = `<span style="font-size: 10px; color: ${rColor};">${baseItem.img}</span>`;
-            document.getElementById('detail-name').innerHTML = `<span style="color: ${rColor};">${rarities[itemData.rarity]} ${baseItem.name}</span>`;
-            document.getElementById('detail-stats').innerText = `Слот: ${baseItem.type} | +${totalBonus} ${baseItem.stat}`;
-            
-            // Настройка кнопки НАДЕТЬ
-            const btnEquip = document.getElementById('btn-equip');
-            btnEquip.onclick = () => equipItem(index);
-
-            // Настройка кнопки СЛИТЬ
-            const btnMerge = document.getElementById('btn-merge');
-            let count = 0;
-            for (let i = 0; i < playerInventory.length; i++) {
-                if (playerInventory[i].id === itemData.id && playerInventory[i].rarity === itemData.rarity) count++;
-            }
 
             if (itemData.rarity < 4) { // 4 = Легендарный (максимум)
                 btnMerge.style.display = 'block';
@@ -552,10 +538,23 @@
             hideItemDetails();
             openInventory(); 
             renderEquipment(); 
-            updateUI();
         }
-        // Отрисовка надетых вещей на герое
+// Отрисовка надетых вещей на герое
         function renderEquipment() {
+            // Сначала очищаем все слоты (чтобы снятая вещь пропадала с экрана)
+            const allSlotIds = ["slot-amulet", "slot-right-hand", "slot-ring-1", "slot-bracelet", "slot-head", "slot-legs", "slot-shoes", "slot-cape", "slot-armor", "slot-left-hand", "slot-ring-2"];
+            const slotNames = ["Амулет", "Правая рука", "Кольцо 1", "Браслет", "Голова", "Штаны", "Обувь", "Накидка", "Броня", "Левая рука", "Кольцо 2"];
+            
+            for (let i = 0; i < allSlotIds.length; i++) {
+                const slotHtml = document.getElementById(allSlotIds[i]);
+                if (slotHtml) {
+                    slotHtml.style.borderColor = "var(--border-gray)";
+                    slotHtml.innerHTML = `<div class="slot-name">${slotNames[i]}</div>`;
+                    slotHtml.onclick = null; // Убираем клик с пустого слота
+                }
+            }
+
+            // Рисуем надетые вещи и добавляем им клик
             for (let slotId in equippedItems) {
                 const itemData = equippedItems[slotId];
                 const baseItem = itemsDatabase[itemData.id];
@@ -564,6 +563,7 @@
                 if (slotHtml && baseItem) {
                     slotHtml.style.borderColor = rarityColors[itemData.rarity];
                     slotHtml.innerHTML = `<span style="font-size: 5px; color: ${rarityColors[itemData.rarity]}">${baseItem.img}</span><div class="slot-name">${baseItem.type}</div>`;
+                    slotHtml.onclick = () => showEquippedItemDetails(slotId); // <-- ДЕЛАЕМ ПРЕДМЕТ КЛИКАБЕЛЬНЫМ
                 }
             }
         }

@@ -188,15 +188,17 @@
             
             <div id="inventory-grid" class="inventory-grid"></div>
             
-            <div id="item-details" class="item-details-panel" style="display: none;">
+                <div id="item-details" class="item-details-panel" style="display: none;">
                 <button class="close-btn" style="top: 5px; right: 5px; font-size: 10px;" onclick="hideItemDetails()">✖</button>
                 <div id="detail-image" style="font-size: 40px; margin: 10px 0;"></div>
-                <div id="detail-name" style="color: var(--accent-yellow); font-size: 10px; margin-bottom: 5px;"></div>
+                <div id="detail-name" style="font-size: 10px; margin-bottom: 5px;"></div>
                 <div id="detail-stats" style="color: #aaa; font-size: 7px; margin-bottom: 15px;"></div>
-                <button class="btn-action" style="width: 100%; padding: 10px;" onclick="alert('Функция надевания будет в следующем шаге')">НАДЕТЬ</button>
+                
+                <div style="display: flex; gap: 5px;">
+                    <button class="btn-action" id="btn-equip" style="flex: 1; padding: 10px;">НАДЕТЬ</button>
+                    <button class="btn-action" id="btn-merge" style="flex: 1; padding: 10px; font-size: 5px;">СЛИТЬ (0/3)</button>
+                </div>
             </div>
-        </div>
-    </div>
         
     <script>
         // Инициализация Telegram Web App
@@ -243,10 +245,27 @@
             { id: "m5", type: "monthly", title: "Прыжок (Замер высоты)", xp: 80, gold: 25, stat: "Ловкость" },
             { id: "m6", type: "monthly", title: "Челлендж (Без сахара)", xp: 100, gold: 30, stat: "Сила духа" }
         ];
-// База всех предметов в игре
+// --- СИСТЕМА РЕДКОСТИ ---
+        const rarities = ["Сломанный", "Обычный", "Редкий", "Эпический", "Легендарный"];
+        const rarityColors = ["#777777", "#ffffff", "#0070dd", "#a335ee", "#ff8000"]; // Цвета как в RPG
+        const statMultipliers = [1, 2, 4, 8, 15]; // Во сколько раз вещь сильнее
+
+        // База предметов (добавлен slotId — чтобы скрипт знал, куда надевать)
         const itemsDatabase = {
-            "sword_1": { name: "Ржавый меч", type: "Правая рука", stat: "Сила", bonus: 1, img: "sword_1.png", price: 10 },
-            "shoes_1": { name: "Старые кроссовки", type: "Обувь", stat: "Выносливость", bonus: 2, img: "shoes_1.png", price: 15 }
+            "sword": { name: "Меч тренировок", type: "Правая рука", slotId: "slot-right-hand", stat: "Сила", baseBonus: 1, img: "sword.png" },
+            "shoes": { name: "Кроссовки", type: "Обувь", slotId: "slot-shoes", stat: "Выносливость", baseBonus: 2, img: "shoes.png" }
+        };
+
+        // Рюкзак v2 (теперь хранит ОБЪЕКТЫ: что за вещь и какой у нее уровень редкости)
+        let playerInventory = JSON.parse(localStorage.getItem('rpg_inv_v2')) || [
+            { id: "sword", rarity: 1 }, // Обычный
+            { id: "sword", rarity: 1 }, // Обычный
+            { id: "sword", rarity: 1 }, // Обычный (Готово для слияния!)
+            { id: "shoes", rarity: 0 }  // Сломанный
+        ];
+
+        // Надетые вещи (Словарь: ID слота -> Объект вещи)
+        let equippedItems = JSON.parse(localStorage.getItem('rpg_equipped_v2')) || {};
         };
 
         // Рюкзак игрока (сохраняется в памяти)
@@ -359,27 +378,24 @@
 
         // Запускаем отрисовку
         renderQuests();
-// 5. ЛОГИКА ИНВЕНТАРЯ (Сетка и Детали)
+// 5. ЛОГИКА ИНВЕНТАРЯ, ЭКИПИРОВКИ И СЛИЯНИЯ
         function openInventory() {
             const modal = document.getElementById('modal-inventory');
             const grid = document.getElementById('inventory-grid');
             grid.innerHTML = ''; 
-            hideItemDetails(); // Прячем панель деталей при открытии
+            hideItemDetails(); 
 
-            // Создаем 20 слотов (как вместимость рюкзака)
-            const inventorySize = 20; 
-            for (let i = 0; i < inventorySize; i++) {
+            for (let i = 0; i < 20; i++) {
                 const slotDiv = document.createElement('div');
                 slotDiv.className = 'inv-slot';
                 
-                // Если в слоте есть предмет
                 if (i < playerInventory.length) {
-                    const itemId = playerInventory[i];
-                    const item = itemsDatabase[itemId];
-                    if (item) {
-                        // Пока картинки нет, выводим название файла как текст (позже заменим на тег <img>)
-                        slotDiv.innerHTML = `<span style="font-size: 6px; color: #555;">${item.img}</span>`; 
-                        slotDiv.onclick = () => showItemDetails(itemId);
+                    const itemData = playerInventory[i];
+                    const baseItem = itemsDatabase[itemData.id];
+                    if (baseItem) {
+                        slotDiv.style.borderColor = rarityColors[itemData.rarity];
+                        slotDiv.innerHTML = `<span style="font-size: 5px; color: ${rarityColors[itemData.rarity]};">${baseItem.img}</span>`; 
+                        slotDiv.onclick = () => showItemDetails(i); // Передаем индекс ячейки
                     }
                 }
                 grid.appendChild(slotDiv);
@@ -387,32 +403,105 @@
             modal.style.display = 'flex';
         }
 
-        function closeInventory() {
-            document.getElementById('modal-inventory').style.display = 'none';
+        function closeInventory() { document.getElementById('modal-inventory').style.display = 'none'; }
+        function hideItemDetails() { document.getElementById('item-details').style.display = 'none'; }
+
+        function showItemDetails(index) {
+            const itemData = playerInventory[index];
+            const baseItem = itemsDatabase[itemData.id];
+            const totalBonus = baseItem.baseBonus * statMultipliers[itemData.rarity];
+            const rColor = rarityColors[itemData.rarity];
+
+            document.getElementById('detail-image').innerHTML = `<span style="font-size: 10px; color: ${rColor};">${baseItem.img}</span>`;
+            document.getElementById('detail-name').innerHTML = `<span style="color: ${rColor};">${rarities[itemData.rarity]} ${baseItem.name}</span>`;
+            document.getElementById('detail-stats').innerText = `Слот: ${baseItem.type} | +${totalBonus} ${baseItem.stat}`;
+            
+            // Настройка кнопки НАДЕТЬ
+            const btnEquip = document.getElementById('btn-equip');
+            btnEquip.onclick = () => equipItem(index);
+
+            // Настройка кнопки СЛИТЬ
+            const btnMerge = document.getElementById('btn-merge');
+            let count = 0;
+            for (let i = 0; i < playerInventory.length; i++) {
+                if (playerInventory[i].id === itemData.id && playerInventory[i].rarity === itemData.rarity) count++;
+            }
+
+            if (itemData.rarity < 4) { // 4 = Легендарный (максимум)
+                btnMerge.style.display = 'block';
+                btnMerge.innerText = `СЛИТЬ (${count}/3)`;
+                btnMerge.disabled = count < 3;
+                btnMerge.style.background = count >= 3 ? "#0070dd" : "#333";
+                btnMerge.onclick = () => mergeItem(index);
+            } else {
+                btnMerge.style.display = 'none';
+            }
+
+            document.getElementById('item-details').style.display = 'block';
         }
 
-        function showItemDetails(itemId) {
-            const item = itemsDatabase[itemId];
-            if (!item) return;
+        function equipItem(invIndex) {
+            const itemData = playerInventory[invIndex];
+            const baseItem = itemsDatabase[itemData.id];
             
-            // Заполняем панель характеристик
-            document.getElementById('detail-image').innerHTML = `<span style="font-size: 10px; color: #777;">Тут будет картинка<br>${item.img}</span>`;
-            document.getElementById('detail-name').innerText = item.name;
-            document.getElementById('detail-stats').innerText = `Слот: ${item.type} | +${item.bonus} ${item.stat}`;
+            // Если в этом слоте на герое уже есть вещь - снимаем её в инвентарь
+            if (equippedItems[baseItem.slotId]) {
+                playerInventory.push(equippedItems[baseItem.slotId]);
+            }
             
-            // Показываем панель
-            document.getElementById('item-details').style.display = 'block';
+            equippedItems[baseItem.slotId] = itemData; // Надеваем
+            playerInventory.splice(invIndex, 1); // Удаляем из рюкзака
             
-            // Вибрация в Telegram при клике
-            if (window.Telegram && window.Telegram.WebApp) {
-                window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
+            localStorage.setItem('rpg_inv_v2', JSON.stringify(playerInventory));
+            localStorage.setItem('rpg_equipped_v2', JSON.stringify(equippedItems));
+            
+            hideItemDetails();
+            openInventory(); 
+            renderEquipment(); 
+        }
+
+        function mergeItem(invIndex) {
+            const itemData = playerInventory[invIndex];
+            let sameItemsIndexes = [];
+            
+            // Ищем 3 одинаковые вещи
+            for (let i = 0; i < playerInventory.length; i++) {
+                if (playerInventory[i].id === itemData.id && playerInventory[i].rarity === itemData.rarity) {
+                    sameItemsIndexes.push(i);
+                }
+            }
+
+            if (sameItemsIndexes.length >= 3) {
+                // Удаляем 3 вещи (с конца, чтобы индексы не сместились)
+                let toRemove = sameItemsIndexes.slice(0, 3).sort((a,b) => b - a);
+                for(let idx of toRemove) playerInventory.splice(idx, 1);
+                
+                // Добавляем 1 вещь новой редкости (+1)
+                playerInventory.push({ id: itemData.id, rarity: itemData.rarity + 1 });
+                
+                localStorage.setItem('rpg_inv_v2', JSON.stringify(playerInventory));
+                hideItemDetails();
+                openInventory();
+                alert("⚔️ УСПЕШНОЕ СЛИЯНИЕ! Предмет улучшен.");
             }
         }
 
-        function hideItemDetails() {
-            document.getElementById('item-details').style.display = 'none';
+        // Отрисовка надетых вещей на герое
+        function renderEquipment() {
+            for (let slotId in equippedItems) {
+                const itemData = equippedItems[slotId];
+                const baseItem = itemsDatabase[itemData.id];
+                const slotHtml = document.getElementById(slotId);
+                
+                if (slotHtml && baseItem) {
+                    slotHtml.style.borderColor = rarityColors[itemData.rarity];
+                    slotHtml.innerHTML = `<span style="font-size: 5px; color: ${rarityColors[itemData.rarity]}">${baseItem.img}</span><div class="slot-name">${baseItem.type}</div>`;
+                }
+            }
         }
-        
+
+        // При загрузке страницы рисуем экипировку на персонаже
+        renderEquipment();
     </script>
 </body>
 </html>

@@ -161,88 +161,57 @@
     </div>
 
     <div class="box" style="padding: 10px 5px;">
-        <h2>КНИГА КВЕСТОВ</h2>
-
-        <details open>
-            <summary>ЕЖЕДНЕВНЫЕ РУТИНЫ</summary>
-            <div class="task-list">
-                <div class="task">
-                    <div class="task-info">
-                        <div class="task-title">Вода (2 литра)</div>
-                        <div class="task-reward">+ВЫН | 5💰 | 10 XP</div>
-                    </div>
-                    <button class="btn-action" onclick="done(this)">СДЕЛАТЬ</button>
-                </div>
-                <div class="task">
-                    <div class="task-info">
-                        <div class="task-title">Медитация (10 мин)</div>
-                        <div class="task-reward">+СИЛА ДУХА | 5💰 | 15 XP</div>
-                    </div>
-                    <button class="btn-action" onclick="done(this)">СДЕЛАТЬ</button>
-                </div>
-                <div class="task">
-                    <div class="task-info">
-                        <div class="task-title">Витамины</div>
-                        <div class="task-reward">+ВЫН | 2💰 | 5 XP</div>
-                    </div>
-                    <button class="btn-action" onclick="done(this)">СДЕЛАТЬ</button>
-                </div>
-            </div>
-        </details>
-
-        <details>
-            <summary>ЕЖЕНЕДЕЛЬНЫЕ ЦЕЛИ</summary>
-            <div class="task-list">
-                <div class="task">
-                    <div class="task-info">
-                        <div class="task-title">Волейбол: отработка прыжка</div>
-                        <div class="task-reward">+ЛОВ | +СИЛ | 50💰 | 100 XP</div>
-                    </div>
-                    <button class="btn-action" onclick="done(this)">СДЕЛАТЬ</button>
-                </div>
-                <div class="task">
-                    <div class="task-info">
-                        <div class="task-title">Пробежка (Суммарно 10 км)</div>
-                        <div class="task-reward">+ВЫН | +ГИБКОСТЬ | 60💰</div>
-                    </div>
-                    <button class="btn-action" onclick="done(this)">СДЕЛАТЬ</button>
-                </div>
-                <div class="task">
-                    <div class="task-info">
-                        <div class="task-title">Написать 2 страницы про путешествия парней по снам</div>
-                        <div class="task-reward">+КРЕАТИВ | +ИНТ | 80💰</div>
-                    </div>
-                    <button class="btn-action" onclick="done(this)">СДЕЛАТЬ</button>
-                </div>
-            </div>
-        </details>
-
-        <details>
-            <summary>ЭПИЧЕСКИЕ (МЕСЯЦ)</summary>
-            <div class="task-list">
-                <div class="task">
-                    <div class="task-info">
-                        <div class="task-title">Провести сессию D&D</div>
-                        <div class="task-reward">+КРЕАТИВ | +КОНЦЕНТРАЦИЯ | 200💰</div>
-                    </div>
-                    <button class="btn-action" onclick="done(this)">СДЕЛАТЬ</button>
-                </div>
-                <div class="task">
-                    <div class="task-info">
-                        <div class="task-title">Сдать план амбассадоров для BetBoom</div>
-                        <div class="task-reward">+ИНТ | +КОНЦЕНТРАЦИЯ | 300💰</div>
-                    </div>
-                    <button class="btn-action" onclick="done(this)">СДЕЛАТЬ</button>
-                </div>
-            </div>
-        </details>
+        
+        <div class="box" style="padding: 10px 5px;">
+        <h2>ЗАДАЧИ НА СЕГОДНЯ</h2>
+        <div id="quests-container"></div>
     </div>
-
+        
     <script>
         // Инициализация Telegram Web App
         const tg = window.Telegram.WebApp;
         tg.ready();   // Сообщаем телеграму, что приложение готово
         tg.expand();  // Растягиваем на весь экран
+
+        // База данных всех квестов
+        const questsDatabase = [
+            // Ежедневные
+            { id: "d1", type: "daily", title: "Шаги (10к)", xp: 10, gold: 2, stat: "Выносливость" },
+            { id: "d2", type: "daily", title: "Вода", xp: 5, gold: 1, stat: "Выносливость" },
+            { id: "d3", type: "daily", title: "Питание", xp: 10, gold: 2, stat: "Сила духа" },
+            { id: "d4", type: "daily", title: "Дефицит", xp: 15, gold: 3, stat: "Концентрация" },
+            { id: "d5", type: "daily", title: "Белок", xp: 10, gold: 2, stat: "Сила" },
+            { id: "d6", type: "daily", title: "Витамины", xp: 5, gold: 1, stat: "Выносливость" },
+            { id: "d7", type: "daily", title: "Чтение", xp: 10, gold: 2, stat: "Интеллект" },
+            { id: "d8", type: "daily", title: "Зубы (утро/вечер)", xp: 5, gold: 1, stat: "Гибкость" },
+            { id: "d9", type: "daily", title: "Умывание (утро/вечер)", xp: 5, gold: 1, stat: "Креативность" },
+            { id: "d10", type: "daily", title: "Душ (утро/вечер)", xp: 10, gold: 2, stat: "Сила духа" },
+            { id: "d11", type: "daily", title: "Отжимания (50х)", xp: 15, gold: 3, stat: "Сила" },
+            { id: "d12", type: "daily", title: "Пресс (100х)", xp: 15, gold: 3, stat: "Сила" },
+            { id: "d13", type: "daily", title: "Планка (2 мин)", xp: 10, gold: 2, stat: "Сила духа" },
+            { id: "d14", type: "daily", title: "Сон (8ч)", xp: 15, gold: 3, stat: "Концентрация" },
+            { id: "d15", type: "daily", title: "Растяжка (5 мин)", xp: 10, gold: 2, stat: "Гибкость" },
+
+            // Еженедельные
+            { id: "w1", type: "weekly", title: "Взвешивание", xp: 20, gold: 5, stat: "Концентрация" },
+            { id: "w2", type: "weekly", title: "Волейбол (Тренировка 1)", xp: 50, gold: 15, stat: "Ловкость" },
+            { id: "w3", type: "weekly", title: "Волейбол (Тренировка 2)", xp: 50, gold: 15, stat: "Ловкость" },
+            { id: "w4", type: "weekly", title: "Зал (Силовая 1)", xp: 60, gold: 20, stat: "Сила" },
+            { id: "w5", type: "weekly", title: "Зал (Силовая 2)", xp: 60, gold: 20, stat: "Сила" },
+            { id: "w6", type: "weekly", title: "Бассейн (Заплыв 1)", xp: 40, gold: 10, stat: "Выносливость" },
+            { id: "w7", type: "weekly", title: "Бассейн (Заплыв 2)", xp: 40, gold: 10, stat: "Выносливость" },
+            { id: "w8", type: "weekly", title: "Скакалка (15 мин)", xp: 30, gold: 10, stat: "Ловкость" },
+            { id: "w9", type: "weekly", title: "Пробежка (Лёгкая)", xp: 40, gold: 15, stat: "Выносливость" },
+            { id: "w10", type: "weekly", title: "Массаж (МФР валик)", xp: 30, gold: 10, stat: "Гибкость" },
+
+            // Ежемесячные
+            { id: "m1", type: "monthly", title: "Пробежка (5 км)", xp: 100, gold: 30, stat: "Выносливость" },
+            { id: "m2", type: "monthly", title: "Турнир (Волейбол)", xp: 150, gold: 50, stat: "Ловкость" },
+            { id: "m3", type: "monthly", title: "Проходка (Макс. вес)", xp: 100, gold: 30, stat: "Сила" },
+            { id: "m4", type: "monthly", title: "Замеры (Объемы тела)", xp: 50, gold: 15, stat: "Концентрация" },
+            { id: "m5", type: "monthly", title: "Прыжок (Замер высоты)", xp: 80, gold: 25, stat: "Ловкость" },
+            { id: "m6", type: "monthly", title: "Челлендж (Без сахара)", xp: 100, gold: 30, stat: "Сила духа" }
+        ];
 
         // Простая функция выполнения (для визуала)
         function done(btn) {

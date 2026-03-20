@@ -636,9 +636,9 @@ canvas {
 
             let talentsState = JSON.parse(localStorage.getItem('rpg_talents_state')) || {};
 
-let defeatedMobsCount = parseInt(localStorage.getItem('rpg_defeated_mobs')) || 0;
-let bossAvailable = localStorage.getItem('rpg_boss_available') === 'true';
-let currentEnemy = null;
+            defeatedMobsCount = parseInt(localStorage.getItem('rpg_defeated_mobs')) || 0;
+            bossAvailable = localStorage.getItem('rpg_boss_available') === 'true';
+            currentEnemy = null;
         
              // Сохранить все данные игры в localStorage
             function saveGame() {

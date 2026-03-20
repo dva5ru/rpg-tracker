@@ -233,7 +233,39 @@ canvas {
     width: 100%;
     margin: 10px 0;
 }
-        
+        /* Новая сетка экипировки */
+.equipment-grid-new {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    align-items: center;
+}
+.slot-top, .slot-bottom {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+}
+.equipment-mid {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    justify-content: center;
+}
+.slot-col-left, .slot-col-right {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.character-sprite {
+    width: 70px;
+    height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px dashed var(--border-gray);
+    background: #111;
+    font-size: 10px;
+}
     </style>
 </head>
 <body>
@@ -244,28 +276,44 @@ canvas {
     </div>
 
     <div class="box">
-        <div class="equipment-grid">
-            <div class="col-slots">
-                <div class="slot" id="slot-amulet"><div class="slot-name">Амулет</div></div>
-                <div class="slot" id="slot-right-hand"><div class="slot-name">Правая рука</div></div>
-                <div class="slot" id="slot-ring-1"><div class="slot-name">Кольцо 1</div></div>
-                <div class="slot" id="slot-bracelet"><div class="slot-name">Браслет</div></div>
-            </div>
+<div class="equipment-grid-new">
+    <!-- Верхний ряд -->
+    <div class="slot-top">
+        <div class="slot" id="slot-head"><div class="slot-name">Шлем</div></div>
+        <div class="slot" id="slot-amulet"><div class="slot-name">Амулет</div></div>
+        <div class="slot" id="slot-amulet-2"><div class="slot-name">Амулет</div></div>
+        <div class="slot" id="slot-cape"><div class="slot-name">Плащ</div></div>
+    </div>
 
-            <div class="col-slots" style="gap: 2px;">
-                <div class="slot" id="slot-head" style="margin-bottom: 5px;"><div class="slot-name">Голова</div></div>
-                <div class="character-sprite" id="hero-sprite" style="font-size: 10px; display: flex; align-items: center; justify-content: center; border: 1px dashed #555; width: 60px; height: 60px;">ГЕРОЙ</div>
-                <div class="slot" id="slot-legs" style="margin-top: 5px;"><div class="slot-name">Штаны</div></div>
-                <div class="slot" id="slot-shoes" style="margin-top: 8px;"><div class="slot-name">Обувь</div></div>
-            </div>
-
-            <div class="col-slots">
-                <div class="slot" id="slot-cape"><div class="slot-name">Накидка</div></div>
-                <div class="slot" id="slot-armor"><div class="slot-name">Броня</div></div>
-                <div class="slot" id="slot-left-hand"><div class="slot-name">Левая рука</div></div>
-                <div class="slot" id="slot-ring-2"><div class="slot-name">Кольцо 2</div></div>
-            </div>
+    <!-- Средняя часть: левая колонка + персонаж + правая колонка -->
+    <div class="equipment-mid">
+        <div class="slot-col-left">
+            <div class="slot" id="slot-shoulders"><div class="slot-name">Наплечники</div></div>
+            <div class="slot" id="slot-right-hand"><div class="slot-name">Правая рука</div></div>
+            <div class="slot" id="slot-bracelet-right"><div class="slot-name">Браслет</div></div>
+            <div class="slot" id="slot-ring-1"><div class="slot-name">Кольцо</div></div>
+            <div class="slot" id="slot-gloves"><div class="slot-name">Перчатки</div></div>
         </div>
+
+        <div class="character-sprite" id="hero-sprite">ГЕРОЙ</div>
+
+        <div class="slot-col-right">
+            <div class="slot" id="slot-armor"><div class="slot-name">Нагрудник</div></div>
+            <div class="slot" id="slot-left-hand"><div class="slot-name">Левая рука</div></div>
+            <div class="slot" id="slot-bracer"><div class="slot-name">Наручи</div></div>
+            <div class="slot" id="slot-bracelet-left"><div class="slot-name">Браслет</div></div>
+            <div class="slot" id="slot-ring-2"><div class="slot-name">Кольцо</div></div>
+        </div>
+    </div>
+
+    <!-- Нижний ряд -->
+    <div class="slot-bottom">
+        <div class="slot" id="slot-belt"><div class="slot-name">Пояс</div></div>
+        <div class="slot" id="slot-legs"><div class="slot-name">Штаны</div></div>
+        <div class="slot" id="slot-knees"><div class="slot-name">Наколенники</div></div>
+        <div class="slot" id="slot-shoes"><div class="slot-name">Обувь</div></div>
+    </div>
+</div>
     </div>
 
     <div style="font-size: 7px;">HP: 100/100</div>
@@ -717,12 +765,7 @@ canvas {
                 }
             }
 
-            function openSettings() {
-    document.getElementById('modal-settings').style.display = 'flex';
-}
-function closeSettings() {
-    document.getElementById('modal-settings').style.display = 'none';
-}
+            
             
             // Бонусы от талантов
             talentsData.forEach(talent => {
@@ -739,6 +782,13 @@ function closeSettings() {
             }
         }
 
+        function openSettings() {
+    document.getElementById('modal-settings').style.display = 'flex';
+}
+        function closeSettings() {
+    document.getElementById('modal-settings').style.display = 'none';
+}
+        
         // Таланты
         const talentsData = [
             { id: 'str', name: 'Сила', description: 'Увеличивает силу на +1 за уровень', maxLevel: 5, baseEffect: 1, effectType: 'stat', stat: 'Сила', cost: 1, dependencies: [] },
@@ -988,6 +1038,52 @@ function closeSettings() {
             openInventory();
             renderEquipment();
         }
+
+        function renderEquipment() {
+    // Список всех слотов с их новыми ID
+    const slotMap = {
+        "slot-head": "Голова",
+        "slot-amulet": "Амулет",
+        "slot-amulet-2": "Амулет",
+        "slot-cape": "Плащ",
+        "slot-shoulders": "Наплечники",
+        "slot-right-hand": "Правая рука",
+        "slot-bracelet-right": "Браслет",
+        "slot-ring-1": "Кольцо",
+        "slot-gloves": "Перчатки",
+        "slot-armor": "Нагрудник",
+        "slot-left-hand": "Левая рука",
+        "slot-bracer": "Наручи",
+        "slot-bracelet-left": "Браслет",
+        "slot-ring-2": "Кольцо",
+        "slot-belt": "Пояс",
+        "slot-legs": "Штаны",
+        "slot-knees": "Наколенники",
+        "slot-shoes": "Обувь"
+    };
+
+    // Очищаем все слоты
+    for (let slotId in slotMap) {
+        const slotHtml = document.getElementById(slotId);
+        if (slotHtml) {
+            slotHtml.style.borderColor = "var(--border-gray)";
+            slotHtml.innerHTML = `<div class="slot-name">${slotMap[slotId]}</div>`;
+            slotHtml.onclick = null;
+        }
+    }
+
+    // Заполняем надетые вещи
+    for (let slotId in equippedItems) {
+        const itemData = equippedItems[slotId];
+        const baseItem = itemsDatabase[itemData.id];
+        const slotHtml = document.getElementById(slotId);
+        if (slotHtml && baseItem) {
+            slotHtml.style.borderColor = rarityColors[itemData.rarity];
+            slotHtml.innerHTML = `<span style="font-size: 5px; color: ${rarityColors[itemData.rarity]}">${baseItem.img}</span><div class="slot-name">${baseItem.type}</div>`;
+            slotHtml.onclick = () => showEquippedItemDetails(slotId);
+        }
+    }
+}
 
         function mergeItem(invIndex) {
             const itemData = playerInventory[invIndex];

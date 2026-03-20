@@ -271,8 +271,9 @@ canvas {
 <body>
 
     <div class="top-bar">
-        <div>LVL: <span id="level">12</span></div>
-        <div>ЗОЛОТО: <span id="gold">450</span></div>
+        <div>УРОВЕНЬ: <span id="level">0</span></div>
+        <div>ЗОЛОТО: <span id="gold">0</span></div>
+        <div>СИЛА: <span id="power">0</span></div>
     </div>
 
     <div class="box">
@@ -685,6 +686,14 @@ canvas {
                 return `${mins}:${seconds.toString().padStart(2,'0')}`;
             }
 
+            // 
+            function calculatePower() {
+        let power = 0;
+        for (let stat in playerStats) {
+            power += playerStats[stat];
+        }
+        return power;
+    }
 
         
         // ============================================================================
@@ -710,6 +719,15 @@ canvas {
                     container.appendChild(taskDiv);
                 });
             }
+
+
+            function updatePowerDisplay() {
+                const powerSpan = document.getElementById('player-power');
+                if (powerSpan) {
+                powerSpan.innerText = calculatePower();
+                }
+            }
+        
 
         // ============================================================================
         // 5. МЕХАНИКИ ИГРЫ 
@@ -739,6 +757,7 @@ canvas {
             updateXPdisplay();
             if (document.getElementById('stat-' + statName)) {
                 document.getElementById('stat-' + statName).innerText = playerStats[statName];
+                updatePowerDisplay();
             }
             if (window.Telegram && window.Telegram.WebApp) {
                 window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
@@ -973,7 +992,10 @@ canvas {
             for (let stat in playerStats) {
                 let el = document.getElementById('stat-' + stat);
                 if (el) el.innerText = playerStats[stat];
+                
             }
+                updatePowerDisplay();
+            }            
         }
 
         function openSettings() {

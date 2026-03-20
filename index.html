@@ -650,6 +650,43 @@ canvas {
             }
         
 
+            // Линейная экстраполяция на основе последних 7 точек
+            function extrapolate(values, daysForward) {
+                if (values.length < 2) return null;
+                const recent = values.slice(-7);
+                if (recent.length < 2) return null;
+                const indices = recent.map((_, i) => i);
+                const sumX = indices.reduce((a,b)=>a+b,0);
+                const sumY = recent.reduce((a,b)=>a+b,0);
+                const sumXY = indices.reduce((a,b,i)=>a+b*recent[i],0);
+                const sumX2 = indices.reduce((a,b)=>a+b*b,0);
+                const n = recent.length;
+                const slope = (n*sumXY - sumX*sumY) / (n*sumX2 - sumX*sumX);
+                const intercept = (sumY - slope*sumX)/n;
+                const lastIndex = indices[indices.length-1];
+                const lastValue = recent[lastIndex];
+                const predicted = lastValue + slope * daysForward;
+                return Math.round(predicted);
+            }
+
+            // Обновление XP на экране
+            function updateXPdisplay() {
+                document.getElementById('xp-current').innerText = currentXp;
+                document.getElementById('xp-max').innerText = maxXp;
+                document.querySelector('.xp-bar').style.width = Math.min((currentXp / maxXp) * 100, 100) + '%';
+            }
+
+
+            // Форматирование времени из секунд в минуты:секунды
+            function formatTime(sec) {
+                if (!sec) return '—';
+                const mins = Math.floor(sec / 60);
+                const seconds = sec % 60;
+                return `${mins}:${seconds.toString().padStart(2,'0')}`;
+            }
+
+
+        
         // ============================================================================
         // 4. ФУНКЦИИ ОБНОВЛЕНИЯ ИНТЕРФЕЙСА 
         // ============================================================================
@@ -793,32 +830,7 @@ canvas {
             }
         }
 
-        // Форматирование времени из секунд в минуты:секунды
-        function formatTime(sec) {
-            if (!sec) return '—';
-            const mins = Math.floor(sec / 60);
-            const seconds = sec % 60;
-            return `${mins}:${seconds.toString().padStart(2,'0')}`;
-        }
 
-        // Линейная экстраполяция на основе последних 7 точек
-        function extrapolate(values, daysForward) {
-            if (values.length < 2) return null;
-            const recent = values.slice(-7);
-            if (recent.length < 2) return null;
-            const indices = recent.map((_, i) => i);
-            const sumX = indices.reduce((a,b)=>a+b,0);
-            const sumY = recent.reduce((a,b)=>a+b,0);
-            const sumXY = indices.reduce((a,b,i)=>a+b*recent[i],0);
-            const sumX2 = indices.reduce((a,b)=>a+b*b,0);
-            const n = recent.length;
-            const slope = (n*sumXY - sumX*sumY) / (n*sumX2 - sumX*sumX);
-            const intercept = (sumY - slope*sumX)/n;
-            const lastIndex = indices[indices.length-1];
-            const lastValue = recent[lastIndex];
-            const predicted = lastValue + slope * daysForward;
-            return Math.round(predicted);
-        }
 
         // Рендер дашборда и графиков
         let metricsChart = null;
@@ -928,12 +940,7 @@ canvas {
 
 
 
-        // Обновление XP на экране
-        function updateXPdisplay() {
-            document.getElementById('xp-current').innerText = currentXp;
-            document.getElementById('xp-max').innerText = maxXp;
-            document.querySelector('.xp-bar').style.width = Math.min((currentXp / maxXp) * 100, 100) + '%';
-        }
+
         updateXPdisplay();
         document.getElementById('gold').innerText = currentGold;
         document.getElementById('level').innerText = currentLevel;

@@ -233,7 +233,6 @@ canvas {
     width: 100%;
     margin: 10px 0;
 }
-        /* Новая сетка экипировки */
 .equipment-grid-new {
     display: flex;
     flex-direction: column;
@@ -273,7 +272,7 @@ canvas {
     <div class="top-bar">
         <div>УРОВЕНЬ: <span id="level">0</span></div>
         <div>ЗОЛОТО: <span id="gold">0</span></div>
-        <div>СИЛА: <span id="power">0</span></div>
+        <div>СИЛА: <span id="player-power">0</span></div>
     </div>
 
     <div class="box">
@@ -757,8 +756,9 @@ canvas {
             updateXPdisplay();
             if (document.getElementById('stat-' + statName)) {
                 document.getElementById('stat-' + statName).innerText = playerStats[statName];
-                updatePowerDisplay();
+               
             }
+            updatePowerDisplay();
             if (window.Telegram && window.Telegram.WebApp) {
                 window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
             }
@@ -994,8 +994,7 @@ canvas {
                 if (el) el.innerText = playerStats[stat];
                 
             }
-                updatePowerDisplay();
-            }            
+                updatePowerDisplay();          
         }
 
         function openSettings() {

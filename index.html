@@ -460,15 +460,301 @@ canvas {
         tg.ready();
         tg.expand();
 
-         // ========== МЕТРИКИ ==========
-        // Структура: массив записей { date, pushups, pullups, barbell, bodyweight, run1k, run5k, run21k }
-        let metricsHistory = JSON.parse(localStorage.getItem('metrics_history')) || [];
+        // ============================================================================
+        // 1. КОНФИГУРАЦИЯ ИГРЫ
+        // ============================================================================
 
-        // Получить сегодняшнюю дату в формате YYYY-MM-DD
-        function getToday() {
+            // Квесты
+            const questsDatabase = [
+           
+            // Ежедневные
+            { id: "d1", type: "daily", title: "Шаги (10к)", xp: 10, gold: 2, stat: "Выносливость" },
+            { id: "d2", type: "daily", title: "Вода", xp: 5, gold: 1, stat: "Выносливость" },
+            { id: "d3", type: "daily", title: "Питание", xp: 10, gold: 2, stat: "Сила духа" },
+            { id: "d4", type: "daily", title: "Дефицит", xp: 15, gold: 3, stat: "Концентрация" },
+            { id: "d5", type: "daily", title: "Белок", xp: 10, gold: 2, stat: "Сила" },
+            { id: "d6", type: "daily", title: "Витамины", xp: 5, gold: 1, stat: "Выносливость" },
+            { id: "d7", type: "daily", title: "Чтение", xp: 10, gold: 2, stat: "Интеллект" },
+            { id: "d8", type: "daily", title: "Зубы (утро/вечер)", xp: 5, gold: 1, stat: "Гибкость" },
+            { id: "d9", type: "daily", title: "Умывание (утро/вечер)", xp: 5, gold: 1, stat: "Креативность" },
+            { id: "d10", type: "daily", title: "Душ (утро/вечер)", xp: 10, gold: 2, stat: "Сила духа" },
+            { id: "d11", type: "daily", title: "Отжимания (50х)", xp: 15, gold: 3, stat: "Сила" },
+            { id: "d12", type: "daily", title: "Пресс (100х)", xp: 15, gold: 3, stat: "Сила" },
+            { id: "d13", type: "daily", title: "Планка (2 мин)", xp: 10, gold: 2, stat: "Сила духа" },
+            { id: "d14", type: "daily", title: "Сон (8ч)", xp: 15, gold: 3, stat: "Концентрация" },
+            { id: "d15", type: "daily", title: "Растяжка (5 мин)", xp: 10, gold: 2, stat: "Гибкость" },
+           
+            // Еженедельные
+            { id: "w1", type: "weekly", title: "Взвешивание", xp: 20, gold: 5, stat: "Концентрация" },
+            { id: "w2", type: "weekly", title: "Волейбол (Тренировка 1)", xp: 50, gold: 15, stat: "Ловкость" },
+            { id: "w3", type: "weekly", title: "Волейбол (Тренировка 2)", xp: 50, gold: 15, stat: "Ловкость" },
+            { id: "w4", type: "weekly", title: "Зал (Силовая 1)", xp: 60, gold: 20, stat: "Сила" },
+            { id: "w5", type: "weekly", title: "Зал (Силовая 2)", xp: 60, gold: 20, stat: "Сила" },
+            { id: "w6", type: "weekly", title: "Бассейн (Заплыв 1)", xp: 40, gold: 10, stat: "Выносливость" },
+            { id: "w7", type: "weekly", title: "Бассейн (Заплыв 2)", xp: 40, gold: 10, stat: "Выносливость" },
+            { id: "w8", type: "weekly", title: "Скакалка (15 мин)", xp: 30, gold: 10, stat: "Ловкость" },
+            { id: "w9", type: "weekly", title: "Пробежка (Лёгкая)", xp: 40, gold: 15, stat: "Выносливость" },
+            { id: "w10", type: "weekly", title: "Массаж (МФР валик)", xp: 30, gold: 10, stat: "Гибкость" },
+           
+            // Ежемесячные
+            { id: "m1", type: "monthly", title: "Пробежка (5 км)", xp: 100, gold: 30, stat: "Выносливость" },
+            { id: "m2", type: "monthly", title: "Турнир (Волейбол)", xp: 150, gold: 50, stat: "Ловкость" },
+            { id: "m3", type: "monthly", title: "Проходка (Макс. вес)", xp: 100, gold: 30, stat: "Сила" },
+            { id: "m4", type: "monthly", title: "Замеры (Объемы тела)", xp: 50, gold: 15, stat: "Концентрация" },
+            { id: "m5", type: "monthly", title: "Прыжок (Замер высоты)", xp: 80, gold: 25, stat: "Ловкость" },
+            { id: "m6", type: "monthly", title: "Челлендж (Без сахара)", xp: 100, gold: 30, stat: "Сила духа" }
+        ];
+
+            // Предметы 
+            const itemsDatabase = {
+            "sword": { name: "Меч тренировок", type: "Правая рука", slotId: "slot-right-hand", stat: "Сила", baseBonus: 1, img: "⚔️" },
+            "shoes": { name: "Кроссовки", type: "Обувь", slotId: "slot-shoes", stat: "Выносливость", baseBonus: 2, img: "👟" }
+        };
+
+             // Редкость предметов 
+            const rarities = ["Сломанный", "Обычный", "Редкий", "Эпический", "Легендарный"];
+            const rarityColors = ["#777777", "#ffffff", "#0070dd", "#a335ee", "#ff8000"];
+            const statMultipliers = [1, 2, 4, 8, 15];
+
+        
+            // Магазин
+            const shopItems = [
+            { id: "sword", name: "Меч тренировок", price: 100, type: "item" },
+            { id: "shoes", name: "Кроссовки", price: 150, type: "item" },
+            { name: "Сундук", price: 200, type: "chest" }
+        ];
+             // Таланты 
+            const talentsData = [
+            { id: 'str', name: 'Сила', description: 'Увеличивает силу на +1 за уровень', maxLevel: 5, baseEffect: 1, effectType: 'stat', stat: 'Сила', cost: 1, dependencies: [] },
+            { id: 'dex', name: 'Ловкость', description: 'Увеличивает ловкость на +1 за уровень', maxLevel: 5, baseEffect: 1, effectType: 'stat', stat: 'Ловкость', cost: 1, dependencies: [] },
+            { id: 'end', name: 'Выносливость', description: 'Увеличивает выносливость на +1 за уровень', maxLevel: 5, baseEffect: 1, effectType: 'stat', stat: 'Выносливость', cost: 1, dependencies: [] },
+            { id: 'int', name: 'Интеллект', description: 'Увеличивает интеллект на +1 за уровень', maxLevel: 5, baseEffect: 1, effectType: 'stat', stat: 'Интеллект', cost: 1, dependencies: [] },
+            { id: 'spirit', name: 'Сила духа', description: 'Увеличивает силу духа на +1 за уровень', maxLevel: 5, baseEffect: 1, effectType: 'stat', stat: 'Сила духа', cost: 1, dependencies: [] },
+            { id: 'flex', name: 'Гибкость', description: 'Увеличивает гибкость на +1 за уровень', maxLevel: 5, baseEffect: 1, effectType: 'stat', stat: 'Гибкость', cost: 1, dependencies: [] },
+            { id: 'conc', name: 'Концентрация', description: 'Увеличивает концентрацию на +1 за уровень', maxLevel: 5, baseEffect: 1, effectType: 'stat', stat: 'Концентрация', cost: 1, dependencies: [] },
+            { id: 'crea', name: 'Креативность', description: 'Увеличивает креативность на +1 за уровень', maxLevel: 5, baseEffect: 1, effectType: 'stat', stat: 'Креативность', cost: 1, dependencies: [] },
+            { id: 'xp_boost', name: 'Опыт', description: 'Увеличивает получаемый опыт на 5% за уровень', maxLevel: 5, baseEffect: 5, effectType: 'xp_mult', cost: 2, dependencies: [] },
+            { id: 'gold_boost', name: 'Золото', description: 'Увеличивает получаемое золото на 5% за уровень', maxLevel: 5, baseEffect: 5, effectType: 'gold_mult', cost: 2, dependencies: [] },
+            { id: 'luck', name: 'Удача', description: 'Увеличивает шанс выпадения редких предметов на 2% за уровень', maxLevel: 5, baseEffect: 2, effectType: 'luck', cost: 3, dependencies: ['xp_boost', 'gold_boost'] }
+        ];
+
+
+        // ============================================================================
+        // 2. СОСТОЯНИЕ ИГРЫ 
+        // ============================================================================
+
+            let metricsHistory = JSON.parse(localStorage.getItem('metrics_history')) || [];
+
+             // Рюкзак
+            let playerInventory = JSON.parse(localStorage.getItem('rpg_inv_v2')) || [
+                { id: "sword", rarity: 1 },
+                { id: "sword", rarity: 1 },
+                { id: "sword", rarity: 1 },
+                { id: "shoes", rarity: 0 }
+            ];
+
+            // Надетые вещи
+            let equippedItems = JSON.parse(localStorage.getItem('rpg_equipped_v2')) || {};
+
+            // Ресурсы
+            let currentGold = parseInt(localStorage.getItem('rpg_gold')) || 450;
+            let currentXp = parseInt(localStorage.getItem('rpg_xp')) || 250;
+            let currentLevel = parseInt(localStorage.getItem('rpg_level')) || 12;
+            let maxXp = 1000;
+
+            // Очки талантов
+            let talentPoints = parseInt(localStorage.getItem('rpg_talent_points')) || 0;
+
+            // Базовые статы (будут пересчитаны с учётом экипировки и талантов)
+            let playerStats = JSON.parse(localStorage.getItem('rpg_stats')) || {
+            "Сила": 10, "Ловкость": 10, "Выносливость": 10, "Интеллект": 10,
+            "Сила духа": 10, "Гибкость": 10, "Концентрация": 10, "Креативность": 10
+            };
+
+            // Выполненные квесты и дата
+            let completedQuests = JSON.parse(localStorage.getItem('rpg_completed')) || [];
+            const today = new Date().toISOString().split('T')[0];
+            let lastLoginDate = localStorage.getItem('rpg_last_login');
+            if (lastLoginDate !== today) {
+                completedQuests = [];
+                localStorage.setItem('rpg_last_login', today);
+                localStorage.setItem('rpg_completed', JSON.stringify(completedQuests));
+            }
+
+            let soundEnabled = localStorage.getItem('rpg_sound_enabled') !== 'false'; 
+
+            let talentsState = JSON.parse(localStorage.getItem('rpg_talents_state')) || {};
+
+             // Сохранить все данные игры в localStorage
+            function saveGame() {
+                localStorage.setItem('rpg_gold', currentGold);
+                localStorage.setItem('rpg_xp', currentXp);
+                localStorage.setItem('rpg_level', currentLevel);
+                localStorage.setItem('rpg_talent_points', talentPoints);
+                localStorage.setItem('rpg_stats', JSON.stringify(playerStats));
+                localStorage.setItem('rpg_inv_v2', JSON.stringify(playerInventory));
+                localStorage.setItem('rpg_equipped_v2', JSON.stringify(equippedItems));
+                localStorage.setItem('rpg_completed', JSON.stringify(completedQuests));
+                localStorage.setItem('rpg_talents_state', JSON.stringify(talentsState));
+                localStorage.setItem('metrics_history', JSON.stringify(metricsHistory));
+                localStorage.setItem('rpg_sound_enabled', soundEnabled);
+                localStorage.setItem('rpg_last_login', getToday());
+            }
+            
+            // Загрузить все данные из localStorage (вызывается при старте)
+            function loadGame() {
+                currentGold = parseInt(localStorage.getItem('rpg_gold')) || 450;
+                currentXp = parseInt(localStorage.getItem('rpg_xp')) || 250;
+                currentLevel = parseInt(localStorage.getItem('rpg_level')) || 12;
+                talentPoints = parseInt(localStorage.getItem('rpg_talent_points')) || 0;
+                playerStats = JSON.parse(localStorage.getItem('rpg_stats')) || {
+                    "Сила": 10, "Ловкость": 10, "Выносливость": 10, "Интеллект": 10,
+                    "Сила духа": 10, "Гибкость": 10, "Концентрация": 10, "Креативность": 10
+                };
+                playerInventory = JSON.parse(localStorage.getItem('rpg_inv_v2')) || [
+                    { id: "sword", rarity: 1 },
+                    { id: "sword", rarity: 1 },
+                    { id: "sword", rarity: 1 },
+                    { id: "shoes", rarity: 0 }
+                ];
+                equippedItems = JSON.parse(localStorage.getItem('rpg_equipped_v2')) || {};
+                completedQuests = JSON.parse(localStorage.getItem('rpg_completed')) || [];
+                talentsState = JSON.parse(localStorage.getItem('rpg_talents_state')) || {};
+                metricsHistory = JSON.parse(localStorage.getItem('metrics_history')) || [];
+                soundEnabled = localStorage.getItem('rpg_sound_enabled') !== 'false';
+            }
+        
+        // ============================================================================
+        // 3. ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ 
+        // ============================================================================
+
+             // Получить сегодняшнюю дату в формате YYYY-MM-DD
+            function getToday() {
             return new Date().toISOString().split('T')[0];
+          }
+
+            function renderForecast(name, values) {
+                const month = extrapolate(values, 30);
+                const halfYear = extrapolate(values, 180);
+                const year = extrapolate(values, 365);
+                if (month === null) return `<div class="forecast">${name}: недостаточно данных для прогноза</div>`;
+                return `<div class="forecast">${name}: через месяц → ${month}, через полгода → ${halfYear}, через год → ${year}</div>`;
+            }
+
+            function renderForecastTime(name, values) {
+                const month = extrapolate(values, 30);
+                const halfYear = extrapolate(values, 180);
+                const year = extrapolate(values, 365);
+                if (month === null) return `<div class="forecast">${name}: недостаточно данных для прогноза</div>`;
+                return `<div class="forecast">${name}: через месяц → ${formatTime(month)}, через полгода → ${formatTime(halfYear)}, через год → ${formatTime(year)}</div>`;
+            }
+        
+
+        // ============================================================================
+        // 4. ФУНКЦИИ ОБНОВЛЕНИЯ ИНТЕРФЕЙСА 
+        // ============================================================================
+
+
+            // Квесты
+            function renderQuests() {
+                const container = document.getElementById('quests-container');
+                container.innerHTML = '';
+                questsDatabase.forEach(quest => {
+                    if (completedQuests.includes(quest.id)) return;
+                    const taskDiv = document.createElement('div');
+                    taskDiv.className = 'task';
+                    taskDiv.innerHTML = `
+                        <div class="task-info">
+                            <div class="task-title">${quest.title}</div>
+                            <div class="task-reward">+1 ${quest.stat} | ${quest.gold}💰 | ${quest.xp} XP</div>
+                        </div>
+                        <button class="btn-action" onclick="completeQuest('${quest.id}', ${quest.xp}, ${quest.gold}, '${quest.stat}')">СДЕЛАТЬ</button>
+                    `;
+                    container.appendChild(taskDiv);
+                });
+            }
+
+        // ============================================================================
+        // 5. МЕХАНИКИ ИГРЫ 
+        // ============================================================================
+
+                function completeQuest(questId, xpReward, goldReward, statName) {
+            currentGold += Math.floor(goldReward * getGoldMultiplier());
+            currentXp += Math.floor(xpReward * getXpMultiplier());
+            if (playerStats[statName] !== undefined) {
+                playerStats[statName] += 1;
+            }
+            while (currentXp >= maxXp) {
+                currentLevel++;
+                currentXp -= maxXp;
+                talentPoints++;
+                localStorage.setItem('rpg_level', currentLevel);
+                localStorage.setItem('rpg_talent_points', talentPoints);
+                document.getElementById('level').innerText = currentLevel;
+                tg.showPopup({ title: 'Уровень повышен!', message: `Теперь ты ${currentLevel} уровня.`, buttons: [{ type: 'ok' }] });
+            }
+            completedQuests.push(questId);
+            localStorage.setItem('rpg_completed', JSON.stringify(completedQuests));
+            localStorage.setItem('rpg_gold', currentGold);
+            localStorage.setItem('rpg_xp', currentXp);
+            localStorage.setItem('rpg_stats', JSON.stringify(playerStats));
+            document.getElementById('gold').innerText = currentGold;
+            updateXPdisplay();
+            if (document.getElementById('stat-' + statName)) {
+                document.getElementById('stat-' + statName).innerText = playerStats[statName];
+            }
+            if (window.Telegram && window.Telegram.WebApp) {
+                window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
+            }
+            renderQuests();
         }
 
+        // Инвентарь и экипировка
+        function openInventory() {
+            const modal = document.getElementById('modal-inventory');
+            const grid = document.getElementById('inventory-grid');
+            grid.innerHTML = '';
+            hideItemDetails();
+            for (let i = 0; i < 20; i++) {
+                const slotDiv = document.createElement('div');
+                slotDiv.className = 'inv-slot';
+                if (i < playerInventory.length) {
+                    const itemData = playerInventory[i];
+                    const baseItem = itemsDatabase[itemData.id];
+                    if (baseItem) {
+                        slotDiv.style.borderColor = rarityColors[itemData.rarity];
+                        slotDiv.innerHTML = `<span style="font-size: 5px; color: ${rarityColors[itemData.rarity]};">${baseItem.img}</span>`;
+                        slotDiv.onclick = () => showItemDetails(i);
+                    }
+                }
+                grid.appendChild(slotDiv);
+            }
+            modal.style.display = 'flex';
+        }
+
+        function closeInventory() {
+            document.getElementById('modal-inventory').style.display = 'none';
+        }
+
+
+        function upgradeTalent(talentId) {
+            const talent = talentsData.find(t => t.id === talentId);
+            if (!talent || !canUpgradeTalent(talent)) return;
+            talentPoints -= talent.cost;
+            if (!talentsState[talentId]) talentsState[talentId] = 0;
+            talentsState[talentId] += 1;
+            localStorage.setItem('rpg_talent_points', talentPoints);
+            localStorage.setItem('rpg_talents_state', JSON.stringify(talentsState));
+            recalcStats();
+            document.getElementById('talent-points-display').innerText = talentPoints;
+            renderTalents();
+        }
+
+        // ============================================================================
+        // 6. ЗАПУСК ПРИЛОЖЕНИЯ 
+        // ============================================================================
+        
+        
         // Сохранить показатели за сегодня (если запись за сегодня уже есть, обновляем, иначе добавляем)
         function saveMetrics() {
             const today = getToday();
@@ -616,21 +902,7 @@ canvas {
             document.getElementById('forecast-container').innerHTML = forecastHtml;
         }
 
-        function renderForecast(name, values) {
-            const month = extrapolate(values, 30);
-            const halfYear = extrapolate(values, 180);
-            const year = extrapolate(values, 365);
-            if (month === null) return `<div class="forecast">${name}: недостаточно данных для прогноза</div>`;
-            return `<div class="forecast">${name}: через месяц → ${month}, через полгода → ${halfYear}, через год → ${year}</div>`;
-        }
 
-        function renderForecastTime(name, values) {
-            const month = extrapolate(values, 30);
-            const halfYear = extrapolate(values, 180);
-            const year = extrapolate(values, 365);
-            if (month === null) return `<div class="forecast">${name}: недостаточно данных для прогноза</div>`;
-            return `<div class="forecast">${name}: через месяц → ${formatTime(month)}, через полгода → ${formatTime(halfYear)}, через год → ${formatTime(year)}</div>`;
-        }
 
         function openMetrics() {
             document.getElementById('modal-metrics').style.display = 'flex';
@@ -654,90 +926,7 @@ canvas {
             });
         });
 
-        // База данных всех квестов (можно расширить позже)
-        const questsDatabase = [
-            // Ежедневные
-            { id: "d1", type: "daily", title: "Шаги (10к)", xp: 10, gold: 2, stat: "Выносливость" },
-            { id: "d2", type: "daily", title: "Вода", xp: 5, gold: 1, stat: "Выносливость" },
-            { id: "d3", type: "daily", title: "Питание", xp: 10, gold: 2, stat: "Сила духа" },
-            { id: "d4", type: "daily", title: "Дефицит", xp: 15, gold: 3, stat: "Концентрация" },
-            { id: "d5", type: "daily", title: "Белок", xp: 10, gold: 2, stat: "Сила" },
-            { id: "d6", type: "daily", title: "Витамины", xp: 5, gold: 1, stat: "Выносливость" },
-            { id: "d7", type: "daily", title: "Чтение", xp: 10, gold: 2, stat: "Интеллект" },
-            { id: "d8", type: "daily", title: "Зубы (утро/вечер)", xp: 5, gold: 1, stat: "Гибкость" },
-            { id: "d9", type: "daily", title: "Умывание (утро/вечер)", xp: 5, gold: 1, stat: "Креативность" },
-            { id: "d10", type: "daily", title: "Душ (утро/вечер)", xp: 10, gold: 2, stat: "Сила духа" },
-            { id: "d11", type: "daily", title: "Отжимания (50х)", xp: 15, gold: 3, stat: "Сила" },
-            { id: "d12", type: "daily", title: "Пресс (100х)", xp: 15, gold: 3, stat: "Сила" },
-            { id: "d13", type: "daily", title: "Планка (2 мин)", xp: 10, gold: 2, stat: "Сила духа" },
-            { id: "d14", type: "daily", title: "Сон (8ч)", xp: 15, gold: 3, stat: "Концентрация" },
-            { id: "d15", type: "daily", title: "Растяжка (5 мин)", xp: 10, gold: 2, stat: "Гибкость" },
-            // Еженедельные
-            { id: "w1", type: "weekly", title: "Взвешивание", xp: 20, gold: 5, stat: "Концентрация" },
-            { id: "w2", type: "weekly", title: "Волейбол (Тренировка 1)", xp: 50, gold: 15, stat: "Ловкость" },
-            { id: "w3", type: "weekly", title: "Волейбол (Тренировка 2)", xp: 50, gold: 15, stat: "Ловкость" },
-            { id: "w4", type: "weekly", title: "Зал (Силовая 1)", xp: 60, gold: 20, stat: "Сила" },
-            { id: "w5", type: "weekly", title: "Зал (Силовая 2)", xp: 60, gold: 20, stat: "Сила" },
-            { id: "w6", type: "weekly", title: "Бассейн (Заплыв 1)", xp: 40, gold: 10, stat: "Выносливость" },
-            { id: "w7", type: "weekly", title: "Бассейн (Заплыв 2)", xp: 40, gold: 10, stat: "Выносливость" },
-            { id: "w8", type: "weekly", title: "Скакалка (15 мин)", xp: 30, gold: 10, stat: "Ловкость" },
-            { id: "w9", type: "weekly", title: "Пробежка (Лёгкая)", xp: 40, gold: 15, stat: "Выносливость" },
-            { id: "w10", type: "weekly", title: "Массаж (МФР валик)", xp: 30, gold: 10, stat: "Гибкость" },
-            // Ежемесячные
-            { id: "m1", type: "monthly", title: "Пробежка (5 км)", xp: 100, gold: 30, stat: "Выносливость" },
-            { id: "m2", type: "monthly", title: "Турнир (Волейбол)", xp: 150, gold: 50, stat: "Ловкость" },
-            { id: "m3", type: "monthly", title: "Проходка (Макс. вес)", xp: 100, gold: 30, stat: "Сила" },
-            { id: "m4", type: "monthly", title: "Замеры (Объемы тела)", xp: 50, gold: 15, stat: "Концентрация" },
-            { id: "m5", type: "monthly", title: "Прыжок (Замер высоты)", xp: 80, gold: 25, stat: "Ловкость" },
-            { id: "m6", type: "monthly", title: "Челлендж (Без сахара)", xp: 100, gold: 30, stat: "Сила духа" }
-        ];
 
-        // Редкости
-        const rarities = ["Сломанный", "Обычный", "Редкий", "Эпический", "Легендарный"];
-        const rarityColors = ["#777777", "#ffffff", "#0070dd", "#a335ee", "#ff8000"];
-        const statMultipliers = [1, 2, 4, 8, 15];
-
-        // База предметов
-        const itemsDatabase = {
-            "sword": { name: "Меч тренировок", type: "Правая рука", slotId: "slot-right-hand", stat: "Сила", baseBonus: 1, img: "⚔️" },
-            "shoes": { name: "Кроссовки", type: "Обувь", slotId: "slot-shoes", stat: "Выносливость", baseBonus: 2, img: "👟" }
-        };
-
-        // Рюкзак
-        let playerInventory = JSON.parse(localStorage.getItem('rpg_inv_v2')) || [
-            { id: "sword", rarity: 1 },
-            { id: "sword", rarity: 1 },
-            { id: "sword", rarity: 1 },
-            { id: "shoes", rarity: 0 }
-        ];
-
-        // Надетые вещи
-        let equippedItems = JSON.parse(localStorage.getItem('rpg_equipped_v2')) || {};
-
-        // Ресурсы
-        let currentGold = parseInt(localStorage.getItem('rpg_gold')) || 450;
-        let currentXp = parseInt(localStorage.getItem('rpg_xp')) || 250;
-        let currentLevel = parseInt(localStorage.getItem('rpg_level')) || 12;
-        let maxXp = 1000;
-
-        // Очки талантов
-        let talentPoints = parseInt(localStorage.getItem('rpg_talent_points')) || 0;
-
-        // Базовые статы (будут пересчитаны с учётом экипировки и талантов)
-        let playerStats = JSON.parse(localStorage.getItem('rpg_stats')) || {
-            "Сила": 10, "Ловкость": 10, "Выносливость": 10, "Интеллект": 10,
-            "Сила духа": 10, "Гибкость": 10, "Концентрация": 10, "Креативность": 10
-        };
-
-        // Выполненные квесты и дата
-        let completedQuests = JSON.parse(localStorage.getItem('rpg_completed')) || [];
-        const today = new Date().toISOString().split('T')[0];
-        let lastLoginDate = localStorage.getItem('rpg_last_login');
-        if (lastLoginDate !== today) {
-            completedQuests = [];
-            localStorage.setItem('rpg_last_login', today);
-            localStorage.setItem('rpg_completed', JSON.stringify(completedQuests));
-        }
 
         // Обновление XP на экране
         function updateXPdisplay() {
@@ -765,8 +954,6 @@ canvas {
                 }
             }
 
-            
-            
             // Бонусы от талантов
             talentsData.forEach(talent => {
                 if (talent.effectType === 'stat') {
@@ -789,22 +976,8 @@ canvas {
     document.getElementById('modal-settings').style.display = 'none';
 }
         
-        // Таланты
-        const talentsData = [
-            { id: 'str', name: 'Сила', description: 'Увеличивает силу на +1 за уровень', maxLevel: 5, baseEffect: 1, effectType: 'stat', stat: 'Сила', cost: 1, dependencies: [] },
-            { id: 'dex', name: 'Ловкость', description: 'Увеличивает ловкость на +1 за уровень', maxLevel: 5, baseEffect: 1, effectType: 'stat', stat: 'Ловкость', cost: 1, dependencies: [] },
-            { id: 'end', name: 'Выносливость', description: 'Увеличивает выносливость на +1 за уровень', maxLevel: 5, baseEffect: 1, effectType: 'stat', stat: 'Выносливость', cost: 1, dependencies: [] },
-            { id: 'int', name: 'Интеллект', description: 'Увеличивает интеллект на +1 за уровень', maxLevel: 5, baseEffect: 1, effectType: 'stat', stat: 'Интеллект', cost: 1, dependencies: [] },
-            { id: 'spirit', name: 'Сила духа', description: 'Увеличивает силу духа на +1 за уровень', maxLevel: 5, baseEffect: 1, effectType: 'stat', stat: 'Сила духа', cost: 1, dependencies: [] },
-            { id: 'flex', name: 'Гибкость', description: 'Увеличивает гибкость на +1 за уровень', maxLevel: 5, baseEffect: 1, effectType: 'stat', stat: 'Гибкость', cost: 1, dependencies: [] },
-            { id: 'conc', name: 'Концентрация', description: 'Увеличивает концентрацию на +1 за уровень', maxLevel: 5, baseEffect: 1, effectType: 'stat', stat: 'Концентрация', cost: 1, dependencies: [] },
-            { id: 'crea', name: 'Креативность', description: 'Увеличивает креативность на +1 за уровень', maxLevel: 5, baseEffect: 1, effectType: 'stat', stat: 'Креативность', cost: 1, dependencies: [] },
-            { id: 'xp_boost', name: 'Опыт', description: 'Увеличивает получаемый опыт на 5% за уровень', maxLevel: 5, baseEffect: 5, effectType: 'xp_mult', cost: 2, dependencies: [] },
-            { id: 'gold_boost', name: 'Золото', description: 'Увеличивает получаемое золото на 5% за уровень', maxLevel: 5, baseEffect: 5, effectType: 'gold_mult', cost: 2, dependencies: [] },
-            { id: 'luck', name: 'Удача', description: 'Увеличивает шанс выпадения редких предметов на 2% за уровень', maxLevel: 5, baseEffect: 2, effectType: 'luck', cost: 3, dependencies: ['xp_boost', 'gold_boost'] }
-        ];
+       
 
-        let talentsState = JSON.parse(localStorage.getItem('rpg_talents_state')) || {};
 
         function getTalentLevel(talentId) {
             return talentsState[talentId] || 0;
@@ -880,18 +1053,7 @@ canvas {
             });
         }
 
-        function upgradeTalent(talentId) {
-            const talent = talentsData.find(t => t.id === talentId);
-            if (!talent || !canUpgradeTalent(talent)) return;
-            talentPoints -= talent.cost;
-            if (!talentsState[talentId]) talentsState[talentId] = 0;
-            talentsState[talentId] += 1;
-            localStorage.setItem('rpg_talent_points', talentPoints);
-            localStorage.setItem('rpg_talents_state', JSON.stringify(talentsState));
-            recalcStats();
-            document.getElementById('talent-points-display').innerText = talentPoints;
-            renderTalents();
-        }
+        
 
         function getXpMultiplier() {
             let mult = 1.0;
@@ -913,82 +1075,9 @@ canvas {
             return 0;
         }
 
-        // Квесты
-        function renderQuests() {
-            const container = document.getElementById('quests-container');
-            container.innerHTML = '';
-            questsDatabase.forEach(quest => {
-                if (completedQuests.includes(quest.id)) return;
-                const taskDiv = document.createElement('div');
-                taskDiv.className = 'task';
-                taskDiv.innerHTML = `
-                    <div class="task-info">
-                        <div class="task-title">${quest.title}</div>
-                        <div class="task-reward">+1 ${quest.stat} | ${quest.gold}💰 | ${quest.xp} XP</div>
-                    </div>
-                    <button class="btn-action" onclick="completeQuest('${quest.id}', ${quest.xp}, ${quest.gold}, '${quest.stat}')">СДЕЛАТЬ</button>
-                `;
-                container.appendChild(taskDiv);
-            });
-        }
+        
 
-        function completeQuest(questId, xpReward, goldReward, statName) {
-            currentGold += Math.floor(goldReward * getGoldMultiplier());
-            currentXp += Math.floor(xpReward * getXpMultiplier());
-            if (playerStats[statName] !== undefined) {
-                playerStats[statName] += 1;
-            }
-            while (currentXp >= maxXp) {
-                currentLevel++;
-                currentXp -= maxXp;
-                talentPoints++;
-                localStorage.setItem('rpg_level', currentLevel);
-                localStorage.setItem('rpg_talent_points', talentPoints);
-                document.getElementById('level').innerText = currentLevel;
-                tg.showPopup({ title: 'Уровень повышен!', message: `Теперь ты ${currentLevel} уровня.`, buttons: [{ type: 'ok' }] });
-            }
-            completedQuests.push(questId);
-            localStorage.setItem('rpg_completed', JSON.stringify(completedQuests));
-            localStorage.setItem('rpg_gold', currentGold);
-            localStorage.setItem('rpg_xp', currentXp);
-            localStorage.setItem('rpg_stats', JSON.stringify(playerStats));
-            document.getElementById('gold').innerText = currentGold;
-            updateXPdisplay();
-            if (document.getElementById('stat-' + statName)) {
-                document.getElementById('stat-' + statName).innerText = playerStats[statName];
-            }
-            if (window.Telegram && window.Telegram.WebApp) {
-                window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
-            }
-            renderQuests();
-        }
 
-        // Инвентарь и экипировка
-        function openInventory() {
-            const modal = document.getElementById('modal-inventory');
-            const grid = document.getElementById('inventory-grid');
-            grid.innerHTML = '';
-            hideItemDetails();
-            for (let i = 0; i < 20; i++) {
-                const slotDiv = document.createElement('div');
-                slotDiv.className = 'inv-slot';
-                if (i < playerInventory.length) {
-                    const itemData = playerInventory[i];
-                    const baseItem = itemsDatabase[itemData.id];
-                    if (baseItem) {
-                        slotDiv.style.borderColor = rarityColors[itemData.rarity];
-                        slotDiv.innerHTML = `<span style="font-size: 5px; color: ${rarityColors[itemData.rarity]};">${baseItem.img}</span>`;
-                        slotDiv.onclick = () => showItemDetails(i);
-                    }
-                }
-                grid.appendChild(slotDiv);
-            }
-            modal.style.display = 'flex';
-        }
-
-        function closeInventory() {
-            document.getElementById('modal-inventory').style.display = 'none';
-        }
 
         function hideItemDetails() {
             document.getElementById('item-details').style.display = 'none';
@@ -1137,36 +1226,6 @@ canvas {
             renderEquipment();
         }
 
-        function renderEquipment() {
-            const allSlotIds = ["slot-amulet", "slot-right-hand", "slot-ring-1", "slot-bracelet", "slot-head", "slot-legs", "slot-shoes", "slot-cape", "slot-armor", "slot-left-hand", "slot-ring-2"];
-            const slotNames = ["Амулет", "Правая рука", "Кольцо 1", "Браслет", "Голова", "Штаны", "Обувь", "Накидка", "Броня", "Левая рука", "Кольцо 2"];
-            for (let i = 0; i < allSlotIds.length; i++) {
-                const slotHtml = document.getElementById(allSlotIds[i]);
-                if (slotHtml) {
-                    slotHtml.style.borderColor = "var(--border-gray)";
-                    slotHtml.innerHTML = `<div class="slot-name">${slotNames[i]}</div>`;
-                    slotHtml.onclick = null;
-                }
-            }
-            for (let slotId in equippedItems) {
-                const itemData = equippedItems[slotId];
-                const baseItem = itemsDatabase[itemData.id];
-                const slotHtml = document.getElementById(slotId);
-                if (slotHtml && baseItem) {
-                    slotHtml.style.borderColor = rarityColors[itemData.rarity];
-                    slotHtml.innerHTML = `<span style="font-size: 5px; color: ${rarityColors[itemData.rarity]}">${baseItem.img}</span><div class="slot-name">${baseItem.type}</div>`;
-                    slotHtml.onclick = () => showEquippedItemDetails(slotId);
-                }
-            }
-        }
-        renderEquipment();
-
-        // Магазин
-        const shopItems = [
-            { id: "sword", name: "Меч тренировок", price: 100, type: "item" },
-            { id: "shoes", name: "Кроссовки", price: 150, type: "item" },
-            { name: "Сундук", price: 200, type: "chest" }
-        ];
 
         function openShop() {
             document.getElementById('modal-shop').style.display = 'flex';
@@ -1247,7 +1306,7 @@ canvas {
         }
 
         // ========== НАСТРОЙКИ ==========
-let soundEnabled = localStorage.getItem('rpg_sound_enabled') !== 'false'; // по умолчанию true
+
 
 function updateSoundButton() {
     const btn = document.getElementById('sound-toggle');

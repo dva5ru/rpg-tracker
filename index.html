@@ -316,8 +316,8 @@ canvas {
 </div>
     </div>
 
-    <div style="font-size: 7px;">HP: 100/100</div>
-    <div class="bar-container"><div class="hp-bar"></div></div>
+    <div style="font-size: 7px;">HP: <span id="hp-current">100</span>/<span id="hp-max">100</span></div>
+    <div class="bar-container"><div class="hp-bar" id="hp-bar-fill"></div></div>
 
     <div style="font-size: 7px;">XP: <span id="xp-current">250</span>/<span id="xp-max">1000</span></div>
     <div class="bar-container"><div class="xp-bar"></div></div>
@@ -341,6 +341,7 @@ canvas {
         <div class="btn-menu" onclick="openTalents()">ТАЛАНТЫ</div>
         <div class="btn-menu" onclick="openMetrics()">МЕТРИКИ</div>
         <div class="btn-menu" onclick="openSettings()">НАСТРОЙКИ</div>
+        <div class="btn-menu" onclick="openBattle()">⚔️ БОЙ</div>
     </div>
 
     <div class="box" style="padding: 10px 5px;">
@@ -406,6 +407,31 @@ canvas {
         </div>
     </div>
 
+    <!-- Модальное окно битвы -->
+<div id="modal-battle" class="modal-overlay">
+    <div class="modal-content" style="max-width: 90%; text-align: center;">
+        <button class="close-btn" onclick="closeBattle()">✖</button>
+        <h2>⚔️ СРАЖЕНИЕ ⚔️</h2>
+        <div id="battle-log" style="height: 150px; overflow-y: auto; font-size: 7px; text-align: left; margin: 10px 0; background: #111; padding: 8px;"></div>
+        <div style="display: flex; justify-content: space-between; margin: 10px 0;">
+            <div>
+                <div>❤️ ГЕРОЙ</div>
+                <div id="hero-hp-display">HP: 100/100</div>
+                <div id="hero-power-display">⚔️ Сила: 0</div>
+            </div>
+            <div>
+                <div id="enemy-name">👾 МОБ</div>
+                <div id="enemy-power-display">⚔️ Сила: 0</div>
+                <div id="enemy-weakness" style="font-size: 6px;">Слабость: -</div>
+            </div>
+        </div>
+        <div style="display: flex; gap: 5px;">
+            <button id="attack-btn" class="btn-action" style="flex: 1;">В БОЙ</button>
+            <button id="restore-hp-btn" class="btn-action" style="flex: 1; background: #2c5e2e;" onclick="restoreHp()">🏥 Отдохнуть (10💰 → +10❤️)</button>
+        </div>
+    </div>
+</div>
+    
      <!-- Модальное окно метрик -->
     <div id="modal-metrics" class="modal-overlay">
         <div class="modal-content">
@@ -539,6 +565,27 @@ canvas {
         ];
 
 
+                // Мобы
+        const mobs = [
+            { id: 1, name: "🐞 Жук-трупоед", basePower: 8, weakness: "Ловкость", expReward: 15, goldReward: 5 },
+            { id: 2, name: "🍄 Гриб-поганка", basePower: 12, weakness: "Интеллект", expReward: 25, goldReward: 8 },
+            { id: 3, name: "🐺 Лесной волк", basePower: 18, weakness: "Сила", expReward: 35, goldReward: 12 },
+            { id: 4, name: "🦇 Пещерный вампир", basePower: 25, weakness: "Сила духа", expReward: 50, goldReward: 18 },
+            { id: 5, name: "🧙 Темный маг", basePower: 32, weakness: "Концентрация", expReward: 70, goldReward: 25 }
+        ];
+        
+        // Боссы
+        const bosses = [
+            { id: 101, name: "👑 Король гоблинов", basePower: 45, weakness: "Гибкость", expReward: 150, goldReward: 50 },
+            { id: 102, name: "🐉 Огненный дракон", basePower: 70, weakness: "Креативность", expReward: 300, goldReward: 100 }
+        ];
+        
+        // Выбор текущего врага (по умолчанию первый моб)
+        let currentEnemy = null;
+        let bossAvailable = false;      // доступен ли босс
+        let defeatedMobsCount = 0;      // сколько мобов побеждено с последнего босса
+        
+
         // ============================================================================
         // 2. СОСТОЯНИЕ ИГРЫ 
         // ============================================================================
@@ -561,6 +608,10 @@ canvas {
             let currentXp = parseInt(localStorage.getItem('rpg_xp')) || 250;
             let currentLevel = parseInt(localStorage.getItem('rpg_level')) || 12;
             let maxXp = 1000;
+
+            // Здоровье
+            let currentHp = parseInt(localStorage.getItem('rpg_hp')) || 100;
+            let maxHp = 100;
 
             // Очки талантов
             let talentPoints = parseInt(localStorage.getItem('rpg_talent_points')) || 0;
@@ -585,6 +636,10 @@ canvas {
 
             let talentsState = JSON.parse(localStorage.getItem('rpg_talents_state')) || {};
 
+let defeatedMobsCount = parseInt(localStorage.getItem('rpg_defeated_mobs')) || 0;
+let bossAvailable = localStorage.getItem('rpg_boss_available') === 'true';
+let currentEnemy = null;
+        
              // Сохранить все данные игры в localStorage
             function saveGame() {
                 localStorage.setItem('rpg_gold', currentGold);
@@ -597,7 +652,10 @@ canvas {
                 localStorage.setItem('rpg_completed', JSON.stringify(completedQuests));
                 localStorage.setItem('rpg_talents_state', JSON.stringify(talentsState));
                 localStorage.setItem('metrics_history', JSON.stringify(metricsHistory));
+                localStorage.setItem('rpg_defeated_mobs', defeatedMobsCount);
+                localStorage.setItem('rpg_boss_available', bossAvailable);
                 localStorage.setItem('rpg_sound_enabled', soundEnabled);
+                localStorage.setItem('rpg_hp', currentHp);
                 localStorage.setItem('rpg_last_login', getToday());
             }
             
@@ -606,6 +664,9 @@ canvas {
                 currentGold = parseInt(localStorage.getItem('rpg_gold')) || 450;
                 currentXp = parseInt(localStorage.getItem('rpg_xp')) || 250;
                 currentLevel = parseInt(localStorage.getItem('rpg_level')) || 12;
+                currentHp = parseInt(localStorage.getItem('rpg_hp')) || 100;
+                defeatedMobsCount = parseInt(localStorage.getItem('rpg_defeated_mobs')) || 0;
+                bossAvailable = localStorage.getItem('rpg_boss_available') === 'true';
                 talentPoints = parseInt(localStorage.getItem('rpg_talent_points')) || 0;
                 playerStats = JSON.parse(localStorage.getItem('rpg_stats')) || {
                     "Сила": 10, "Ловкость": 10, "Выносливость": 10, "Интеллект": 10,
@@ -674,6 +735,13 @@ canvas {
                 document.getElementById('xp-current').innerText = currentXp;
                 document.getElementById('xp-max').innerText = maxXp;
                 document.querySelector('.xp-bar').style.width = Math.min((currentXp / maxXp) * 100, 100) + '%';
+            }
+
+            function updateHpDisplay() {
+                document.getElementById('hp-current').innerText = currentHp;
+                document.getElementById('hp-max').innerText = maxHp;
+                const percent = (currentHp / maxHp) * 100;
+                document.getElementById('hp-bar-fill').style.width = Math.max(0, percent) + '%';
             }
 
 
@@ -765,6 +833,186 @@ canvas {
             renderQuests();
         }
 
+                function updateCurrentEnemy() {
+                    if (bossAvailable && bosses.length > 0) {
+                        // Выбираем случайного босса (можно сделать по очереди)
+                        const randomIndex = Math.floor(Math.random() * bosses.length);
+                        currentEnemy = { ...bosses[randomIndex], isBoss: true };
+                    } else {
+                        const randomIndex = Math.floor(Math.random() * mobs.length);
+                        currentEnemy = { ...mobs[randomIndex], isBoss: false };
+                    }
+                }
+
+function getEffectiveHeroPower(enemy) {
+    let basePower = calculatePower(); // сумма всех статов
+    if (enemy.weakness && playerStats[enemy.weakness]) {
+        // добавляем значение слабого стата как бонус
+        basePower += playerStats[enemy.weakness];
+    }
+    return basePower;
+}
+
+  
+        // Функция открытия битвы 
+        function openBattle() {
+    updateCurrentEnemy();
+    // обновляем информацию в окне
+    document.getElementById('hero-power-display').innerText = `⚔️ Сила: ${getEffectiveHeroPower(currentEnemy)}`;
+    document.getElementById('hero-hp-display').innerHTML = `❤️ HP: ${currentHp}/${maxHp}`;
+    document.getElementById('enemy-name').innerHTML = currentEnemy.isBoss ? `👑 ${currentEnemy.name}` : `👾 ${currentEnemy.name}`;
+    document.getElementById('enemy-power-display').innerText = `⚔️ Сила: ${currentEnemy.basePower}`;
+    document.getElementById('enemy-weakness').innerHTML = `Слабость: ${currentEnemy.weakness || 'нет'}`;
+    document.getElementById('battle-log').innerHTML = '';
+    document.getElementById('modal-battle').style.display = 'flex';
+    // навешиваем обработчик на кнопку боя (удаляем старый, чтобы не дублировался)
+    const attackBtn = document.getElementById('attack-btn');
+    attackBtn.onclick = startBattle;
+}
+
+function closeBattle() {
+    document.getElementById('modal-battle').style.display = 'none';
+}
+
+
+function startBattle() {
+    const log = document.getElementById('battle-log');
+    log.innerHTML = ''; // очищаем лог
+
+    // Проверка здоровья героя
+    if (currentHp <= 0) {
+        log.innerHTML = '<div style="color: red;">💀 Вы мертвы! Восстановите здоровье отдыхом.</div>';
+        return;
+    }
+
+    const heroPower = getEffectiveHeroPower(currentEnemy);
+    const enemyPower = currentEnemy.basePower;
+
+    log.innerHTML += `<div>⚔️ Ваша сила: ${heroPower} (со слабостью: +${currentEnemy.weakness ? playerStats[currentEnemy.weakness] : 0})</div>`;
+    log.innerHTML += `<div>👾 Сила врага: ${enemyPower}</div>`;
+
+    if (heroPower >= enemyPower) {
+        // ПОБЕДА
+        log.innerHTML += `<div style="color: lightgreen;">✅ ВЫ ПОБЕДИЛИ!</div>`;
+
+        // Награда
+        let expGain = Math.floor(currentEnemy.expReward * getXpMultiplier());
+        let goldGain = Math.floor(currentEnemy.goldReward * getGoldMultiplier());
+        currentXp += expGain;
+        currentGold += goldGain;
+        document.getElementById('gold').innerText = currentGold;
+        updateXPdisplay();
+
+        // Проверка на повышение уровня
+        while (currentXp >= maxXp) {
+            currentLevel++;
+            currentXp -= maxXp;
+            talentPoints++;
+            localStorage.setItem('rpg_level', currentLevel);
+            localStorage.setItem('rpg_talent_points', talentPoints);
+            document.getElementById('level').innerText = currentLevel;
+            tg.showPopup({ title: 'Уровень повышен!', message: `Теперь ты ${currentLevel} уровня.`, buttons: [{ type: 'ok' }] });
+        }
+
+        // Шанс сундука (20% + удача)
+        const luckBonus = getLuckBonus() / 100;
+        const chestChance = 0.2 + luckBonus;
+        if (Math.random() < chestChance) {
+            log.innerHTML += `<div style="color: gold;">🎁 Выпал сундук с предметом!</div>`;
+            // Открываем сундук (как в магазине)
+            const itemIds = Object.keys(itemsDatabase);
+            const randomId = itemIds[Math.floor(Math.random() * itemIds.length)];
+            const r = Math.random();
+            let rarity;
+            let thresholdCommon = 0.2 - luckBonus;
+            let thresholdRare = 0.7 - luckBonus;
+            let thresholdEpic = 0.9 - luckBonus;
+            let thresholdLegendary = 0.98 - luckBonus;
+            thresholdCommon = Math.max(0, thresholdCommon);
+            thresholdRare = Math.max(thresholdCommon, thresholdRare);
+            thresholdEpic = Math.max(thresholdRare, thresholdEpic);
+            thresholdLegendary = Math.max(thresholdEpic, thresholdLegendary);
+            if (r < thresholdCommon) rarity = 0;
+            else if (r < thresholdRare) rarity = 1;
+            else if (r < thresholdEpic) rarity = 2;
+            else if (r < thresholdLegendary) rarity = 3;
+            else rarity = 4;
+            if (playerInventory.length < 20) {
+                playerInventory.push({ id: randomId, rarity: rarity });
+                localStorage.setItem('rpg_inv_v2', JSON.stringify(playerInventory));
+                const baseItem = itemsDatabase[randomId];
+                log.innerHTML += `<div style="color: gold;">📦 Вы получили: ${baseItem.img} ${rarities[rarity]} ${baseItem.name}</div>`;
+            } else {
+                log.innerHTML += `<div style="color: orange;">⚠️ Инвентарь полон, предмет потерян.</div>`;
+            }
+        }
+
+        // Обновление счетчика побеждённых мобов и боссов
+        if (currentEnemy.isBoss) {
+            defeatedMobsCount = 0;
+            bossAvailable = false;
+            log.innerHTML += `<div>👑 Босс повержен! Теперь нужно победить 10 мобов для следующего босса.</div>`;
+        } else {
+            defeatedMobsCount++;
+            if (defeatedMobsCount >= 10) {
+                bossAvailable = true;
+                log.innerHTML += `<div>🌟 Вы победили 10 мобов! Стал доступен босс!</div>`;
+            } else {
+                log.innerHTML += `<div>Побеждено мобов: ${defeatedMobsCount}/10 до босса.</div>`;
+            }
+        }
+
+        // Сохраняем прогресс
+        localStorage.setItem('rpg_gold', currentGold);
+        localStorage.setItem('rpg_xp', currentXp);
+        localStorage.setItem('rpg_level', currentLevel);
+        localStorage.setItem('rpg_talent_points', talentPoints);
+        localStorage.setItem('rpg_hp', currentHp);
+        localStorage.setItem('rpg_defeated_mobs', defeatedMobsCount);
+        localStorage.setItem('rpg_boss_available', bossAvailable);
+
+        // Обновляем интерфейс
+        updatePowerDisplay();
+        updateHpDisplay();
+        if (tg) tg.HapticFeedback.impactOccurred('light');
+
+        // После победы выбираем нового врага
+        updateCurrentEnemy();
+        document.getElementById('hero-power-display').innerText = `⚔️ Сила: ${getEffectiveHeroPower(currentEnemy)}`;
+        document.getElementById('enemy-name').innerHTML = currentEnemy.isBoss ? `👑 ${currentEnemy.name}` : `👾 ${currentEnemy.name}`;
+        document.getElementById('enemy-power-display').innerText = `⚔️ Сила: ${currentEnemy.basePower}`;
+        document.getElementById('enemy-weakness').innerHTML = `Слабость: ${currentEnemy.weakness || 'нет'}`;
+
+        // Обновляем кнопку
+        const attackBtn = document.getElementById('attack-btn');
+        attackBtn.onclick = startBattle;
+    } else {
+        // ПОРАЖЕНИЕ
+        log.innerHTML += `<div style="color: red;">💔 ВЫ ПРОИГРАЛИ!</div>`;
+        let hpLoss = 10;
+        currentHp = Math.max(0, currentHp - hpLoss);
+        localStorage.setItem('rpg_hp', currentHp);
+        updateHpDisplay();
+        document.getElementById('hero-hp-display').innerHTML = `❤️ HP: ${currentHp}/${maxHp}`;
+
+        if (currentHp <= 0) {
+            log.innerHTML += `<div style="color: red;">💀 Вы пали в бою! Восстановите здоровье отдыхом.</div>`;
+            // блокируем кнопку боя до восстановления?
+            const attackBtn = document.getElementById('attack-btn');
+            attackBtn.onclick = null;
+            attackBtn.disabled = true;
+        } else {
+            // враг остаётся, можно попробовать снова
+            log.innerHTML += `<div>Вы потеряли ${hpLoss} HP. Попробуйте снова.</div>`;
+            const attackBtn = document.getElementById('attack-btn');
+            attackBtn.onclick = startBattle;
+        }
+    }
+    // Сохраняем изменения здоровья
+    localStorage.setItem('rpg_hp', currentHp);
+    log.scrollTop = log.scrollHeight;
+}
+        
         // Инвентарь и экипировка
         function openInventory() {
             const modal = document.getElementById('modal-inventory');
@@ -1365,6 +1613,7 @@ function resetProgress() {
         renderQuests();
         recalcStats();
         updateSoundButton();
+        updateHpDisplay();
     </script>
 </body>
 </html>

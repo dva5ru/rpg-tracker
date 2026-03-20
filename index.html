@@ -6,6 +6,7 @@
     <title>RPG Tracker - Mobile TWA</title>
     
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     
@@ -107,6 +108,132 @@
         .task-title { font-size: 7px; margin-bottom: 4px; line-height: 1.3;}
         .task-reward { color: var(--accent-green); font-size: 6px; }
         .btn-action { background: var(--accent-green); color: white; border: none; padding: 6px 8px; font-size: 6px; border-radius: 3px; font-family: 'Press Start 2P', cursive; }
+
+/* Стили для настроек */
+.settings-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #111;
+    border: 1px solid var(--border-gray);
+    border-radius: 4px;
+    padding: 12px;
+    margin-bottom: 10px;
+}
+.settings-label {
+    font-size: 8px;
+    color: var(--accent-yellow);
+}
+.toggle-btn {
+    background: #333;
+    border: 1px solid var(--border-gray);
+    border-radius: 4px;
+    padding: 8px 12px;
+    font-size: 8px;
+    color: white;
+    cursor: pointer;
+    font-family: 'Press Start 2P', cursive;
+}
+.toggle-btn.on {
+    background: var(--accent-green);
+}
+.danger-btn {
+    background: #8b0000;
+    border: none;
+    border-radius: 4px;
+    padding: 10px;
+    font-size: 8px;
+    color: white;
+    cursor: pointer;
+    width: 100%;
+    font-family: 'Press Start 2P', cursive;
+}
+
+/* Стили для метрик */
+.metrics-tabs {
+    display: flex;
+    gap: 5px;
+    margin-bottom: 15px;
+}
+.tab-btn {
+    flex: 1;
+    background: #111;
+    border: 1px solid var(--border-gray);
+    padding: 8px;
+    text-align: center;
+    font-size: 8px;
+    cursor: pointer;
+    border-radius: 4px;
+}
+.tab-btn.active {
+    background: var(--accent-green);
+    color: white;
+}
+.metrics-input-group {
+    margin-bottom: 15px;
+    background: #111;
+    border: 1px solid var(--border-gray);
+    border-radius: 4px;
+    padding: 10px;
+}
+.metrics-input-group label {
+    display: block;
+    font-size: 7px;
+    margin-bottom: 5px;
+    color: var(--accent-yellow);
+}
+.metrics-input-group input {
+    width: 100%;
+    background: #222;
+    border: 1px solid var(--border-gray);
+    color: white;
+    padding: 8px;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 8px;
+    border-radius: 3px;
+}
+.metrics-save-btn {
+    background: var(--accent-green);
+    width: 100%;
+    padding: 10px;
+    border: none;
+    color: white;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 8px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+.metric-card {
+    background: #111;
+    border: 1px solid var(--border-gray);
+    border-radius: 4px;
+    padding: 10px;
+    margin-bottom: 15px;
+}
+.metric-title {
+    color: var(--accent-yellow);
+    font-size: 8px;
+    margin-bottom: 8px;
+}
+.metric-value {
+    font-size: 12px;
+    font-weight: bold;
+}
+.metric-change {
+    font-size: 6px;
+    color: #aaa;
+}
+.forecast {
+    font-size: 6px;
+    color: var(--accent-green);
+    margin-top: 5px;
+}
+canvas {
+    max-height: 200px;
+    width: 100%;
+    margin: 10px 0;
+}
+        
     </style>
 </head>
 <body>
@@ -164,7 +291,8 @@
         <div class="btn-menu" onclick="openInventory()">ИНВЕНТАРЬ</div>
         <div class="btn-menu" onclick="openShop()">МАГАЗИН</div>
         <div class="btn-menu" onclick="openTalents()">ТАЛАНТЫ</div>
-        <div class="btn-menu">МЕТРИКИ</div>
+        <div class="btn-menu" onclick="openMetrics()">МЕТРИКИ</div>
+        <div class="btn-menu" onclick="openSettings()">НАСТРОЙКИ</div>
     </div>
 
     <div class="box" style="padding: 10px 5px;">
@@ -588,6 +716,14 @@
                     newStats[baseItem.stat] += bonus;
                 }
             }
+
+            function openSettings() {
+    document.getElementById('modal-settings').style.display = 'flex';
+}
+function closeSettings() {
+    document.getElementById('modal-settings').style.display = 'none';
+}
+            
             // Бонусы от талантов
             talentsData.forEach(talent => {
                 if (talent.effectType === 'stat') {
@@ -1014,9 +1150,38 @@
             }, 3000);
         }
 
+        // ========== НАСТРОЙКИ ==========
+let soundEnabled = localStorage.getItem('rpg_sound_enabled') !== 'false'; // по умолчанию true
+
+function updateSoundButton() {
+    const btn = document.getElementById('sound-toggle');
+    if (btn) {
+        btn.innerText = soundEnabled ? 'ВКЛ' : 'ВЫКЛ';
+        btn.classList.toggle('on', soundEnabled);
+    }
+}
+
+function toggleSound() {
+    soundEnabled = !soundEnabled;
+    localStorage.setItem('rpg_sound_enabled', soundEnabled);
+    updateSoundButton();
+    // Можно показать уведомление
+    if (tg) tg.showPopup({ title: 'Настройки', message: `Звук ${soundEnabled ? 'включён' : 'выключен'}`, buttons: [{ type: 'ok' }] });
+}
+
+function resetProgress() {
+    if (confirm('Вы уверены? Весь прогресс (уровень, золото, предметы, таланты, метрики) будет удалён без возможности восстановления.')) {
+        localStorage.clear();
+        // Сохраняем настройку звука, чтобы не сбросить
+        localStorage.setItem('rpg_sound_enabled', soundEnabled);
+        location.reload();
+    }
+}
+
         // Инициализация
         renderQuests();
         recalcStats();
+        updateSoundButton();
     </script>
 </body>
 </html>

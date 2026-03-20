@@ -211,11 +211,272 @@
         </div>
     </div>
 
+    <!-- Модальное окно настроек -->
+    <div id="modal-settings" class="modal-overlay">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeSettings()">✖</button>
+            <h2>НАСТРОЙКИ</h2>
+            
+            <div class="settings-item">
+                <span class="settings-label">Звук (вибрация)</span>
+                <button id="sound-toggle" class="toggle-btn" onclick="toggleSound()">ВКЛ</button>
+            </div>
+
+            <div class="settings-item" style="flex-direction: column; gap: 10px;">
+                <span class="settings-label">Сбросить весь прогресс</span>
+                <button class="danger-btn" onclick="resetProgress()">СБРОСИТЬ</button>
+                <div style="font-size: 5px; color: #aaa;">Внимание! Это удалит всё: уровень, золото, предметы, таланты.</div>
+            </div>
+        </div>
+    </div>
+
+     <!-- Модальное окно метрик -->
+    <div id="modal-metrics" class="modal-overlay">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeMetrics()">✖</button>
+            <h2>МЕТРИКИ</h2>
+            <div class="metrics-tabs">
+                <div class="tab-btn active" data-tab="input">Ввод данных</div>
+                <div class="tab-btn" data-tab="graphs">Графики и прогноз</div>
+            </div>
+            <div id="metrics-input-tab" class="metrics-tab">
+                <div class="metrics-input-group">
+                    <label>Отжимания (макс за подход)</label>
+                    <input type="number" id="metric-pushups" placeholder="количество">
+                </div>
+                <div class="metrics-input-group">
+                    <label>Подтягивания (макс за подход)</label>
+                    <input type="number" id="metric-pullups" placeholder="количество">
+                </div>
+                <div class="metrics-input-group">
+                    <label>Вес штанги (рабочий, кг)</label>
+                    <input type="number" id="metric-barbell" placeholder="кг">
+                </div>
+                <div class="metrics-input-group">
+                    <label>Вес тела (кг)</label>
+                    <input type="number" id="metric-bodyweight" placeholder="кг">
+                </div>
+                <div class="metrics-input-group">
+                    <label>Бег 1 км (сек)</label>
+                    <input type="number" id="metric-run1k" placeholder="секунды">
+                </div>
+                <div class="metrics-input-group">
+                    <label>Бег 5 км (сек)</label>
+                    <input type="number" id="metric-run5k" placeholder="секунды">
+                </div>
+                <div class="metrics-input-group">
+                    <label>Бег 21 км (сек)</label>
+                    <input type="number" id="metric-run21k" placeholder="секунды">
+                </div>
+                <button class="metrics-save-btn" onclick="saveMetrics()">Сохранить сегодняшние показатели</button>
+            </div>
+            <div id="metrics-graphs-tab" class="metrics-tab" style="display: none;">
+                <div id="metrics-dashboard"></div>
+                <canvas id="metrics-chart"></canvas>
+                <div id="forecast-container"></div>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Инициализация Telegram Web App
         const tg = window.Telegram.WebApp;
         tg.ready();
         tg.expand();
+
+         // ========== МЕТРИКИ ==========
+        // Структура: массив записей { date, pushups, pullups, barbell, bodyweight, run1k, run5k, run21k }
+        let metricsHistory = JSON.parse(localStorage.getItem('metrics_history')) || [];
+
+        // Получить сегодняшнюю дату в формате YYYY-MM-DD
+        function getToday() {
+            return new Date().toISOString().split('T')[0];
+        }
+
+        // Сохранить показатели за сегодня (если запись за сегодня уже есть, обновляем, иначе добавляем)
+        function saveMetrics() {
+            const today = getToday();
+            const pushups = parseInt(document.getElementById('metric-pushups').value) || 0;
+            const pullups = parseInt(document.getElementById('metric-pullups').value) || 0;
+            const barbell = parseInt(document.getElementById('metric-barbell').value) || 0;
+            const bodyweight = parseInt(document.getElementById('metric-bodyweight').value) || 0;
+            const run1k = parseInt(document.getElementById('metric-run1k').value) || 0;
+            const run5k = parseInt(document.getElementById('metric-run5k').value) || 0;
+            const run21k = parseInt(document.getElementById('metric-run21k').value) || 0;
+
+            // Проверяем, есть ли запись за сегодня
+            const existingIndex = metricsHistory.findIndex(entry => entry.date === today);
+            const newEntry = { date: today, pushups, pullups, barbell, bodyweight, run1k, run5k, run21k };
+
+            if (existingIndex !== -1) {
+                metricsHistory[existingIndex] = newEntry;
+            } else {
+                metricsHistory.push(newEntry);
+                // Сортируем по дате
+                metricsHistory.sort((a,b) => new Date(a.date) - new Date(b.date));
+            }
+            localStorage.setItem('metrics_history', JSON.stringify(metricsHistory));
+            tg.showPopup({ title: 'Сохранено', message: 'Показатели сохранены!', buttons: [{ type: 'ok' }] });
+            // Очищаем поля
+            document.getElementById('metric-pushups').value = '';
+            document.getElementById('metric-pullups').value = '';
+            document.getElementById('metric-barbell').value = '';
+            document.getElementById('metric-bodyweight').value = '';
+            document.getElementById('metric-run1k').value = '';
+            document.getElementById('metric-run5k').value = '';
+            document.getElementById('metric-run21k').value = '';
+            // Обновляем графики
+            if (document.getElementById('metrics-graphs-tab').style.display !== 'none') {
+                renderGraphs();
+            }
+        }
+
+        // Форматирование времени из секунд в минуты:секунды
+        function formatTime(sec) {
+            if (!sec) return '—';
+            const mins = Math.floor(sec / 60);
+            const seconds = sec % 60;
+            return `${mins}:${seconds.toString().padStart(2,'0')}`;
+        }
+
+        // Линейная экстраполяция на основе последних 7 точек
+        function extrapolate(values, daysForward) {
+            if (values.length < 2) return null;
+            const recent = values.slice(-7);
+            if (recent.length < 2) return null;
+            const indices = recent.map((_, i) => i);
+            const sumX = indices.reduce((a,b)=>a+b,0);
+            const sumY = recent.reduce((a,b)=>a+b,0);
+            const sumXY = indices.reduce((a,b,i)=>a+b*recent[i],0);
+            const sumX2 = indices.reduce((a,b)=>a+b*b,0);
+            const n = recent.length;
+            const slope = (n*sumXY - sumX*sumY) / (n*sumX2 - sumX*sumX);
+            const intercept = (sumY - slope*sumX)/n;
+            const lastIndex = indices[indices.length-1];
+            const lastValue = recent[lastIndex];
+            const predicted = lastValue + slope * daysForward;
+            return Math.round(predicted);
+        }
+
+        // Рендер дашборда и графиков
+        let metricsChart = null;
+        function renderGraphs() {
+            if (metricsHistory.length === 0) {
+                document.getElementById('metrics-dashboard').innerHTML = '<div style="text-align:center; padding:20px;">Нет данных. Введите показатели в разделе "Ввод данных".</div>';
+                document.getElementById('forecast-container').innerHTML = '';
+                if (metricsChart) metricsChart.destroy();
+                return;
+            }
+
+            // Подготовка данных
+            const dates = metricsHistory.map(e => e.date);
+            const pushups = metricsHistory.map(e => e.pushups);
+            const pullups = metricsHistory.map(e => e.pullups);
+            const barbell = metricsHistory.map(e => e.barbell);
+            const bodyweight = metricsHistory.map(e => e.bodyweight);
+            const run1k = metricsHistory.map(e => e.run1k);
+            const run5k = metricsHistory.map(e => e.run5k);
+            const run21k = metricsHistory.map(e => e.run21k);
+
+            // Дашборд: последние значения и изменения
+            const last = metricsHistory[metricsHistory.length-1];
+            const prev = metricsHistory.length>1 ? metricsHistory[metricsHistory.length-2] : null;
+            const dashboardHtml = `
+                <div class="metric-card">
+                    <div class="metric-title">📊 Текущие показатели (${last.date})</div>
+                    <div class="metric-value">Отжимания: ${last.pushups || 0}</div>
+                    <div class="metric-change">${prev ? (last.pushups - prev.pushups > 0 ? '▲' : (last.pushups - prev.pushups < 0 ? '▼' : '●')) + ' ' + Math.abs(last.pushups - prev.pushups) : ''}</div>
+                    <div class="metric-value">Подтягивания: ${last.pullups || 0}</div>
+                    <div class="metric-change">${prev ? (last.pullups - prev.pullups > 0 ? '▲' : (last.pullups - prev.pullups < 0 ? '▼' : '●')) + ' ' + Math.abs(last.pullups - prev.pullups) : ''}</div>
+                    <div class="metric-value">Вес штанги: ${last.barbell || 0} кг</div>
+                    <div class="metric-change">${prev ? (last.barbell - prev.barbell > 0 ? '▲' : (last.barbell - prev.barbell < 0 ? '▼' : '●')) + ' ' + Math.abs(last.barbell - prev.barbell) : ''}</div>
+                    <div class="metric-value">Вес тела: ${last.bodyweight || 0} кг</div>
+                    <div class="metric-change">${prev ? (last.bodyweight - prev.bodyweight > 0 ? '▲' : (last.bodyweight - prev.bodyweight < 0 ? '▼' : '●')) + ' ' + Math.abs(last.bodyweight - prev.bodyweight) : ''}</div>
+                    <div class="metric-value">Бег 1 км: ${formatTime(last.run1k)}</div>
+                    <div class="metric-change">${prev && last.run1k && prev.run1k ? (last.run1k - prev.run1k < 0 ? '▼' : (last.run1k - prev.run1k > 0 ? '▲' : '●')) + ' ' + Math.abs(last.run1k - prev.run1k) + ' сек' : ''}</div>
+                    <div class="metric-value">Бег 5 км: ${formatTime(last.run5k)}</div>
+                    <div class="metric-change">${prev && last.run5k && prev.run5k ? (last.run5k - prev.run5k < 0 ? '▼' : (last.run5k - prev.run5k > 0 ? '▲' : '●')) + ' ' + Math.abs(last.run5k - prev.run5k) + ' сек' : ''}</div>
+                    <div class="metric-value">Бег 21 км: ${formatTime(last.run21k)}</div>
+                    <div class="metric-change">${prev && last.run21k && prev.run21k ? (last.run21k - prev.run21k < 0 ? '▼' : (last.run21k - prev.run21k > 0 ? '▲' : '●')) + ' ' + Math.abs(last.run21k - prev.run21k) + ' сек' : ''}</div>
+                </div>
+            `;
+            document.getElementById('metrics-dashboard').innerHTML = dashboardHtml;
+
+            // График (один общий, можно переключать, но для простоты покажем один избранный)
+            if (metricsChart) metricsChart.destroy();
+            const ctx = document.getElementById('metrics-chart').getContext('2d');
+            metricsChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: dates,
+                    datasets: [
+                        { label: 'Отжимания', data: pushups, borderColor: '#ff6384', fill: false, tension: 0.1 },
+                        { label: 'Подтягивания', data: pullups, borderColor: '#36a2eb', fill: false, tension: 0.1 },
+                        { label: 'Вес штанги (кг)', data: barbell, borderColor: '#ffce56', fill: false, tension: 0.1 },
+                        { label: 'Вес тела (кг)', data: bodyweight, borderColor: '#4bc0c0', fill: false, tension: 0.1 }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: { legend: { position: 'top', labels: { font: { size: 8 } } } },
+                    scales: { x: { ticks: { font: { size: 6 } } }, y: { ticks: { font: { size: 6 } } } }
+                }
+            });
+
+            // Прогнозы
+            const forecastHtml = `
+                <div class="metric-card">
+                    <div class="metric-title">📈 Прогноз (при сохранении темпа)</div>
+                    ${renderForecast('Отжимания', pushups)}
+                    ${renderForecast('Подтягивания', pullups)}
+                    ${renderForecast('Вес штанги', barbell)}
+                    ${renderForecast('Вес тела', bodyweight)}
+                    ${renderForecastTime('Бег 1 км', run1k)}
+                    ${renderForecastTime('Бег 5 км', run5k)}
+                    ${renderForecastTime('Бег 21 км', run21k)}
+                </div>
+            `;
+            document.getElementById('forecast-container').innerHTML = forecastHtml;
+        }
+
+        function renderForecast(name, values) {
+            const month = extrapolate(values, 30);
+            const halfYear = extrapolate(values, 180);
+            const year = extrapolate(values, 365);
+            if (month === null) return `<div class="forecast">${name}: недостаточно данных для прогноза</div>`;
+            return `<div class="forecast">${name}: через месяц → ${month}, через полгода → ${halfYear}, через год → ${year}</div>`;
+        }
+
+        function renderForecastTime(name, values) {
+            const month = extrapolate(values, 30);
+            const halfYear = extrapolate(values, 180);
+            const year = extrapolate(values, 365);
+            if (month === null) return `<div class="forecast">${name}: недостаточно данных для прогноза</div>`;
+            return `<div class="forecast">${name}: через месяц → ${formatTime(month)}, через полгода → ${formatTime(halfYear)}, через год → ${formatTime(year)}</div>`;
+        }
+
+        function openMetrics() {
+            document.getElementById('modal-metrics').style.display = 'flex';
+            // По умолчанию показываем вкладку ввода
+            document.querySelector('.tab-btn[data-tab="input"]').click();
+            renderGraphs();
+        }
+        function closeMetrics() {
+            document.getElementById('modal-metrics').style.display = 'none';
+        }
+
+        // Переключение вкладок
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const tab = this.dataset.tab;
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                document.getElementById('metrics-input-tab').style.display = tab === 'input' ? 'block' : 'none';
+                document.getElementById('metrics-graphs-tab').style.display = tab === 'graphs' ? 'block' : 'none';
+                if (tab === 'graphs') renderGraphs();
+            });
+        });
 
         // База данных всех квестов (можно расширить позже)
         const questsDatabase = [

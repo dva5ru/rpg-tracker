@@ -397,8 +397,13 @@ canvas {
             <h2>НАСТРОЙКИ</h2>
             
             <div class="settings-item">
-                <span class="settings-label">Звук (вибрация)</span>
-                <button id="sound-toggle" class="toggle-btn" onclick="toggleSound()">ВКЛ</button>
+                <span class="settings-label">Звуки эффектов</span>
+                <button id="sound-toggle" class="toggle-btn" onclick="toggleSfx()">ВКЛ</button>
+            </div>
+            
+            <div class="settings-item">
+                <span class="settings-label">Фоновая музыка</span>
+                <button id="music-toggle" class="toggle-btn" onclick="toggleMusic()">ВКЛ</button>
             </div>
 
             <div class="settings-item" style="flex-direction: column; gap: 10px;">
@@ -601,6 +606,252 @@ canvas {
         let currentEnemy = null;
         let bossAvailable = false;      // доступен ли босс
         let defeatedMobsCount = 0;      // сколько мобов побеждено с последнего босса
+
+
+        // ========== SOUND MANAGER (звуки и музыка) ==========
+const SoundManager = (function() {
+    let audioCtx = null;
+    let musicInterval = null;
+    let currentMusicType = null;
+    
+    // Настройки по умолчанию
+    let sfxEnabled = true;   // звуки эффектов
+    let musicEnabled = true; // фоновая музыка
+    
+    // Инициализация AudioContext (только после взаимодействия с пользователем)
+    function initAudio() {
+        if (!audioCtx && (window.AudioContext || window.webkitAudioContext)) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            // Возобновляем, если контекст приостановлен
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+    }
+    
+    // Воспроизвести короткий звук (осциллятор)
+    function playTone(frequency, duration, type = 'sine', volume = 0.2) {
+        if (!sfxEnabled) return;
+        initAudio();
+        if (!audioCtx) return;
+        
+        const now = audioCtx.currentTime;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.value = frequency;
+        gain.gain.value = volume;
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(now + duration);
+    }
+    
+    // Звук "клик" (короткий)
+    function click() {
+        playTone(800, 0.08, 'sine', 0.1);
+    }
+    
+    // Звук "победа"
+    function victory() {
+        playTone(523.25, 0.2, 'sine', 0.2);  // до
+        setTimeout(() => playTone(659.25, 0.2, 'sine', 0.2), 150); // ми
+        setTimeout(() => playTone(783.99, 0.3, 'sine', 0.2), 300); // соль
+    }
+    
+    // Звук "поражение"
+    function defeat() {
+        playTone(440, 0.3, 'sawtooth', 0.2);
+        setTimeout(() => playTone(349.23, 0.5, 'sawtooth', 0.2), 250);
+    }
+    
+    // Звук "сундук" (радостный)
+    function chest() {
+        playTone(659.25, 0.1, 'square', 0.15);
+        setTimeout(() => playTone(783.99, 0.15, 'square', 0.15), 100);
+        setTimeout(() => playTone(987.77, 0.2, 'square', 0.15), 250);
+    }
+    
+    // Звук "уровень повышен"
+    function levelUp() {
+        playTone(523.25, 0.2, 'sine', 0.2);
+        setTimeout(() => playTone(659.25, 0.2, 'sine', 0.2), 150);
+        setTimeout(() => playTone(783.99, 0.3, 'sine', 0.2), 300);
+        setTimeout(() => playTone(1046.5, 0.4, 'sine', 0.2), 450);
+    }
+    
+    // Звук "квест выполнен"
+    function questComplete() {
+        playTone(523.25, 0.1, 'triangle', 0.15);
+        setTimeout(() => playTone(659.25, 0.15, 'triangle', 0.15), 100);
+    }
+    
+    // Звук "покупка"
+    function buy() {
+        playTone(600, 0.1, 'sine', 0.1);
+        setTimeout(() => playTone(800, 0.1, 'sine', 0.1), 80);
+    }
+    
+    // Звук "слияние предметов"
+    function merge() {
+        playTone(440, 0.2, 'sawtooth', 0.15);
+        setTimeout(() => playTone(880, 0.3, 'sawtooth', 0.15), 150);
+    }
+    
+    // Звук "экипировка"
+    function equip() {
+        playTone(600, 0.1, 'sine', 0.12);
+    }
+    
+    // Звук "отдых" (восстановление HP)
+    function heal() {
+        playTone(523.25, 0.3, 'sine', 0.12);
+        setTimeout(() => playTone(659.25, 0.4, 'sine', 0.12), 200);
+    }
+    
+    // Звук "открытие/закрытие модалки" (короткий)
+    function modal() {
+        playTone(400, 0.05, 'sine', 0.08);
+    }
+    
+    // ---------- Фоновая музыка (простая генерация) ----------
+    function stopMusic() {
+        if (musicInterval) {
+            clearInterval(musicInterval);
+            musicInterval = null;
+        }
+        currentMusicType = null;
+    }
+    
+    function startMusic(type) {
+        if (!musicEnabled) return;
+        if (currentMusicType === type && musicInterval) return;
+        stopMusic();
+        currentMusicType = type;
+        
+        // Выбираем ноты для мелодии
+        let notes = [];
+        if (type === 'menu') {
+            // Меню: спокойная последовательность
+            notes = [261.63, 329.63, 392.00, 523.25, 392.00, 329.63, 261.63]; // C4, E4, G4, C5, G4, E4, C4
+        } else if (type === 'battle') {
+            // Бой: более агрессивная
+            notes = [440.00, 523.25, 587.33, 698.46, 587.33, 523.25, 440.00]; // A4, C5, D5, F5, D5, C5, A4
+        } else {
+            return;
+        }
+        
+        let noteIndex = 0;
+        musicInterval = setInterval(() => {
+            if (!musicEnabled) return;
+            if (!audioCtx) return;
+            const now = audioCtx.currentTime;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sine';
+            osc.frequency.value = notes[noteIndex];
+            gain.gain.value = 0.05; // тихая фоновая музыка
+            gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.5);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(now + 0.5);
+            noteIndex = (noteIndex + 1) % notes.length;
+        }, 600);
+    }
+    
+    // Публичные методы
+    return {
+        init: function() {
+            // вызывается при первом взаимодействии пользователя
+            initAudio();
+        },
+        playEffect: function(effect) {
+            if (!sfxEnabled) return;
+            switch(effect) {
+                case 'click': click(); break;
+                case 'victory': victory(); break;
+                case 'defeat': defeat(); break;
+                case 'chest': chest(); break;
+                case 'levelup': levelUp(); break;
+                case 'quest': questComplete(); break;
+                case 'buy': buy(); break;
+                case 'merge': merge(); break;
+                case 'equip': equip(); break;
+                case 'heal': heal(); break;
+                case 'modal': modal(); break;
+                default: click();
+            }
+        },
+        setSfxEnabled: function(enabled) {
+            sfxEnabled = enabled;
+            localStorage.setItem('rpg_sfx_enabled', enabled);
+        },
+        setMusicEnabled: function(enabled) {
+            musicEnabled = enabled;
+            localStorage.setItem('rpg_music_enabled', enabled);
+            if (!enabled) {
+                stopMusic();
+            } else {
+                // Если музыка включена и сейчас открыта боевая модалка – включаем боевую музыку
+                const battleModal = document.getElementById('modal-battle');
+                if (battleModal && battleModal.style.display === 'flex') {
+                    startMusic('battle');
+                } else {
+                    startMusic('menu');
+                }
+            }
+        },
+
+                function toggleSfx() {
+            const newState = !SoundManager.getSfxEnabled();
+            SoundManager.setSfxEnabled(newState);
+            const btn = document.getElementById('sound-toggle');
+            btn.innerText = newState ? 'ВКЛ' : 'ВЫКЛ';
+            btn.classList.toggle('on', newState);
+            SoundManager.playEffect('click');
+        }
+        
+        function toggleMusic() {
+            const newState = !SoundManager.getMusicEnabled();
+            SoundManager.setMusicEnabled(newState);
+            const btn = document.getElementById('music-toggle');
+            btn.innerText = newState ? 'ВКЛ' : 'ВЫКЛ';
+            btn.classList.toggle('on', newState);
+            if (newState) {
+                SoundManager.startMusic('menu');
+            } else {
+                SoundManager.stopMusic();
+            }
+        }
+        
+        getSfxEnabled: () => sfxEnabled,
+        getMusicEnabled: () => musicEnabled,
+        startMusic: startMusic,
+        stopMusic: stopMusic,
+        // Вызывается при загрузке для восстановления настроек
+        loadSettings: function() {
+            const sfx = localStorage.getItem('rpg_sfx_enabled');
+            if (sfx !== null) sfxEnabled = sfx === 'true';
+            const music = localStorage.getItem('rpg_music_enabled');
+            if (music !== null) musicEnabled = music === 'true';
+            // Если музыка включена – стартуем музыку меню, но только после первого взаимодействия
+            // (автовоспроизведение может быть заблокировано)
+            if (musicEnabled) {
+                // Подождём первого клика пользователя, чтобы активировать аудио
+                const activateMusic = () => {
+                    initAudio();
+                    startMusic('menu');
+                    document.removeEventListener('click', activateMusic);
+                    document.removeEventListener('touchstart', activateMusic);
+                };
+                document.addEventListener('click', activateMusic);
+                document.addEventListener('touchstart', activateMusic);
+            }
+        }
+    };
+})();
         
 
         // ============================================================================

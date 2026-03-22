@@ -641,19 +641,8 @@ canvas {
 
             // Выполненные квесты и дата
             let completedQuests = JSON.parse(localStorage.getItem('rpg_completed')) || [];
-            const today = new Date().toISOString().split('T')[0];
-            let lastLoginDate = localStorage.getItem('rpg_last_login');
-            if (lastLoginDate !== today) {
-                completedQuests = [];
-                localStorage.setItem('rpg_last_login', today);
-                localStorage.setItem('rpg_completed', JSON.stringify(completedQuests));
-                totalLoginDays++;
-                saveStats();
-            }
-
-            let soundEnabled = localStorage.getItem('rpg_sound_enabled') !== 'false'; 
-
-            // Статистика
+            
+            // Статистика (объявляем до проверки даты)
             let totalLoginDays = parseInt(localStorage.getItem('stats_login_days')) || 0;
             let totalCompletedQuests = parseInt(localStorage.getItem('stats_total_quests')) || 0;
             let totalPushups = parseInt(localStorage.getItem('stats_pushups')) || 0;
@@ -661,6 +650,18 @@ canvas {
             let totalAbs = parseInt(localStorage.getItem('stats_abs')) || 0;
             let totalPlank = parseInt(localStorage.getItem('stats_plank')) || 0;
             let totalStretch = parseInt(localStorage.getItem('stats_stretch')) || 0;
+            
+            const today = new Date().toISOString().split('T')[0];
+            let lastLoginDate = localStorage.getItem('rpg_last_login');
+            if (lastLoginDate !== today) {
+                completedQuests = [];
+                localStorage.setItem('rpg_last_login', today);
+                localStorage.setItem('rpg_completed', JSON.stringify(completedQuests));
+                totalLoginDays++;
+                saveStats();  // функция будет поднята, ошибки нет
+            }
+            
+            let soundEnabled = localStorage.getItem('rpg_sound_enabled') !== 'false';
 
             let talentsState = JSON.parse(localStorage.getItem('rpg_talents_state')) || {};
 
@@ -1248,6 +1249,7 @@ function startBattle() {
             // По умолчанию показываем вкладку ввода
             document.querySelector('.tab-btn[data-tab="input"]').click();
             renderGraphs();
+            renderStats();
         }
         function closeMetrics() {
             document.getElementById('modal-metrics').style.display = 'none';

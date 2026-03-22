@@ -269,11 +269,15 @@ canvas {
 </head>
 <body>
 
-    <div class="top-bar">
-        <div>УРОВЕНЬ: <span id="level">0</span></div>
-        <div>ЗОЛОТО: <span id="gold">0</span></div>
-        <div>СИЛА: <span id="player-power">0</span></div>
+<div class="top-bar">
+    <div>УРОВЕНЬ: <span id="level">0</span></div>
+    <div>ЗОЛОТО: <span id="gold">0</span></div>
+    <div>СИЛА: <span id="player-power">0</span></div>
+    <div style="display: flex; gap: 8px;">
+        <span style="font-size: 14px; cursor: pointer;" onclick="openMetrics()">📊</span>
+        <span style="font-size: 14px; cursor: pointer;" onclick="openSettings()">⚙️</span>
     </div>
+</div>
 
     <div class="box">
 <div class="equipment-grid-new">
@@ -339,9 +343,7 @@ canvas {
         <div class="btn-menu" onclick="openInventory()">ИНВЕНТАРЬ</div>
         <div class="btn-menu" onclick="openShop()">МАГАЗИН</div>
         <div class="btn-menu" onclick="openTalents()">ТАЛАНТЫ</div>
-        <div class="btn-menu" onclick="openMetrics()">МЕТРИКИ</div>
-        <div class="btn-menu" onclick="openSettings()">НАСТРОЙКИ</div>
-        <div class="btn-menu" onclick="openBattle()">⚔️ БОЙ</div>
+        <div class="btn-menu" onclick="openBattle()">БОЙ</div>
     </div>
 
     <div class="box" style="padding: 10px 5px;">
@@ -437,10 +439,11 @@ canvas {
         <div class="modal-content">
             <button class="close-btn" onclick="closeMetrics()">✖</button>
             <h2>МЕТРИКИ</h2>
-            <div class="metrics-tabs">
-                <div class="tab-btn active" data-tab="input">Ввод данных</div>
-                <div class="tab-btn" data-tab="graphs">Графики и прогноз</div>
-            </div>
+                 <div class="metrics-tabs">
+                    <div class="tab-btn active" data-tab="input">Ввод данных</div>
+                    <div class="tab-btn" data-tab="graphs">Графики и прогноз</div>
+                    <div class="tab-btn" data-tab="stats">Статистика</div>
+                </div>
             <div id="metrics-input-tab" class="metrics-tab">
                 <div class="metrics-input-group">
                     <label>Отжимания (макс за подход)</label>
@@ -477,6 +480,20 @@ canvas {
                 <canvas id="metrics-chart"></canvas>
                 <div id="forecast-container"></div>
             </div>
+
+            <div id="metrics-stats-tab" class="metrics-tab" style="display: none;">
+    <div class="metric-card">
+        <div class="metric-title">📅 Общая статистика</div>
+        <div class="metric-value">Дней захода: <span id="stats-login-days">0</span></div>
+        <div class="metric-value">Выполнено квестов: <span id="stats-total-quests">0</span></div>
+        <div class="metric-title" style="margin-top: 15px;">🏋️‍♂️ Выполненные упражнения</div>
+        <div class="metric-value">Отжимания: <span id="stats-pushups">0</span></div>
+        <div class="metric-value">Подтягивания: <span id="stats-pullups">0</span></div>
+        <div class="metric-value">Пресс: <span id="stats-abs">0</span></div>
+        <div class="metric-value">Планка: <span id="stats-plank">0</span></div>
+        <div class="metric-value">Растяжка: <span id="stats-stretch">0</span></div>
+    </div>
+</div>
         </div>
     </div>
 
@@ -630,9 +647,20 @@ canvas {
                 completedQuests = [];
                 localStorage.setItem('rpg_last_login', today);
                 localStorage.setItem('rpg_completed', JSON.stringify(completedQuests));
+                totalLoginDays++;
+                saveStats();
             }
 
             let soundEnabled = localStorage.getItem('rpg_sound_enabled') !== 'false'; 
+
+            // Статистика
+            let totalLoginDays = parseInt(localStorage.getItem('stats_login_days')) || 0;
+            let totalCompletedQuests = parseInt(localStorage.getItem('stats_total_quests')) || 0;
+            let totalPushups = parseInt(localStorage.getItem('stats_pushups')) || 0;
+            let totalPullups = parseInt(localStorage.getItem('stats_pullups')) || 0;
+            let totalAbs = parseInt(localStorage.getItem('stats_abs')) || 0;
+            let totalPlank = parseInt(localStorage.getItem('stats_plank')) || 0;
+            let totalStretch = parseInt(localStorage.getItem('stats_stretch')) || 0;
 
             let talentsState = JSON.parse(localStorage.getItem('rpg_talents_state')) || {};
 
@@ -744,6 +772,16 @@ canvas {
                 document.getElementById('hp-bar-fill').style.width = Math.max(0, percent) + '%';
             }
 
+                    function saveStats() {
+                localStorage.setItem('stats_login_days', totalLoginDays);
+                localStorage.setItem('stats_total_quests', totalCompletedQuests);
+                localStorage.setItem('stats_pushups', totalPushups);
+                localStorage.setItem('stats_pullups', totalPullups);
+                localStorage.setItem('stats_abs', totalAbs);
+                localStorage.setItem('stats_plank', totalPlank);
+                localStorage.setItem('stats_stretch', totalStretch);
+            }
+
 
             // Форматирование времени из секунд в минуты:секунды
             function formatTime(sec) {
@@ -794,6 +832,16 @@ canvas {
                 powerSpan.innerText = calculatePower();
                 }
             }
+
+        function renderStats() {
+    document.getElementById('stats-login-days').innerText = totalLoginDays;
+    document.getElementById('stats-total-quests').innerText = totalCompletedQuests;
+    document.getElementById('stats-pushups').innerText = totalPushups;
+    document.getElementById('stats-pullups').innerText = totalPullups;
+    document.getElementById('stats-abs').innerText = totalAbs;
+    document.getElementById('stats-plank').innerText = totalPlank;
+    document.getElementById('stats-stretch').innerText = totalStretch;
+}
         
 
         // ============================================================================
@@ -816,6 +864,18 @@ canvas {
                 tg.showPopup({ title: 'Уровень повышен!', message: `Теперь ты ${currentLevel} уровня.`, buttons: [{ type: 'ok' }] });
             }
             completedQuests.push(questId);
+                        // Увеличиваем общее количество выполненных квестов
+            totalCompletedQuests++;
+            saveStats();
+            
+            // Считаем упражнения по названию квеста
+            const title = questsDatabase.find(q => q.id === questId)?.title || '';
+            if (title.toLowerCase().includes('отжимания')) totalPushups++;
+            else if (title.toLowerCase().includes('подтягивания')) totalPullups++;
+            else if (title.toLowerCase().includes('пресс')) totalAbs++;
+            else if (title.toLowerCase().includes('планка')) totalPlank++;
+            else if (title.toLowerCase().includes('растяжка')) totalStretch++;
+            saveStats();
             localStorage.setItem('rpg_completed', JSON.stringify(completedQuests));
             localStorage.setItem('rpg_gold', currentGold);
             localStorage.setItem('rpg_xp', currentXp);
@@ -1201,7 +1261,10 @@ function startBattle() {
                 this.classList.add('active');
                 document.getElementById('metrics-input-tab').style.display = tab === 'input' ? 'block' : 'none';
                 document.getElementById('metrics-graphs-tab').style.display = tab === 'graphs' ? 'block' : 'none';
+                const statsTab = document.getElementById('metrics-stats-tab');
+                if (statsTab) statsTab.style.display = tab === 'stats' ? 'block' : 'none';
                 if (tab === 'graphs') renderGraphs();
+                if (tab === 'stats') renderStats();
             });
         });
 

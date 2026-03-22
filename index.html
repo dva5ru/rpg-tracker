@@ -608,33 +608,28 @@ canvas {
         let defeatedMobsCount = 0;      // сколько мобов побеждено с последнего босса
 
 
-        // ========== SOUND MANAGER (звуки и музыка) ==========
+     // ========== SOUND MANAGER (звуки и музыка) ==========
 const SoundManager = (function() {
     let audioCtx = null;
     let musicInterval = null;
     let currentMusicType = null;
     
-    // Настройки по умолчанию
-    let sfxEnabled = true;   // звуки эффектов
-    let musicEnabled = true; // фоновая музыка
+    let sfxEnabled = true;
+    let musicEnabled = true;
     
-    // Инициализация AudioContext (только после взаимодействия с пользователем)
     function initAudio() {
         if (!audioCtx && (window.AudioContext || window.webkitAudioContext)) {
             audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            // Возобновляем, если контекст приостановлен
             if (audioCtx.state === 'suspended') {
                 audioCtx.resume();
             }
         }
     }
     
-    // Воспроизвести короткий звук (осциллятор)
     function playTone(frequency, duration, type = 'sine', volume = 0.2) {
         if (!sfxEnabled) return;
         initAudio();
         if (!audioCtx) return;
-        
         const now = audioCtx.currentTime;
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
@@ -648,74 +643,52 @@ const SoundManager = (function() {
         osc.stop(now + duration);
     }
     
-    // Звук "клик" (короткий)
     function click() {
         playTone(800, 0.08, 'sine', 0.1);
     }
-    
-    // Звук "победа"
     function victory() {
-        playTone(523.25, 0.2, 'sine', 0.2);  // до
-        setTimeout(() => playTone(659.25, 0.2, 'sine', 0.2), 150); // ми
-        setTimeout(() => playTone(783.99, 0.3, 'sine', 0.2), 300); // соль
+        playTone(523.25, 0.2, 'sine', 0.2);
+        setTimeout(() => playTone(659.25, 0.2, 'sine', 0.2), 150);
+        setTimeout(() => playTone(783.99, 0.3, 'sine', 0.2), 300);
     }
-    
-    // Звук "поражение"
     function defeat() {
         playTone(440, 0.3, 'sawtooth', 0.2);
         setTimeout(() => playTone(349.23, 0.5, 'sawtooth', 0.2), 250);
     }
-    
-    // Звук "сундук" (радостный)
     function chest() {
         playTone(659.25, 0.1, 'square', 0.15);
         setTimeout(() => playTone(783.99, 0.15, 'square', 0.15), 100);
         setTimeout(() => playTone(987.77, 0.2, 'square', 0.15), 250);
     }
-    
-    // Звук "уровень повышен"
     function levelUp() {
         playTone(523.25, 0.2, 'sine', 0.2);
         setTimeout(() => playTone(659.25, 0.2, 'sine', 0.2), 150);
         setTimeout(() => playTone(783.99, 0.3, 'sine', 0.2), 300);
         setTimeout(() => playTone(1046.5, 0.4, 'sine', 0.2), 450);
     }
-    
-    // Звук "квест выполнен"
     function questComplete() {
         playTone(523.25, 0.1, 'triangle', 0.15);
         setTimeout(() => playTone(659.25, 0.15, 'triangle', 0.15), 100);
     }
-    
-    // Звук "покупка"
     function buy() {
         playTone(600, 0.1, 'sine', 0.1);
         setTimeout(() => playTone(800, 0.1, 'sine', 0.1), 80);
     }
-    
-    // Звук "слияние предметов"
     function merge() {
         playTone(440, 0.2, 'sawtooth', 0.15);
         setTimeout(() => playTone(880, 0.3, 'sawtooth', 0.15), 150);
     }
-    
-    // Звук "экипировка"
     function equip() {
         playTone(600, 0.1, 'sine', 0.12);
     }
-    
-    // Звук "отдых" (восстановление HP)
     function heal() {
         playTone(523.25, 0.3, 'sine', 0.12);
         setTimeout(() => playTone(659.25, 0.4, 'sine', 0.12), 200);
     }
-    
-    // Звук "открытие/закрытие модалки" (короткий)
     function modal() {
         playTone(400, 0.05, 'sine', 0.08);
     }
     
-    // ---------- Фоновая музыка (простая генерация) ----------
     function stopMusic() {
         if (musicInterval) {
             clearInterval(musicInterval);
@@ -729,19 +702,14 @@ const SoundManager = (function() {
         if (currentMusicType === type && musicInterval) return;
         stopMusic();
         currentMusicType = type;
-        
-        // Выбираем ноты для мелодии
         let notes = [];
         if (type === 'menu') {
-            // Меню: спокойная последовательность
-            notes = [261.63, 329.63, 392.00, 523.25, 392.00, 329.63, 261.63]; // C4, E4, G4, C5, G4, E4, C4
+            notes = [261.63, 329.63, 392.00, 523.25, 392.00, 329.63, 261.63];
         } else if (type === 'battle') {
-            // Бой: более агрессивная
-            notes = [440.00, 523.25, 587.33, 698.46, 587.33, 523.25, 440.00]; // A4, C5, D5, F5, D5, C5, A4
+            notes = [440.00, 523.25, 587.33, 698.46, 587.33, 523.25, 440.00];
         } else {
             return;
         }
-        
         let noteIndex = 0;
         musicInterval = setInterval(() => {
             if (!musicEnabled) return;
@@ -751,7 +719,7 @@ const SoundManager = (function() {
             const gain = audioCtx.createGain();
             osc.type = 'sine';
             osc.frequency.value = notes[noteIndex];
-            gain.gain.value = 0.05; // тихая фоновая музыка
+            gain.gain.value = 0.05;
             gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.5);
             osc.connect(gain);
             gain.connect(audioCtx.destination);
@@ -761,12 +729,45 @@ const SoundManager = (function() {
         }, 600);
     }
     
-    // Публичные методы
+    function setSfxEnabled(enabled) {
+        sfxEnabled = enabled;
+        localStorage.setItem('rpg_sfx_enabled', enabled);
+    }
+    
+    function setMusicEnabled(enabled) {
+        musicEnabled = enabled;
+        localStorage.setItem('rpg_music_enabled', enabled);
+        if (!enabled) {
+            stopMusic();
+        } else {
+            const battleModal = document.getElementById('modal-battle');
+            if (battleModal && battleModal.style.display === 'flex') {
+                startMusic('battle');
+            } else {
+                startMusic('menu');
+            }
+        }
+    }
+    
+    function loadSettings() {
+        const sfx = localStorage.getItem('rpg_sfx_enabled');
+        if (sfx !== null) sfxEnabled = sfx === 'true';
+        const music = localStorage.getItem('rpg_music_enabled');
+        if (music !== null) musicEnabled = music === 'true';
+        if (musicEnabled) {
+            const activateMusic = () => {
+                initAudio();
+                startMusic('menu');
+                document.removeEventListener('click', activateMusic);
+                document.removeEventListener('touchstart', activateMusic);
+            };
+            document.addEventListener('click', activateMusic);
+            document.addEventListener('touchstart', activateMusic);
+        }
+    }
+    
     return {
-        init: function() {
-            // вызывается при первом взаимодействии пользователя
-            initAudio();
-        },
+        init: initAudio,
         playEffect: function(effect) {
             if (!sfxEnabled) return;
             switch(effect) {
@@ -784,75 +785,65 @@ const SoundManager = (function() {
                 default: click();
             }
         },
-        setSfxEnabled: function(enabled) {
-            sfxEnabled = enabled;
-            localStorage.setItem('rpg_sfx_enabled', enabled);
-        },
-        setMusicEnabled: function(enabled) {
-            musicEnabled = enabled;
-            localStorage.setItem('rpg_music_enabled', enabled);
-            if (!enabled) {
-                stopMusic();
-            } else {
-                // Если музыка включена и сейчас открыта боевая модалка – включаем боевую музыку
-                const battleModal = document.getElementById('modal-battle');
-                if (battleModal && battleModal.style.display === 'flex') {
-                    startMusic('battle');
-                } else {
-                    startMusic('menu');
-                }
-            }
-        },
-
-                function toggleSfx() {
-            const newState = !SoundManager.getSfxEnabled();
-            SoundManager.setSfxEnabled(newState);
-            const btn = document.getElementById('sound-toggle');
-            btn.innerText = newState ? 'ВКЛ' : 'ВЫКЛ';
-            btn.classList.toggle('on', newState);
-            SoundManager.playEffect('click');
-        }
-        
-        function toggleMusic() {
-            const newState = !SoundManager.getMusicEnabled();
-            SoundManager.setMusicEnabled(newState);
-            const btn = document.getElementById('music-toggle');
-            btn.innerText = newState ? 'ВКЛ' : 'ВЫКЛ';
-            btn.classList.toggle('on', newState);
-            if (newState) {
-                SoundManager.startMusic('menu');
-            } else {
-                SoundManager.stopMusic();
-            }
-        }
-        
+        setSfxEnabled: setSfxEnabled,
+        setMusicEnabled: setMusicEnabled,
         getSfxEnabled: () => sfxEnabled,
         getMusicEnabled: () => musicEnabled,
         startMusic: startMusic,
         stopMusic: stopMusic,
-        // Вызывается при загрузке для восстановления настроек
-        loadSettings: function() {
-            const sfx = localStorage.getItem('rpg_sfx_enabled');
-            if (sfx !== null) sfxEnabled = sfx === 'true';
-            const music = localStorage.getItem('rpg_music_enabled');
-            if (music !== null) musicEnabled = music === 'true';
-            // Если музыка включена – стартуем музыку меню, но только после первого взаимодействия
-            // (автовоспроизведение может быть заблокировано)
-            if (musicEnabled) {
-                // Подождём первого клика пользователя, чтобы активировать аудио
-                const activateMusic = () => {
-                    initAudio();
-                    startMusic('menu');
-                    document.removeEventListener('click', activateMusic);
-                    document.removeEventListener('touchstart', activateMusic);
-                };
-                document.addEventListener('click', activateMusic);
-                document.addEventListener('touchstart', activateMusic);
+        loadSettings: loadSettings,
+        toggleSfx: function() {
+            const newState = !sfxEnabled;
+            this.setSfxEnabled(newState);
+            const btn = document.getElementById('sound-toggle');
+            if (btn) {
+                btn.innerText = newState ? 'ВКЛ' : 'ВЫКЛ';
+                btn.classList.toggle('on', newState);
+            }
+            this.playEffect('click');
+        },
+        toggleMusic: function() {
+            const newState = !musicEnabled;
+            this.setMusicEnabled(newState);
+            const btn = document.getElementById('music-toggle');
+            if (btn) {
+                btn.innerText = newState ? 'ВКЛ' : 'ВЫКЛ';
+                btn.classList.toggle('on', newState);
+            }
+            if (newState) {
+                this.startMusic('menu');
+            } else {
+                this.stopMusic();
             }
         }
     };
 })();
-        
+
+        // Глобальные функции для вызова из HTML
+function toggleSfx() {
+    SoundManager.toggleSfx();
+}
+
+function toggleMusic() {
+    SoundManager.toggleMusic();
+}
+
+
+        function updateSfxButton() {
+    const btn = document.getElementById('sound-toggle');
+    if (btn) {
+        btn.innerText = SoundManager.getSfxEnabled() ? 'ВКЛ' : 'ВЫКЛ';
+        btn.classList.toggle('on', SoundManager.getSfxEnabled());
+    }
+}
+
+function updateMusicButton() {
+    const btn = document.getElementById('music-toggle');
+    if (btn) {
+        btn.innerText = SoundManager.getMusicEnabled() ? 'ВКЛ' : 'ВЫКЛ';
+        btn.classList.toggle('on', SoundManager.getMusicEnabled());
+    }
+}
 
         // ============================================================================
         // 2. СОСТОЯНИЕ ИГРЫ 
@@ -1084,6 +1075,7 @@ const SoundManager = (function() {
                 powerSpan.innerText = calculatePower();
                 }
             }
+        SoundManager.playEffect('quest');
 
         function renderStats() {
     document.getElementById('stats-login-days').innerText = totalLoginDays;
@@ -1114,6 +1106,7 @@ const SoundManager = (function() {
                 localStorage.setItem('rpg_talent_points', talentPoints);
                 document.getElementById('level').innerText = currentLevel;
                 tg.showPopup({ title: 'Уровень повышен!', message: `Теперь ты ${currentLevel} уровня.`, buttons: [{ type: 'ok' }] });
+                SoundManager.playEffect('levelup');
             }
             completedQuests.push(questId);
                         // Увеличиваем общее количество выполненных квестов
@@ -1170,6 +1163,7 @@ function getEffectiveHeroPower(enemy) {
         function openBattle() {
     updateCurrentEnemy();
     // обновляем информацию в окне
+    
     document.getElementById('hero-power-display').innerText = `⚔️ Сила: ${getEffectiveHeroPower(currentEnemy)}`;
     document.getElementById('hero-hp-display').innerHTML = `❤️ HP: ${currentHp}/${maxHp}`;
     document.getElementById('enemy-name').innerHTML = currentEnemy.isBoss ? `👑 ${currentEnemy.name}` : `👾 ${currentEnemy.name}`;
@@ -1177,6 +1171,7 @@ function getEffectiveHeroPower(enemy) {
     document.getElementById('enemy-weakness').innerHTML = `Слабость: ${currentEnemy.weakness || 'нет'}`;
     document.getElementById('battle-log').innerHTML = '';
     document.getElementById('modal-battle').style.display = 'flex';
+    SoundManager.startMusic('battle');
     // навешиваем обработчик на кнопку боя (удаляем старый, чтобы не дублировался)
     const attackBtn = document.getElementById('attack-btn');
     attackBtn.onclick = startBattle;
@@ -1184,6 +1179,7 @@ function getEffectiveHeroPower(enemy) {
 
 function closeBattle() {
     document.getElementById('modal-battle').style.display = 'none';
+    SoundManager.startMusic('menu');
 }
 
 
@@ -1206,6 +1202,7 @@ function startBattle() {
     if (heroPower >= enemyPower) {
         // ПОБЕДА
         log.innerHTML += `<div style="color: lightgreen;">✅ ВЫ ПОБЕДИЛИ!</div>`;
+        SoundManager.playEffect('victory');
 
         // Награда
         let expGain = Math.floor(currentEnemy.expReward * getXpMultiplier());
@@ -1899,37 +1896,29 @@ function startBattle() {
 
         // ========== НАСТРОЙКИ ==========
 
-
-function updateSoundButton() {
-    const btn = document.getElementById('sound-toggle');
-    if (btn) {
-        btn.innerText = soundEnabled ? 'ВКЛ' : 'ВЫКЛ';
-        btn.classList.toggle('on', soundEnabled);
-    }
-}
-
-function toggleSound() {
-    soundEnabled = !soundEnabled;
-    localStorage.setItem('rpg_sound_enabled', soundEnabled);
-    updateSoundButton();
-    // Можно показать уведомление
-    if (tg) tg.showPopup({ title: 'Настройки', message: `Звук ${soundEnabled ? 'включён' : 'выключен'}`, buttons: [{ type: 'ok' }] });
-}
-
-function resetProgress() {
-    if (confirm('Вы уверены? Весь прогресс (уровень, золото, предметы, таланты, метрики) будет удалён без возможности восстановления.')) {
-        localStorage.clear();
-        // Сохраняем настройку звука, чтобы не сбросить
-        localStorage.setItem('rpg_sound_enabled', soundEnabled);
-        location.reload();
-    }
-}
+            function resetProgress() {
+                if (confirm('Вы уверены? Весь прогресс (уровень, золото, предметы, таланты, метрики) будет удалён без возможности восстановления.')) {
+                    const sfx = SoundManager.getSfxEnabled();
+                    const music = SoundManager.getMusicEnabled();
+                    localStorage.clear();
+                    SoundManager.setSfxEnabled(sfx);
+                    SoundManager.setMusicEnabled(music);
+                    location.reload();
+                }
+            }
 
         // Инициализация
         renderQuests();
         recalcStats();
-        updateSoundButton();
+        SoundManager.loadSettings();
+        updateSfxButton();
+        updateMusicButton();
         updateHpDisplay();
+        // Активируем звук после первого клика
+        document.body.addEventListener('click', function once() {
+            SoundManager.init();
+            document.body.removeEventListener('click', once);
+        });
     </script>
 </body>
 </html>

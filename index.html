@@ -627,9 +627,9 @@ const bosses = [
     let equippedItems = JSON.parse(localStorage.getItem('rpg_equipped_v2')) || {};
     let completedQuests = JSON.parse(localStorage.getItem('rpg_completed')) || [];
     let talentsState = JSON.parse(localStorage.getItem('rpg_talents_state')) || {};    //уровень таланта 
-    let defeatedMobsCount = parseInt(localStorage.getItem('rpg_defeated_mobs')) || 0;
-    let bossAvailable = localStorage.getItem('rpg_boss_available') === 'true';
-    let currentEnemy = null;
+    defeatedMobsCount = parseInt(localStorage.getItem('rpg_defeated_mobs')) || 0;
+    bossAvailable = localStorage.getItem('rpg_boss_available') === 'true';
+    currentEnemy = null;
             
 // Статистика тренировок 
     let metricsHistory = JSON.parse(localStorage.getItem('metrics_history')) || []; 

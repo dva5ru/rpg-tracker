@@ -1427,35 +1427,34 @@ function getEffectiveHeroPower(enemy) {
 
         
         // Инвентарь и экипировка
-        function openInventory() {
-            const modal = document.getElementById('modal-inventory');
-            const grid = document.getElementById('inventory-grid');
-            grid.innerHTML = '';
-            hideItemDetails();
-            for (let i = 0; i < 20; i++) {
-                const slotDiv = document.createElement('div');
-                slotDiv.className = 'inv-slot';
-            if (i < playerInventory.length) {
-                const item = playerInventory[i];
-                if (item.type === 'chest') {
-                    // Сундук
-                    const chest = chestTypes[item.chestRarity];
-                    slotDiv.style.borderColor = chest.color;
-                    slotDiv.innerHTML = `<span style="font-size: 16px;">${chest.img}</span>`;
-                    slotDiv.onclick = () => showChestDetails(i);
-                } else {
-                    // Предмет
-                    const baseItem = itemsDatabase[item.id];
-                    if (baseItem) {
-                        slotDiv.style.borderColor = rarityColors[item.rarity];
-                        slotDiv.innerHTML = `<span style="font-size: 5px; color: ${rarityColors[item.rarity]};">${baseItem.img}</span>`;
-                        slotDiv.onclick = () => showItemDetails(i);
-                    }
+function openInventory() {
+    const modal = document.getElementById('modal-inventory');
+    const grid = document.getElementById('inventory-grid');
+    grid.innerHTML = '';
+    hideItemDetails();
+    for (let i = 0; i < 20; i++) {
+        const slotDiv = document.createElement('div');
+        slotDiv.className = 'inv-slot';
+        if (i < playerInventory.length) {
+            const item = playerInventory[i];
+            if (item.type === 'chest') {
+                const chest = chestTypes[item.chestRarity];
+                slotDiv.style.borderColor = chest.color;
+                slotDiv.innerHTML = `<span style="font-size: 16px;">${chest.img}</span>`;
+                slotDiv.onclick = () => showChestDetails(i);
+            } else {
+                const baseItem = itemsDatabase[item.id];
+                if (baseItem) {
+                    slotDiv.style.borderColor = rarityColors[item.rarity];
+                    slotDiv.innerHTML = `<span style="font-size: 5px; color: ${rarityColors[item.rarity]};">${baseItem.img}</span>`;
+                    slotDiv.onclick = () => showItemDetails(i);
                 }
             }
-        function closeInventory() {
-            document.getElementById('modal-inventory').style.display = 'none';
         }
+        grid.appendChild(slotDiv);
+    }
+    modal.style.display = 'flex';
+}
 
 
         function upgradeTalent(talentId) {

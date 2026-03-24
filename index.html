@@ -265,6 +265,26 @@ canvas {
     background: #111;
     font-size: 10px;
 }
+
+@keyframes pop {
+    0% { transform: scale(0); opacity: 0; }
+    80% { transform: scale(1.1); }
+    100% { transform: scale(1); opacity: 1; }
+}
+.chest-item {
+    background: #111;
+    border: 1px solid var(--border-gray);
+    border-radius: 8px;
+    padding: 10px;
+    text-align: center;
+    width: 70px;
+    animation: pop 0.3s ease-out forwards;
+    opacity: 0;
+}
+.chest-item img {
+    font-size: 30px;
+}
+        
     </style>
 </head>
 <body>
@@ -438,6 +458,19 @@ canvas {
         </div>
     </div>
 </div>
+
+
+    <!-- Модальное окно открытия сундука -->
+<div id="modal-chest" class="modal-overlay">
+    <div class="modal-content" style="max-width: 90%; text-align: center;">
+        <button class="close-btn" onclick="closeChestModal()">✖</button>
+        <h2>🎁 ОТКРЫТИЕ СУНДУКА 🎁</h2>
+        <div id="chest-animation" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; margin: 20px 0;">
+            <!-- Сюда будут добавляться карточки предметов -->
+        </div>
+        <button class="btn-action" onclick="closeChestModal()">ЗАКРЫТЬ</button>
+    </div>
+</div>
     
      <!-- Модальное окно метрик -->
     <div id="modal-metrics" class="modal-overlay">
@@ -567,6 +600,16 @@ const shopItems = [
     { id: "shoes", name: "Кроссовки", price: 150, type: "item" },
     { name: "Сундук", price: 200, type: "chest" }
     ];
+
+
+// Типы сундуков
+const chestTypes = [
+    { name: "Деревянный", rarity: 0, dropChance: 0.5, img: "🪵", color: "#8B5A2B" },
+    { name: "Бронзовый", rarity: 1, dropChance: 0.3, img: "🥉", color: "#CD7F32" },
+    { name: "Серебряный", rarity: 2, dropChance: 0.15, img: "🥈", color: "#C0C0C0" },
+    { name: "Золотой", rarity: 3, dropChance: 0.04, img: "🥇", color: "#FFD700" },
+    { name: "Алмазный", rarity: 4, dropChance: 0.01, img: "💎", color: "#B9F2FF" }
+];
     
 // Таланты 
 const talentsData = [
@@ -1079,39 +1122,22 @@ function startBattle() {
             tg.showPopup({ title: 'Уровень повышен!', message: `Теперь ты ${playerLevel} уровня.`, buttons: [{ type: 'ok' }] });
         }
 
-        // Шанс сундука (20% + удача)
+              // Шанс выпадения сундука (всегда 100%, но тип зависит от удачи)
         const luckBonus = getLuckBonus() / 100;
-        const chestChance = 0.2 + luckBonus;
-        if (Math.random() < chestChance) {
-            log.innerHTML += `<div style="color: gold;">🎁 Выпал сундук с предметом!</div>`;
-            // Открываем сундук (как в магазине)
-            const itemIds = Object.keys(itemsDatabase);
-            const randomId = itemIds[Math.floor(Math.random() * itemIds.length)];
-            const r = Math.random();
-            let rarity;
-            let thresholdCommon = 0.2 - luckBonus;
-            let thresholdRare = 0.7 - luckBonus;
-            let thresholdEpic = 0.9 - luckBonus;
-            let thresholdLegendary = 0.98 - luckBonus;
-            thresholdCommon = Math.max(0, thresholdCommon);
-            thresholdRare = Math.max(thresholdCommon, thresholdRare);
-            thresholdEpic = Math.max(thresholdRare, thresholdEpic);
-            thresholdLegendary = Math.max(thresholdEpic, thresholdLegendary);
-            if (r < thresholdCommon) rarity = 0;
-            else if (r < thresholdRare) rarity = 1;
-            else if (r < thresholdEpic) rarity = 2;
-            else if (r < thresholdLegendary) rarity = 3;
-            else rarity = 4;
-            if (playerInventory.length < 20) {
-                playerInventory.push({ id: randomId, rarity: rarity });
-                localStorage.setItem('rpg_inv_v2', JSON.stringify(playerInventory));
-                const baseItem = itemsDatabase[randomId];
-                log.innerHTML += `<div style="color: gold;">📦 Вы получили: ${baseItem.img} ${rarities[rarity]} ${baseItem.name}</div>`;
-            } else {
-                log.innerHTML += `<div style="color: orange;">⚠️ Инвентарь полон, предмет потерян.</div>`;
+        // Выбираем тип сундука на основе dropChance
+        let chestRarity = 0;
+        let random = Math.random();
+        let cumulative = 0;
+        for (let i = 0; i < chestTypes.length; i++) {
+            cumulative += chestTypes[i].dropChance;
+            if (random < cumulative) {
+                chestRarity = chestTypes[i].rarity;
+                break;
             }
         }
-
+        // Добавляем сундук в инвентарь
+        addChest(chestRarity);
+        log.innerHTML += `<div style="color: gold;">🎁 Вы получили ${chestTypes[chestRarity].img} ${chestTypes[chestRarity].name} сундук!</div>`;
         // Обновление счетчика побеждённых мобов и боссов
         if (currentEnemy.isBoss) {
             defeatedMobsCount = 0;
@@ -1176,6 +1202,15 @@ function startBattle() {
     // Сохраняем изменения здоровья
     localStorage.setItem('rpg_hp', playerHp);
     log.scrollTop = log.scrollHeight;
+}
+
+    function addChest(chestRarity) {
+    if (playerInventory.length >= 20) {
+        tg.showPopup({ title: 'Внимание', message: 'Инвентарь полон! Сундук не поместился.', buttons: [{ type: 'ok' }] });
+        return;
+    }
+    playerInventory.push({ type: 'chest', chestRarity: chestRarity });
+    saveGame();
 }
 
 function restoreHp() {
@@ -1400,20 +1435,24 @@ function getEffectiveHeroPower(enemy) {
             for (let i = 0; i < 20; i++) {
                 const slotDiv = document.createElement('div');
                 slotDiv.className = 'inv-slot';
-                if (i < playerInventory.length) {
-                    const itemData = playerInventory[i];
-                    const baseItem = itemsDatabase[itemData.id];
+            if (i < playerInventory.length) {
+                const item = playerInventory[i];
+                if (item.type === 'chest') {
+                    // Сундук
+                    const chest = chestTypes[item.chestRarity];
+                    slotDiv.style.borderColor = chest.color;
+                    slotDiv.innerHTML = `<span style="font-size: 16px;">${chest.img}</span>`;
+                    slotDiv.onclick = () => showChestDetails(i);
+                } else {
+                    // Предмет
+                    const baseItem = itemsDatabase[item.id];
                     if (baseItem) {
-                        slotDiv.style.borderColor = rarityColors[itemData.rarity];
-                        slotDiv.innerHTML = `<span style="font-size: 5px; color: ${rarityColors[itemData.rarity]};">${baseItem.img}</span>`;
+                        slotDiv.style.borderColor = rarityColors[item.rarity];
+                        slotDiv.innerHTML = `<span style="font-size: 5px; color: ${rarityColors[item.rarity]};">${baseItem.img}</span>`;
                         slotDiv.onclick = () => showItemDetails(i);
                     }
                 }
-                grid.appendChild(slotDiv);
             }
-            modal.style.display = 'flex';
-        }
-
         function closeInventory() {
             document.getElementById('modal-inventory').style.display = 'none';
         }
@@ -1770,6 +1809,120 @@ function getEffectiveHeroPower(enemy) {
             document.getElementById('item-details').style.display = 'block';
         }
 
+function showChestDetails(index) {
+    const item = playerInventory[index];
+    if (item.type !== 'chest') return;
+    const chest = chestTypes[item.chestRarity];
+    document.getElementById('detail-image').innerHTML = `<span style="font-size: 30px;">${chest.img}</span>`;
+    document.getElementById('detail-name').innerHTML = `<span style="color: ${chest.color};">${chest.name} сундук</span>`;
+    document.getElementById('detail-stats').innerText = `Откройте, чтобы получить 3-6 предметов!`;
+    const btnEquip = document.getElementById('btn-equip');
+    btnEquip.innerText = "ОТКРЫТЬ";
+    btnEquip.onclick = () => openChest(index);
+    const btnMerge = document.getElementById('btn-merge');
+    btnMerge.style.display = 'none';
+    document.getElementById('item-details').style.display = 'block';
+}
+
+                function openChest(invIndex) {
+    const chestItem = playerInventory[invIndex];
+    if (!chestItem || chestItem.type !== 'chest') return;
+    const chestRarity = chestItem.chestRarity;
+
+    // Удаляем сундук из инвентаря
+    playerInventory.splice(invIndex, 1);
+    saveGame();
+
+    // Определяем количество предметов (3-6 + бонус за редкость)
+    let itemCount = Math.floor(Math.random() * 4) + 3; // 3-6
+    // Чем выше редкость сундука, тем больше предметов
+    itemCount += chestRarity;
+
+    // Генерируем предметы
+    const newItems = [];
+    for (let i = 0; i < itemCount; i++) {
+        // Выбираем случайный предмет
+        const itemIds = Object.keys(itemsDatabase);
+        const randomId = itemIds[Math.floor(Math.random() * itemIds.length)];
+        // Определяем редкость предмета на основе редкости сундука
+        let itemRarity;
+        const luck = getLuckBonus() / 100;
+        // Базовые шансы, модифицированные удачей и редкостью сундука
+        let baseChanceCommon = 0.5 - luck;
+        let baseChanceRare = 0.3 - luck;
+        let baseChanceEpic = 0.15 - luck;
+        let baseChanceLegendary = 0.05 - luck;
+        // Корректируем в зависимости от редкости сундука
+        baseChanceCommon -= chestRarity * 0.1;
+        baseChanceRare += chestRarity * 0.05;
+        baseChanceEpic += chestRarity * 0.03;
+        baseChanceLegendary += chestRarity * 0.02;
+        // Ограничиваем значения
+        baseChanceCommon = Math.max(0.1, Math.min(0.8, baseChanceCommon));
+        baseChanceRare = Math.max(0.1, Math.min(0.5, baseChanceRare));
+        baseChanceEpic = Math.max(0.05, Math.min(0.3, baseChanceEpic));
+        baseChanceLegendary = Math.max(0.01, Math.min(0.2, baseChanceLegendary));
+        // Нормализуем сумму
+        const total = baseChanceCommon + baseChanceRare + baseChanceEpic + baseChanceLegendary;
+        const r = Math.random() * total;
+        if (r < baseChanceCommon) itemRarity = 0;
+        else if (r < baseChanceCommon + baseChanceRare) itemRarity = 1;
+        else if (r < baseChanceCommon + baseChanceRare + baseChanceEpic) itemRarity = 2;
+        else if (r < baseChanceCommon + baseChanceRare + baseChanceEpic + baseChanceLegendary) itemRarity = 3;
+        else itemRarity = 4;
+        newItems.push({ id: randomId, rarity: itemRarity });
+    }
+
+    // Добавляем предметы в инвентарь (если есть место)
+    let addedCount = 0;
+    for (let item of newItems) {
+        if (playerInventory.length < 20) {
+            playerInventory.push(item);
+            addedCount++;
+        } else {
+            tg.showPopup({ title: 'Внимание', message: 'Инвентарь полон, часть предметов потеряна.', buttons: [{ type: 'ok' }] });
+            break;
+        }
+    }
+    saveGame();
+
+    // Отображаем анимацию
+    showChestAnimation(chestRarity, newItems.slice(0, addedCount));
+
+    // Обновляем инвентарь
+    closeInventory();
+    openInventory();
+}
+
+                function showChestAnimation(chestRarity, items) {
+    const modal = document.getElementById('modal-chest');
+    const animationDiv = document.getElementById('chest-animation');
+    animationDiv.innerHTML = '';
+
+    // Добавляем карточки предметов с задержкой
+    items.forEach((item, idx) => {
+        const baseItem = itemsDatabase[item.id];
+        const rarityColor = rarityColors[item.rarity];
+        const rarityName = rarities[item.rarity];
+        const div = document.createElement('div');
+        div.className = 'chest-item';
+        div.style.animationDelay = `${idx * 0.1}s`;
+        div.innerHTML = `
+            <div style="font-size: 30px;">${baseItem.img}</div>
+            <div style="font-size: 8px; color: ${rarityColor};">${rarityName}</div>
+            <div style="font-size: 7px;">${baseItem.name}</div>
+            <div style="font-size: 6px;">+${baseItem.baseBonus * statMultipliers[item.rarity]} ${baseItem.stat}</div>
+        `;
+        animationDiv.appendChild(div);
+    });
+
+    modal.style.display = 'flex';
+}
+
+function closeChestModal() {
+    document.getElementById('modal-chest').style.display = 'none';
+}
+                
         function equipItem(invIndex) {
             const itemData = playerInventory[invIndex];
             const baseItem = itemsDatabase[itemData.id];

@@ -864,9 +864,9 @@ const SoundManager = (function() {
 // ============================================================================
 
 function saveGame() {
-    localStorage.setItem('rpg_gold', currentGold);
-    localStorage.setItem('rpg_xp', currentXp);
-    localStorage.setItem('rpg_level', currentLevel);
+    localStorage.setItem('rpg_gold', playerGold);
+    localStorage.setItem('rpg_xp', playerXp);
+    localStorage.setItem('rpg_level', playerLevel);
     localStorage.setItem('rpg_talent_points', talentPoints);
     localStorage.setItem('rpg_stats', JSON.stringify(playerStats));
     localStorage.setItem('rpg_inv_v2', JSON.stringify(playerInventory));
@@ -877,7 +877,7 @@ function saveGame() {
     localStorage.setItem('rpg_defeated_mobs', defeatedMobsCount);
     localStorage.setItem('rpg_boss_available', bossAvailable);
     localStorage.setItem('rpg_sound_enabled', soundEnabled);
-    localStorage.setItem('rpg_hp', currentHp);
+    localStorage.setItem('rpg_hp', playerHp);
     localStorage.setItem('rpg_last_login', getToday());
     }
             
@@ -930,7 +930,6 @@ if (powerSpan) {
 powerSpan.innerText = calculatePower();
 }
 }
-SoundManager.playEffect('quest');
 
 // ============================================================================
 // 7. РАБОТА С КВЕСТАМИ
@@ -954,51 +953,51 @@ SoundManager.playEffect('quest');
                 });
             }
 
-                    function completeQuest(questId, xpReward, goldReward, statName) {
-            currentGold += Math.floor(goldReward * getGoldMultiplier());
-            currentXp += Math.floor(xpReward * getXpMultiplier());
-            if (playerStats[statName] !== undefined) {
-                playerStats[statName] += 1;
-            }
-            while (currentXp >= maxXp) {
-                currentLevel++;
-                currentXp -= maxXp;
-                talentPoints++;
-                localStorage.setItem('rpg_level', currentLevel);
-                localStorage.setItem('rpg_talent_points', talentPoints);
-                document.getElementById('level').innerText = currentLevel;
-                tg.showPopup({ title: 'Уровень повышен!', message: `Теперь ты ${currentLevel} уровня.`, buttons: [{ type: 'ok' }] });
-                SoundManager.playEffect('levelup');
-            }
-            completedQuests.push(questId);
-                        // Увеличиваем общее количество выполненных квестов
-            totalCompletedQuests++;
-            saveStats();
-            
-            // Считаем упражнения по названию квеста
-            const title = questsDatabase.find(q => q.id === questId)?.title || '';
-            if (title.toLowerCase().includes('отжимания')) totalPushups++;
-            else if (title.toLowerCase().includes('подтягивания')) totalPullups++;
-            else if (title.toLowerCase().includes('пресс')) totalAbs++;
-            else if (title.toLowerCase().includes('планка')) totalPlank++;
-            else if (title.toLowerCase().includes('растяжка')) totalStretch++;
-            saveStats();
-            localStorage.setItem('rpg_completed', JSON.stringify(completedQuests));
-            localStorage.setItem('rpg_gold', currentGold);
-            localStorage.setItem('rpg_xp', currentXp);
-            localStorage.setItem('rpg_stats', JSON.stringify(playerStats));
-            document.getElementById('gold').innerText = currentGold;
-            updateXPdisplay();
-            if (document.getElementById('stat-' + statName)) {
-                document.getElementById('stat-' + statName).innerText = playerStats[statName];
-               
-            }
-            updatePowerDisplay();
-            if (window.Telegram && window.Telegram.WebApp) {
-                window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
-            }
-            renderQuests();
-        }
+function completeQuest(questId, xpReward, goldReward, statName) {
+    playerGold += Math.floor(goldReward * getGoldMultiplier());
+    playerXp += Math.floor(xpReward * getXpMultiplier());
+    if (playerStats[statName] !== undefined) {
+        playerStats[statName] += 1;
+    }
+    while (playerXp >= maxXp) {
+        playerLevel++;
+        playerXp -= maxXp;
+        talentPoints++;
+        localStorage.setItem('rpg_level', playerLevel);
+        localStorage.setItem('rpg_talent_points', talentPoints);
+        document.getElementById('level').innerText = playerLevel;
+        tg.showPopup({ title: 'Уровень повышен!', message: `Теперь ты ${playerLevel} уровня.`, buttons: [{ type: 'ok' }] });
+        SoundManager.playEffect('levelup');
+    }
+    completedQuests.push(questId);
+    totalCompletedQuests++;
+    saveStats();
+
+    // Считаем упражнения по названию квеста
+    const title = questsDatabase.find(q => q.id === questId)?.title || '';
+    if (title.toLowerCase().includes('отжимания')) totalPushups++;
+    else if (title.toLowerCase().includes('подтягивания')) totalPullups++;
+    else if (title.toLowerCase().includes('пресс')) totalAbs++;
+    else if (title.toLowerCase().includes('планка')) totalPlank++;
+    else if (title.toLowerCase().includes('растяжка')) totalStretch++;
+    saveStats();
+
+    localStorage.setItem('rpg_completed', JSON.stringify(completedQuests));
+    localStorage.setItem('rpg_gold', playerGold);
+    localStorage.setItem('rpg_xp', playerXp);
+    localStorage.setItem('rpg_stats', JSON.stringify(playerStats));
+    document.getElementById('gold').innerText = playerGold;
+    updateXPdisplay();
+    if (document.getElementById('stat-' + statName)) {
+        document.getElementById('stat-' + statName).innerText = playerStats[statName];
+    }
+    updatePowerDisplay();
+    if (window.Telegram && window.Telegram.WebApp) {
+        window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
+    }
+    SoundManager.playEffect('quest');
+    renderQuests();
+}
     
 // ============================================================================
 // 8. РАБОТА С РЮКЗАКОМ И ЭКИПИРОВКОЙ
@@ -1022,7 +1021,7 @@ SoundManager.playEffect('quest');
     // обновляем информацию в окне
     
     document.getElementById('hero-power-display').innerText = `⚔️ Сила: ${getEffectiveHeroPower(currentEnemy)}`;
-    document.getElementById('hero-hp-display').innerHTML = `❤️ HP: ${currentHp}/${maxHp}`;
+    document.getElementById('hero-hp-display').innerHTML = `❤️ HP: ${playerHp}/${maxHp}`;
     document.getElementById('enemy-name').innerHTML = currentEnemy.isBoss ? `👑 ${currentEnemy.name}` : `👾 ${currentEnemy.name}`;
     document.getElementById('enemy-power-display').innerText = `⚔️ Сила: ${currentEnemy.basePower}`;
     document.getElementById('enemy-weakness').innerHTML = `Слабость: ${currentEnemy.weakness || 'нет'}`;
@@ -1045,7 +1044,7 @@ function startBattle() {
     log.innerHTML = ''; // очищаем лог
 
     // Проверка здоровья героя
-    if (currentHp <= 0) {
+    if (playerHp <= 0) {
         log.innerHTML = '<div style="color: red;">💀 Вы мертвы! Восстановите здоровье отдыхом.</div>';
         return;
     }
@@ -1064,20 +1063,20 @@ function startBattle() {
         // Награда
         let expGain = Math.floor(currentEnemy.expReward * getXpMultiplier());
         let goldGain = Math.floor(currentEnemy.goldReward * getGoldMultiplier());
-        currentXp += expGain;
-        currentGold += goldGain;
-        document.getElementById('gold').innerText = currentGold;
+        playerXp += expGain;
+        playerGold += goldGain;
+        document.getElementById('gold').innerText = playerGold;
         updateXPdisplay();
 
         // Проверка на повышение уровня
-        while (currentXp >= maxXp) {
-            currentLevel++;
-            currentXp -= maxXp;
+        while (playerXp >= maxXp) {
+            playerLevel++;
+            playerXp -= maxXp;
             talentPoints++;
-            localStorage.setItem('rpg_level', currentLevel);
+            localStorage.setItem('rpg_level', playerLevel);
             localStorage.setItem('rpg_talent_points', talentPoints);
-            document.getElementById('level').innerText = currentLevel;
-            tg.showPopup({ title: 'Уровень повышен!', message: `Теперь ты ${currentLevel} уровня.`, buttons: [{ type: 'ok' }] });
+            document.getElementById('level').innerText = playerLevel;
+            tg.showPopup({ title: 'Уровень повышен!', message: `Теперь ты ${playerLevel} уровня.`, buttons: [{ type: 'ok' }] });
         }
 
         // Шанс сундука (20% + удача)
@@ -1129,11 +1128,11 @@ function startBattle() {
         }
 
         // Сохраняем прогресс
-        localStorage.setItem('rpg_gold', currentGold);
-        localStorage.setItem('rpg_xp', currentXp);
-        localStorage.setItem('rpg_level', currentLevel);
+        localStorage.setItem('rpg_gold', playerGold);
+        localStorage.setItem('rpg_xp', playerXp);
+        localStorage.setItem('rpg_level', playerLevel);
         localStorage.setItem('rpg_talent_points', talentPoints);
-        localStorage.setItem('rpg_hp', currentHp);
+        localStorage.setItem('rpg_hp', playerHp);
         localStorage.setItem('rpg_defeated_mobs', defeatedMobsCount);
         localStorage.setItem('rpg_boss_available', bossAvailable);
 
@@ -1156,12 +1155,12 @@ function startBattle() {
         // ПОРАЖЕНИЕ
         log.innerHTML += `<div style="color: red;">💔 ВЫ ПРОИГРАЛИ!</div>`;
         let hpLoss = 10;
-        currentHp = Math.max(0, currentHp - hpLoss);
-        localStorage.setItem('rpg_hp', currentHp);
+        playerHp = Math.max(0, playerHp - hpLoss);
+        localStorage.setItem('rpg_hp', playerHp);
         updateHpDisplay();
-        document.getElementById('hero-hp-display').innerHTML = `❤️ HP: ${currentHp}/${maxHp}`;
+        document.getElementById('hero-hp-display').innerHTML = `❤️ HP: ${playerHp}/${maxHp}`;
 
-        if (currentHp <= 0) {
+        if (playerHp <= 0) {
             log.innerHTML += `<div style="color: red;">💀 Вы пали в бою! Восстановите здоровье отдыхом.</div>`;
             // блокируем кнопку боя до восстановления?
             const attackBtn = document.getElementById('attack-btn');
@@ -1175,9 +1174,37 @@ function startBattle() {
         }
     }
     // Сохраняем изменения здоровья
-    localStorage.setItem('rpg_hp', currentHp);
+    localStorage.setItem('rpg_hp', playerHp);
     log.scrollTop = log.scrollHeight;
 }
+
+function restoreHp() {
+    if (playerGold >= 10 && playerHp < maxHp) {
+        playerGold -= 10;
+        playerHp = Math.min(maxHp, playerHp + 10);
+        localStorage.setItem('rpg_gold', playerGold);
+        localStorage.setItem('rpg_hp', playerHp);
+        document.getElementById('gold').innerText = playerGold;
+        updateHpDisplay();
+        SoundManager.playEffect('heal');
+        // Обновляем отображение в окне боя, если оно открыто
+        const heroHpDiv = document.getElementById('hero-hp-display');
+        if (heroHpDiv) heroHpDiv.innerHTML = `❤️ HP: ${playerHp}/${maxHp}`;
+        // Разблокируем кнопку боя, если HP > 0
+        if (playerHp > 0) {
+            const attackBtn = document.getElementById('attack-btn');
+            if (attackBtn) {
+                attackBtn.disabled = false;
+                attackBtn.onclick = startBattle;
+            }
+        }
+    } else {
+        const log = document.getElementById('battle-log');
+        if (log) log.innerHTML += '<div style="color: red;">Недостаточно золота или HP полное!</div>';
+    }
+}
+
+
     
 // ============================================================================
 // 12. МЕТРИКИ 
@@ -1245,15 +1272,15 @@ function startBattle() {
 
             // Обновление XP на экране
             function updateXPdisplay() {
-                document.getElementById('xp-current').innerText = currentXp;
+                document.getElementById('xp-current').innerText = playerXp;
                 document.getElementById('xp-max').innerText = maxXp;
-                document.querySelector('.xp-bar').style.width = Math.min((currentXp / maxXp) * 100, 100) + '%';
+                document.querySelector('.xp-bar').style.width = Math.min((playerXp / maxXp) * 100, 100) + '%';
             }
 
             function updateHpDisplay() {
-                document.getElementById('hp-current').innerText = currentHp;
+                document.getElementById('hp-current').innerText = playerHp;
                 document.getElementById('hp-max').innerText = maxHp;
-                const percent = (currentHp / maxHp) * 100;
+                const percent = (playerHp / maxHp) * 100;
                 document.getElementById('hp-bar-fill').style.width = Math.max(0, percent) + '%';
             }
 
@@ -1564,8 +1591,8 @@ function getEffectiveHeroPower(enemy) {
 
 
         updateXPdisplay();
-        document.getElementById('gold').innerText = currentGold;
-        document.getElementById('level').innerText = currentLevel;
+        document.getElementById('gold').innerText = playerGold;
+        document.getElementById('level').innerText = playerLevel;
 
         // Функция пересчёта статов
         function recalcStats() {
@@ -1616,8 +1643,8 @@ function getEffectiveHeroPower(enemy) {
 
         function canUpgradeTalent(talent) {
             if (talentPoints < talent.cost) return false;
-            const currentLevel = getTalentLevel(talent.id);
-            if (currentLevel >= talent.maxLevel) return false;
+            const playerLevel = getTalentLevel(talent.id);
+            if (playerLevel >= talent.maxLevel) return false;
             for (let depId of talent.dependencies) {
                 if (getTalentLevel(depId) < 1) return false;
             }
@@ -1638,7 +1665,7 @@ function getEffectiveHeroPower(enemy) {
             const container = document.getElementById('talents-container');
             container.innerHTML = '';
             talentsData.forEach(talent => {
-                const currentLevel = getTalentLevel(talent.id);
+                const playerLevel = getTalentLevel(talent.id);
                 const canUp = canUpgradeTalent(talent);
                 const talentDiv = document.createElement('div');
                 talentDiv.style.background = '#111';
@@ -1649,7 +1676,7 @@ function getEffectiveHeroPower(enemy) {
                 header.style.display = 'flex';
                 header.style.justifyContent = 'space-between';
                 header.style.marginBottom = '4px';
-                header.innerHTML = `<span style="color: var(--accent-yellow);">${talent.name}</span> <span>${currentLevel}/${talent.maxLevel}</span>`;
+                header.innerHTML = `<span style="color: var(--accent-yellow);">${talent.name}</span> <span>${playerLevel}/${talent.maxLevel}</span>`;
                 talentDiv.appendChild(header);
                 const desc = document.createElement('div');
                 desc.style.fontSize = '6px';
@@ -1661,13 +1688,13 @@ function getEffectiveHeroPower(enemy) {
                 bonus.style.color = '#aaa';
                 bonus.style.marginBottom = '8px';
                 if (talent.effectType === 'stat') {
-                    bonus.innerText = `Текущий бонус: +${currentLevel * talent.baseEffect} ${talent.stat}`;
+                    bonus.innerText = `Текущий бонус: +${playerLevel * talent.baseEffect} ${talent.stat}`;
                 } else if (talent.effectType === 'xp_mult') {
-                    bonus.innerText = `Текущий бонус: +${currentLevel * talent.baseEffect}% к опыту`;
+                    bonus.innerText = `Текущий бонус: +${playerLevel * talent.baseEffect}% к опыту`;
                 } else if (talent.effectType === 'gold_mult') {
-                    bonus.innerText = `Текущий бонус: +${currentLevel * talent.baseEffect}% к золоту`;
+                    bonus.innerText = `Текущий бонус: +${playerLevel * talent.baseEffect}% к золоту`;
                 } else if (talent.effectType === 'luck') {
-                    bonus.innerText = `Текущий бонус: +${currentLevel * talent.baseEffect}% к удаче`;
+                    bonus.innerText = `Текущий бонус: +${playerLevel * talent.baseEffect}% к удаче`;
                 }
                 talentDiv.appendChild(bonus);
                 const btn = document.createElement('button');
@@ -1888,7 +1915,7 @@ function getEffectiveHeroPower(enemy) {
 
         function buyItem(index) {
             const item = shopItems[index];
-            if (currentGold < item.price) {
+            if (playerGold < item.price) {
                 document.getElementById('shop-message').innerText = '❌ Недостаточно золота!';
                 setTimeout(() => document.getElementById('shop-message').innerText = '', 2000);
                 return;
@@ -1921,15 +1948,15 @@ function getEffectiveHeroPower(enemy) {
                 else if (r < thresholdLegendary) rarity = 3;
                 else rarity = 4;
                 playerInventory.push({ id: randomId, rarity: rarity });
-                currentXp += Math.floor(50 * getXpMultiplier());
+                playerXp += Math.floor(50 * getXpMultiplier());
                 updateXPdisplay();
                 const baseItem = itemsDatabase[randomId];
                 document.getElementById('shop-message').innerHTML = `📦 Из сундука выпало: ${baseItem.img} ${baseItem.name}<br>+50 XP!`;
             }
-            currentGold -= item.price;
-            localStorage.setItem('rpg_gold', currentGold);
+            playerGold -= item.price;
+            localStorage.setItem('rpg_gold', playerGold);
             localStorage.setItem('rpg_inv_v2', JSON.stringify(playerInventory));
-            document.getElementById('gold').innerText = currentGold;
+            document.getElementById('gold').innerText = playerGold;
             setTimeout(() => {
                 const msg = document.getElementById('shop-message');
                 if (msg) msg.innerText = '';

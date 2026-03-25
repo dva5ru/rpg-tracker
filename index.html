@@ -340,10 +340,13 @@ canvas {
 </div>
     </div>
 
-    <div style="font-size: 7px;">HP: <span id="hp-current">100</span>/<span id="hp-max">100</span></div>
+    <div style="font-size: 7px;">ЗДОРОВЬЕ: <span id="hp-current">100</span>/<span id="hp-max">100</span></div>
     <div class="bar-container"><div class="hp-bar" id="hp-bar-fill"></div></div>
 
-    <div style="font-size: 7px;">XP: <span id="xp-current">250</span>/<span id="xp-max">1000</span></div>
+    <div style="font-size: 7px;">ЭНЕРГИЯ: <span id="energy-current">100</span>/<span id="energy-max">100</span></div>
+    <div class="bar-container"><div class="xp-bar" id="energy-bar-fill" style="background: #00bcd4;"></div></div>
+
+    <div style="font-size: 7px;">ОПЫТ: <span id="xp-current">250</span>/<span id="xp-max">1000</span></div>
     <div class="bar-container"><div class="xp-bar"></div></div>
 
     <div class="box">
@@ -648,6 +651,7 @@ const bosses = [
 
 let playerGold, playerXp, playerLevel, maxXp = 1000;
 let playerHp, maxHp = 1000;
+let playerEnergy, maxEnergy = 100;
 let talentPoints, playerStats, playerInventory, equippedItems;
 let completedQuests, talentsState;
 let defeatedMobsCount, bossAvailable, currentEnemy = null;
@@ -667,6 +671,7 @@ function saveGame() {
     localStorage.setItem('rpg_xp', playerXp);
     localStorage.setItem('rpg_level', playerLevel);
     localStorage.setItem('rpg_hp', playerHp);
+    localStorage.setItem('rpg_energy', playerEnergy);
     localStorage.setItem('rpg_talent_points', talentPoints);
     localStorage.setItem('rpg_stats', JSON.stringify(playerStats));
     localStorage.setItem('rpg_inv_v2', JSON.stringify(playerInventory));
@@ -699,6 +704,7 @@ function loadGame() {
     playerXp = parseInt(localStorage.getItem('rpg_xp')) || 250;
     playerLevel = parseInt(localStorage.getItem('rpg_level')) || 0;
     playerHp = parseInt(localStorage.getItem('rpg_hp')) || 1000;
+    playerEnergy = parseInt(localStorage.getItem('rpg_energy')) || 100;
     talentPoints = parseInt(localStorage.getItem('rpg_talent_points')) || 0;
     
     playerStats = JSON.parse(localStorage.getItem('rpg_stats')) || {
@@ -968,6 +974,7 @@ function updateUI() {
     updatePowerDisplay();
     updateXPdisplay();
     updateHpDisplay();
+    updateEnergyDisplay();
 }  
     
     
@@ -1063,11 +1070,44 @@ function completeQuest(questId, xpReward, goldReward, statName) {
     completedQuests.push(questId);
     totalCompletedQuests++;
     
-    // Считаем упражнения
+    // --- УМНЫЙ СЧЕТЧИК И ВОПРОСЫ ---
     const title = questsDatabase.find(q => q.id === questId)?.title || '';
-    if (title.toLowerCase().includes('отжимания')) totalPushups++;
-    else if (title.toLowerCase().includes('подтягивания')) totalPullups++;
-    else if (title.toLowerCase().includes('пресс')) totalAbs++;
+    
+    if (title.toLowerCase().includes('отжимания')) {
+        let count = parseInt(prompt("Сколько раз отжался?", "10"));
+        if (isNaN(count) || count <= 0) return; // Если нажал отмену, квест не засчитывается
+        totalPushups += count;
+    }
+    else if (title.toLowerCase().includes('подтягивания')) {
+        let count = parseInt(prompt("Сколько раз подтянулся?", "5"));
+        if (isNaN(count) || count <= 0) return;
+        totalPullups += count;
+    }
+    else if (title.toLowerCase().includes('сон')) {
+        let bedTime = parseInt(prompt("Во сколько лег спать? (введи часы, например 23 или 1)", "23"));
+        let wakeTime = parseInt(prompt("Во сколько проснулся? (введи часы, например 7)", "7"));
+        if (isNaN(bedTime) || isNaN(wakeTime)) return;
+
+        let hours = 0;
+        // Если лег до полуночи (например в 23), а проснулся в 7
+        if (wakeTime < bedTime) {
+            hours = (24 - bedTime) + wakeTime;
+        } else {
+            // Если лег после полуночи (например в 1 ночи) и проснулся в 9
+            hours = wakeTime - bedTime;
+        }
+        
+        // Даем 10 энергии за каждый час сна (максимум до 100)
+        playerEnergy = Math.min(maxEnergy, playerEnergy + (hours * 10));
+        alert(`Отличный сон! Ты проспал ${hours} ч. Энергия восстановлена!`);
+    }
+    else if (title.toLowerCase().includes('бег')) {
+        let km = parseFloat(prompt("Сколько километров пробежал?", "1"));
+        let mins = parseInt(prompt("За сколько минут?", "10"));
+        if (isNaN(km) || isNaN(mins)) return;
+        // Тут потом добавим запись бега в статистику
+    }
+    else if (title.toLowerCase().includes('пресс')) totalAbs++; // Пока оставляем как было для остальных
     else if (title.toLowerCase().includes('планка')) totalPlank++;
     else if (title.toLowerCase().includes('растяжка')) totalStretch++;
 
@@ -1116,6 +1156,8 @@ function startBattle() {
         log.innerHTML = '<div style="color: red;">💀 Вы мертвы! Отдохните.</div>';
         return;
     }
+    
+    playerEnergy -= 10; // Тратим 10 энергии на один удар/бой
 
     const heroPower = getEffectiveHeroPower(currentEnemy);
     const enemyPower = currentEnemy.basePower;
@@ -1292,6 +1334,17 @@ function restoreHp() {
                 const percent = (playerHp / maxHp) * 100;
                 document.getElementById('hp-bar-fill').style.width = Math.max(0, percent) + '%';
             }
+
+    function updateEnergyDisplay() {
+    const energyCur = document.getElementById('energy-current');
+    if (energyCur) energyCur.innerText = playerEnergy;
+    const energyMax = document.getElementById('energy-max');
+    if (energyMax) energyMax.innerText = maxEnergy;
+    
+    const percent = (playerEnergy / maxEnergy) * 100;
+    const bar = document.getElementById('energy-bar-fill');
+    if (bar) bar.style.width = Math.max(0, percent) + '%';
+}
 
                     function saveStats() {
                 localStorage.setItem('stats_login_days', totalLoginDays);

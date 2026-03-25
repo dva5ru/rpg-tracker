@@ -992,7 +992,29 @@ function calculatePower() {
 
 
 
+// Функции для расчета бонусов (множителей)
+function getGoldMultiplier() {
+    let multiplier = 1.0;
+    if (talentsState && talentsState['gold_obsessed']) multiplier += 0.2;
+    return multiplier;
+}
 
+function getXpMultiplier() {
+    let multiplier = 1.0;
+    if (talentsState && talentsState['fast_learner']) multiplier += 0.2;
+    return multiplier;
+}
+
+function getLuckBonus() {
+    let luck = 0;
+    if (talentsState && talentsState['lucky_bastard']) luck += 5;
+    return luck;
+}
+
+// Функция для получения даты (нужна для сохранений)
+function getToday() {
+    return new Date().toISOString().split('T')[0];
+}
 
 
 function updatePowerDisplay() {
@@ -2091,19 +2113,27 @@ function buyItem(index) {
                 }
             }
 
-        // Инициализация
-        loadGame(); 
-        renderQuests();
-        recalcStats();
-        SoundManager.loadSettings();
-        updateSfxButton();
-        updateMusicButton();
-        updateHpDisplay();
-        // Активируем звук после первого клика
-        document.body.addEventListener('click', function once() {
-            SoundManager.init();
-            document.body.removeEventListener('click', once);
-        });
+  // Инициализация игры
+        try {
+            loadGame();      // Загружаем данные
+            updateUI();      // СРАЗУ рисуем их на экране (Золото, ХП, Опыт)
+            renderQuests();  // Загружаем квесты
+            recalcStats();   // Считаем силу
+            SoundManager.loadSettings();
+            updateSfxButton();
+            updateMusicButton();
+            
+            // Активируем звук после первого клика
+            document.body.addEventListener('click', function once() {
+                SoundManager.init();
+                document.body.removeEventListener('click', once);
+            });
+            
+            console.log("Игра успешно инициализирована");
+        } catch (e) {
+            console.error("Ошибка при запуске игры:", e);
+        }
+    
     </script>
 </body>
 </html>

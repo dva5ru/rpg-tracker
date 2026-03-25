@@ -536,18 +536,19 @@ canvas {
     </div> 
 <script>
 
-// ============================================================================
-// 1. Инициализция 
-// ============================================================================
+
     
 const tg = window.Telegram.WebApp;
 tg.ready();
 tg.expand();   
     
-// ============================================================================
-// 2. КОНФИГУРАЦИЯ ИГРЫ
-// ============================================================================
-    
+
+
+
+// ==========================================
+// 1. БАЗА ДАННЫХ
+// ==========================================
+
 // Квесты
 const questsDatabase = [
     
@@ -641,14 +642,9 @@ const bosses = [
     { id: 102, name: "🐉 Огненный дракон", basePower: 70, weakness: "Креативность", expReward: 300, goldReward: 100 }
     ];
     
-// Выбор текущего врага 
-    let currentEnemy = null;
-    let bossAvailable = false;      // доступен ли босс
-    let defeatedMobsCount = 0;      // сколько мобов побеждено с последнего босса
-
-// ============================================================================
-// 3. СОСТОЯНИЕ ИГРЫ 
-// ============================================================================
+// ==========================================
+// 2. ДАННЫЕ ИГРОКА И СОХРАНЕНИЯ
+// ==========================================
 
 let playerGold, playerXp, playerLevel, maxXp = 1000;
 let playerHp, maxHp = 1000;
@@ -663,9 +659,98 @@ let totalPushups, totalPullups, totalAbs, totalPlank, totalStretch;
 // Настройки
 let soundEnabled, musicEnabled;
 
-// ============================================================================
-// 4. ЗВУК 
-// ============================================================================
+
+    
+function saveGame() {
+    // Сохранение героя
+    localStorage.setItem('rpg_gold', playerGold);
+    localStorage.setItem('rpg_xp', playerXp);
+    localStorage.setItem('rpg_level', playerLevel);
+    localStorage.setItem('rpg_hp', playerHp);
+    localStorage.setItem('rpg_talent_points', talentPoints);
+    localStorage.setItem('rpg_stats', JSON.stringify(playerStats));
+    localStorage.setItem('rpg_inv_v2', JSON.stringify(playerInventory));
+    localStorage.setItem('rpg_equipped_v2', JSON.stringify(equippedItems));
+    localStorage.setItem('rpg_completed', JSON.stringify(completedQuests));
+    localStorage.setItem('rpg_talents_state', JSON.stringify(talentsState));
+    
+    // Сохранение мира
+    localStorage.setItem('rpg_defeated_mobs', defeatedMobsCount);
+    localStorage.setItem('rpg_boss_available', bossAvailable);
+    
+    // Сохранение метрик
+    localStorage.setItem('metrics_history', JSON.stringify(metricsHistory));
+    localStorage.setItem('stats_login_days', totalLoginDays);
+    localStorage.setItem('stats_total_quests', totalCompletedQuests);
+    localStorage.setItem('stats_pushups', totalPushups);
+    localStorage.setItem('stats_pullups', totalPullups);
+    localStorage.setItem('stats_abs', totalAbs);
+    localStorage.setItem('stats_plank', totalPlank);
+    localStorage.setItem('stats_stretch', totalStretch);
+
+    // Сохранение настроек
+    localStorage.setItem('rpg_sound_enabled', soundEnabled);
+    localStorage.setItem('rpg_music_enabled', musicEnabled);
+    localStorage.setItem('rpg_last_login', getToday());
+}
+
+function loadGame() {
+    playerGold = parseInt(localStorage.getItem('rpg_gold')) || 10000;
+    playerXp = parseInt(localStorage.getItem('rpg_xp')) || 250;
+    playerLevel = parseInt(localStorage.getItem('rpg_level')) || 0;
+    playerHp = parseInt(localStorage.getItem('rpg_hp')) || 1000;
+    talentPoints = parseInt(localStorage.getItem('rpg_talent_points')) || 0;
+    
+    playerStats = JSON.parse(localStorage.getItem('rpg_stats')) || {
+        "Сила": 10, "Ловкость": 10, "Выносливость": 10, "Интеллект": 10,
+        "Сила духа": 10, "Гибкость": 10, "Концентрация": 10, "Креативность": 10
+    };
+    
+    playerInventory = JSON.parse(localStorage.getItem('rpg_inv_v2')) || [
+        { id: "sword", rarity: 1 }, { id: "sword", rarity: 1 }, 
+        { id: "sword", rarity: 1 }, { id: "shoes", rarity: 0 }
+    ];
+    
+    equippedItems = JSON.parse(localStorage.getItem('rpg_equipped_v2')) || {};
+    completedQuests = JSON.parse(localStorage.getItem('rpg_completed')) || [];
+    talentsState = JSON.parse(localStorage.getItem('rpg_talents_state')) || {};
+    
+    defeatedMobsCount = parseInt(localStorage.getItem('rpg_defeated_mobs')) || 0;
+    bossAvailable = localStorage.getItem('rpg_boss_available') === 'true';
+    
+    metricsHistory = JSON.parse(localStorage.getItem('metrics_history')) || [];
+    totalLoginDays = parseInt(localStorage.getItem('stats_login_days')) || 0;
+    totalCompletedQuests = parseInt(localStorage.getItem('stats_total_quests')) || 0;
+    totalPushups = parseInt(localStorage.getItem('stats_pushups')) || 0;
+    totalPullups = parseInt(localStorage.getItem('stats_pullups')) || 0;
+    totalAbs = parseInt(localStorage.getItem('stats_abs')) || 0;
+    totalPlank = parseInt(localStorage.getItem('stats_plank')) || 0;
+    totalStretch = parseInt(localStorage.getItem('stats_stretch')) || 0;
+
+    soundEnabled = localStorage.getItem('rpg_sound_enabled') !== 'false';
+    musicEnabled = localStorage.getItem('rpg_music_enabled') !== 'false';
+}
+
+    
+// ==========================================
+// 3. ИНТРФЕЙС
+// ==========================================
+
+
+// ==========================================
+// 4. ЛОГИКА ИГРЫ 
+// ==========================================
+
+
+// Выбор текущего врага 
+    let currentEnemy = null;
+    let bossAvailable = false;      // доступен ли босс
+    let defeatedMobsCount = 0;      // сколько мобов побеждено с последнего босса
+
+
+
+
+
     
 const SoundManager = (function() {
     let audioCtx = null;
@@ -878,84 +963,25 @@ const SoundManager = (function() {
 
 
 
-// ============================================================================
-// 5. СОХРАНЕНИЕ И ЗАГРУЗКА
-// ============================================================================
 
-function saveGame() {
-    // Сохранение героя
-    localStorage.setItem('rpg_gold', playerGold);
-    localStorage.setItem('rpg_xp', playerXp);
-    localStorage.setItem('rpg_level', playerLevel);
-    localStorage.setItem('rpg_hp', playerHp);
-    localStorage.setItem('rpg_talent_points', talentPoints);
-    localStorage.setItem('rpg_stats', JSON.stringify(playerStats));
-    localStorage.setItem('rpg_inv_v2', JSON.stringify(playerInventory));
-    localStorage.setItem('rpg_equipped_v2', JSON.stringify(equippedItems));
-    localStorage.setItem('rpg_completed', JSON.stringify(completedQuests));
-    localStorage.setItem('rpg_talents_state', JSON.stringify(talentsState));
-    
-    // Сохранение мира
-    localStorage.setItem('rpg_defeated_mobs', defeatedMobsCount);
-    localStorage.setItem('rpg_boss_available', bossAvailable);
-    
-    // Сохранение метрик
-    localStorage.setItem('metrics_history', JSON.stringify(metricsHistory));
-    localStorage.setItem('stats_login_days', totalLoginDays);
-    localStorage.setItem('stats_total_quests', totalCompletedQuests);
-    localStorage.setItem('stats_pushups', totalPushups);
-    localStorage.setItem('stats_pullups', totalPullups);
-    localStorage.setItem('stats_abs', totalAbs);
-    localStorage.setItem('stats_plank', totalPlank);
-    localStorage.setItem('stats_stretch', totalStretch);
 
-    // Сохранение настроек
-    localStorage.setItem('rpg_sound_enabled', soundEnabled);
-    localStorage.setItem('rpg_music_enabled', musicEnabled);
-    localStorage.setItem('rpg_last_login', getToday());
-}
 
-function loadGame() {
-    playerGold = parseInt(localStorage.getItem('rpg_gold')) || 10000;
-    playerXp = parseInt(localStorage.getItem('rpg_xp')) || 250;
-    playerLevel = parseInt(localStorage.getItem('rpg_level')) || 0;
-    playerHp = parseInt(localStorage.getItem('rpg_hp')) || 1000;
-    talentPoints = parseInt(localStorage.getItem('rpg_talent_points')) || 0;
-    
-    playerStats = JSON.parse(localStorage.getItem('rpg_stats')) || {
-        "Сила": 10, "Ловкость": 10, "Выносливость": 10, "Интеллект": 10,
-        "Сила духа": 10, "Гибкость": 10, "Концентрация": 10, "Креативность": 10
-    };
-    
-    playerInventory = JSON.parse(localStorage.getItem('rpg_inv_v2')) || [
-        { id: "sword", rarity: 1 }, { id: "sword", rarity: 1 }, 
-        { id: "sword", rarity: 1 }, { id: "shoes", rarity: 0 }
-    ];
-    
-    equippedItems = JSON.parse(localStorage.getItem('rpg_equipped_v2')) || {};
-    completedQuests = JSON.parse(localStorage.getItem('rpg_completed')) || [];
-    talentsState = JSON.parse(localStorage.getItem('rpg_talents_state')) || {};
-    
-    defeatedMobsCount = parseInt(localStorage.getItem('rpg_defeated_mobs')) || 0;
-    bossAvailable = localStorage.getItem('rpg_boss_available') === 'true';
-    
-    metricsHistory = JSON.parse(localStorage.getItem('metrics_history')) || [];
-    totalLoginDays = parseInt(localStorage.getItem('stats_login_days')) || 0;
-    totalCompletedQuests = parseInt(localStorage.getItem('stats_total_quests')) || 0;
-    totalPushups = parseInt(localStorage.getItem('stats_pushups')) || 0;
-    totalPullups = parseInt(localStorage.getItem('stats_pullups')) || 0;
-    totalAbs = parseInt(localStorage.getItem('stats_abs')) || 0;
-    totalPlank = parseInt(localStorage.getItem('stats_plank')) || 0;
-    totalStretch = parseInt(localStorage.getItem('stats_stretch')) || 0;
 
-    soundEnabled = localStorage.getItem('rpg_sound_enabled') !== 'false';
-    musicEnabled = localStorage.getItem('rpg_music_enabled') !== 'false';
-}
-
-// ============================================================================
-// 6. ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ 
-// ============================================================================
-
+// Главная функция обновления всех показателей на экране
+function updateUI() {
+    const goldEl = document.getElementById('gold');
+    if (goldEl) goldEl.innerText = playerGold;
+    
+    const levelEl = document.getElementById('level');
+    if (levelEl) levelEl.innerText = playerLevel;
+    
+    updatePowerDisplay();
+    updateXPdisplay();
+    updateHpDisplay();
+}  
+    
+    
+    
 function calculatePower() {
     let power = 0;
         for (let stat in playerStats) {
@@ -980,9 +1006,7 @@ function closeInventory() {
     document.getElementById('modal-inventory').style.display = 'none';
 }
     
-// ============================================================================
-// 7. РАБОТА С КВЕСТАМИ
-// ============================================================================
+
 
             function renderQuests() {
                 const container = document.getElementById('quests-container');
@@ -1003,67 +1027,50 @@ function closeInventory() {
             }
 
 function completeQuest(questId, xpReward, goldReward, statName) {
+    // 1. Начисляем награды
     playerGold += Math.floor(goldReward * getGoldMultiplier());
     playerXp += Math.floor(xpReward * getXpMultiplier());
+    
     if (playerStats[statName] !== undefined) {
         playerStats[statName] += 1;
+        // Обновляем конкретный стат на экране, если он открыт
+        const statEl = document.getElementById('stat-' + statName);
+        if (statEl) statEl.innerText = playerStats[statName];
     }
+    
+    // 2. Проверка уровня
     while (playerXp >= maxXp) {
         playerLevel++;
         playerXp -= maxXp;
         talentPoints++;
-        localStorage.setItem('rpg_level', playerLevel);
-        localStorage.setItem('rpg_talent_points', talentPoints);
-        document.getElementById('level').innerText = playerLevel;
         tg.showPopup({ title: 'Уровень повышен!', message: `Теперь ты ${playerLevel} уровня.`, buttons: [{ type: 'ok' }] });
         SoundManager.playEffect('levelup');
     }
+    
+    // 3. Записываем прогресс
     completedQuests.push(questId);
     totalCompletedQuests++;
-    saveStats();
-
-    // Считаем упражнения по названию квеста
+    
+    // Считаем упражнения
     const title = questsDatabase.find(q => q.id === questId)?.title || '';
     if (title.toLowerCase().includes('отжимания')) totalPushups++;
     else if (title.toLowerCase().includes('подтягивания')) totalPullups++;
     else if (title.toLowerCase().includes('пресс')) totalAbs++;
     else if (title.toLowerCase().includes('планка')) totalPlank++;
     else if (title.toLowerCase().includes('растяжка')) totalStretch++;
-    saveStats();
 
-    localStorage.setItem('rpg_completed', JSON.stringify(completedQuests));
-    localStorage.setItem('rpg_gold', playerGold);
-    localStorage.setItem('rpg_xp', playerXp);
-    localStorage.setItem('rpg_stats', JSON.stringify(playerStats));
-    document.getElementById('gold').innerText = playerGold;
-    updateXPdisplay();
-    if (document.getElementById('stat-' + statName)) {
-        document.getElementById('stat-' + statName).innerText = playerStats[statName];
-    }
-    updatePowerDisplay();
+    // 4. Финализируем (Сохраняем всё разом, обновляем UI разом, проигрываем звук)
+    saveGame();
+    updateUI();
+    
     if (window.Telegram && window.Telegram.WebApp) {
         window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
     }
     SoundManager.playEffect('quest');
-    renderQuests();
+    renderQuests(); // перерисовываем список квестов
 }
     
-// ============================================================================
-// 8. РАБОТА С РЮКЗАКОМ И ЭКИПИРОВКОЙ
-// ============================================================================
 
-
-// ============================================================================
-// 9. МАГАЗИН
-// ============================================================================
-
-// ============================================================================
-// 10. ТАЛАНТЫ
-// ============================================================================
-
-// ============================================================================
-// 11. БОЕВАЯ СИСТЕМА
-// ============================================================================
 
         function openBattle() {
     updateCurrentEnemy();
@@ -1090,123 +1097,72 @@ function closeBattle() {
 
 function startBattle() {
     const log = document.getElementById('battle-log');
-    log.innerHTML = ''; // очищаем лог
+    if (!log) return;
+    log.innerHTML = ''; 
 
-    // Проверка здоровья героя
     if (playerHp <= 0) {
-        log.innerHTML = '<div style="color: red;">💀 Вы мертвы! Восстановите здоровье отдыхом.</div>';
+        log.innerHTML = '<div style="color: red;">💀 Вы мертвы! Отдохните.</div>';
         return;
     }
 
     const heroPower = getEffectiveHeroPower(currentEnemy);
     const enemyPower = currentEnemy.basePower;
 
-    log.innerHTML += `<div>⚔️ Ваша сила: ${heroPower} (со слабостью: +${currentEnemy.weakness ? playerStats[currentEnemy.weakness] : 0})</div>`;
+    log.innerHTML += `<div>⚔️ Ваша сила: ${heroPower}</div>`;
     log.innerHTML += `<div>👾 Сила врага: ${enemyPower}</div>`;
 
     if (heroPower >= enemyPower) {
-        // ПОБЕДА
-        log.innerHTML += `<div style="color: lightgreen;">✅ ВЫ ПОБЕДИЛИ!</div>`;
+        // --- ПОБЕДА ---
+        log.innerHTML += `<div style="color: lightgreen;">✅ ПОБЕДА!</div>`;
         SoundManager.playEffect('victory');
 
-        // Награда
-        let expGain = Math.floor(currentEnemy.expReward * getXpMultiplier());
-        let goldGain = Math.floor(currentEnemy.goldReward * getGoldMultiplier());
-        playerXp += expGain;
-        playerGold += goldGain;
-        document.getElementById('gold').innerText = playerGold;
-        updateXPdisplay();
+        playerXp += Math.floor(currentEnemy.expReward * getXpMultiplier());
+        playerGold += Math.floor(currentEnemy.goldReward * getGoldMultiplier());
 
-        // Проверка на повышение уровня
+        // Проверка уровня (левел-ап)
         while (playerXp >= maxXp) {
             playerLevel++;
             playerXp -= maxXp;
             talentPoints++;
-            localStorage.setItem('rpg_level', playerLevel);
-            localStorage.setItem('rpg_talent_points', talentPoints);
-            document.getElementById('level').innerText = playerLevel;
-            tg.showPopup({ title: 'Уровень повышен!', message: `Теперь ты ${playerLevel} уровня.`, buttons: [{ type: 'ok' }] });
         }
 
-              // Шанс выпадения сундука (всегда 100%, но тип зависит от удачи)
-        const luckBonus = getLuckBonus() / 100;
-        // Выбираем тип сундука на основе dropChance
+        // Сундук
         let chestRarity = 0;
         let random = Math.random();
         let cumulative = 0;
         for (let i = 0; i < chestTypes.length; i++) {
             cumulative += chestTypes[i].dropChance;
-            if (random < cumulative) {
-                chestRarity = chestTypes[i].rarity;
-                break;
-            }
+            if (random < cumulative) { chestRarity = chestTypes[i].rarity; break; }
         }
-        // Добавляем сундук в инвентарь
         addChest(chestRarity);
-        log.innerHTML += `<div style="color: gold;">🎁 Вы получили ${chestTypes[chestRarity].img} ${chestTypes[chestRarity].name} сундук!</div>`;
-        // Обновление счетчика побеждённых мобов и боссов
+        log.innerHTML += `<div style="color: gold;">🎁 Получен ${chestTypes[chestRarity].img} сундук!</div>`;
+
+        // Прогресс босса
         if (currentEnemy.isBoss) {
             defeatedMobsCount = 0;
             bossAvailable = false;
-            log.innerHTML += `<div>👑 Босс повержен! Теперь нужно победить 10 мобов для следующего босса.</div>`;
         } else {
             defeatedMobsCount++;
-            if (defeatedMobsCount >= 10) {
-                bossAvailable = true;
-                log.innerHTML += `<div>🌟 Вы победили 10 мобов! Стал доступен босс!</div>`;
-            } else {
-                log.innerHTML += `<div>Побеждено мобов: ${defeatedMobsCount}/10 до босса.</div>`;
-            }
+            if (defeatedMobsCount >= 10) bossAvailable = true;
         }
 
-        // Сохраняем прогресс
-        localStorage.setItem('rpg_gold', playerGold);
-        localStorage.setItem('rpg_xp', playerXp);
-        localStorage.setItem('rpg_level', playerLevel);
-        localStorage.setItem('rpg_talent_points', talentPoints);
-        localStorage.setItem('rpg_hp', playerHp);
-        localStorage.setItem('rpg_defeated_mobs', defeatedMobsCount);
-        localStorage.setItem('rpg_boss_available', bossAvailable);
-
-        // Обновляем интерфейс
-        updatePowerDisplay();
-        updateHpDisplay();
-        if (tg) tg.HapticFeedback.impactOccurred('light');
-
-        // После победы выбираем нового врага
-        updateCurrentEnemy();
-        document.getElementById('hero-power-display').innerText = `⚔️ Сила: ${getEffectiveHeroPower(currentEnemy)}`;
-        document.getElementById('enemy-name').innerHTML = currentEnemy.isBoss ? `👑 ${currentEnemy.name}` : `👾 ${currentEnemy.name}`;
-        document.getElementById('enemy-power-display').innerText = `⚔️ Сила: ${currentEnemy.basePower}`;
-        document.getElementById('enemy-weakness').innerHTML = `Слабость: ${currentEnemy.weakness || 'нет'}`;
-
-        // Обновляем кнопку
-        const attackBtn = document.getElementById('attack-btn');
-        attackBtn.onclick = startBattle;
+        updateCurrentEnemy(); // Смена врага
     } else {
-        // ПОРАЖЕНИЕ
-        log.innerHTML += `<div style="color: red;">💔 ВЫ ПРОИГРАЛИ!</div>`;
-        let hpLoss = 10;
-        playerHp = Math.max(0, playerHp - hpLoss);
-        localStorage.setItem('rpg_hp', playerHp);
-        updateHpDisplay();
-        document.getElementById('hero-hp-display').innerHTML = `❤️ HP: ${playerHp}/${maxHp}`;
-
-        if (playerHp <= 0) {
-            log.innerHTML += `<div style="color: red;">💀 Вы пали в бою! Восстановите здоровье отдыхом.</div>`;
-            // блокируем кнопку боя до восстановления?
-            const attackBtn = document.getElementById('attack-btn');
-            attackBtn.onclick = null;
-            attackBtn.disabled = true;
-        } else {
-            // враг остаётся, можно попробовать снова
-            log.innerHTML += `<div>Вы потеряли ${hpLoss} HP. Попробуйте снова.</div>`;
-            const attackBtn = document.getElementById('attack-btn');
-            attackBtn.onclick = startBattle;
-        }
+        // --- ПОРАЖЕНИЕ ---
+        log.innerHTML += `<div style="color: red;">💔 ПОРАЖЕНИЕ!</div>`;
+        playerHp = Math.max(0, playerHp - 10);
+        SoundManager.playEffect('defeat');
     }
-    // Сохраняем изменения здоровья
-    localStorage.setItem('rpg_hp', playerHp);
+
+    // В ЛЮБОМ СЛУЧАЕ: Сохраняем и обновляем экран
+    saveGame();
+    updateUI();
+    
+    // Обновляем текст в окне боя 
+    document.getElementById('hero-hp-display').innerHTML = `❤️ HP: ${playerHp}/${maxHp}`;
+    document.getElementById('enemy-name').innerHTML = currentEnemy.isBoss ? `👑 ${currentEnemy.name}` : `👾 ${currentEnemy.name}`;
+    document.getElementById('enemy-power-display').innerText = `⚔️ Сила: ${currentEnemy.basePower}`;
+
     log.scrollTop = log.scrollHeight;
 }
 
@@ -2071,55 +2027,56 @@ function closeChestModal() {
             });
         }
 
-        function buyItem(index) {
-            const item = shopItems[index];
-            if (playerGold < item.price) {
-                document.getElementById('shop-message').innerText = '❌ Недостаточно золота!';
-                setTimeout(() => document.getElementById('shop-message').innerText = '', 2000);
-                return;
-            }
-            if (playerInventory.length >= 20) {
-                document.getElementById('shop-message').innerText = '❌ Инвентарь полон!';
-                setTimeout(() => document.getElementById('shop-message').innerText = '', 2000);
-                return;
-            }
-            if (item.type === 'item') {
-                playerInventory.push({ id: item.id, rarity: 1 });
-                document.getElementById('shop-message').innerText = `✅ Куплен ${item.name}!`;
-            } else if (item.type === 'chest') {
-                const itemIds = Object.keys(itemsDatabase);
-                const randomId = itemIds[Math.floor(Math.random() * itemIds.length)];
-                const r = Math.random();
-                let rarity;
-                const luck = getLuckBonus() / 100;
-                let thresholdCommon = 0.2 - luck;
-                let thresholdRare = 0.7 - luck;
-                let thresholdEpic = 0.9 - luck;
-                let thresholdLegendary = 0.98 - luck;
-                thresholdCommon = Math.max(0, thresholdCommon);
-                thresholdRare = Math.max(thresholdCommon, thresholdRare);
-                thresholdEpic = Math.max(thresholdRare, thresholdEpic);
-                thresholdLegendary = Math.max(thresholdEpic, thresholdLegendary);
-                if (r < thresholdCommon) rarity = 0;
-                else if (r < thresholdRare) rarity = 1;
-                else if (r < thresholdEpic) rarity = 2;
-                else if (r < thresholdLegendary) rarity = 3;
-                else rarity = 4;
-                playerInventory.push({ id: randomId, rarity: rarity });
-                playerXp += Math.floor(50 * getXpMultiplier());
-                updateXPdisplay();
-                const baseItem = itemsDatabase[randomId];
-                document.getElementById('shop-message').innerHTML = `📦 Из сундука выпало: ${baseItem.img} ${baseItem.name}<br>+50 XP!`;
-            }
-            playerGold -= item.price;
-            localStorage.setItem('rpg_gold', playerGold);
-            localStorage.setItem('rpg_inv_v2', JSON.stringify(playerInventory));
-            document.getElementById('gold').innerText = playerGold;
-            setTimeout(() => {
-                const msg = document.getElementById('shop-message');
-                if (msg) msg.innerText = '';
-            }, 3000);
-        }
+function buyItem(index) {
+    const item = shopItems[index];
+    const shopMsg = document.getElementById('shop-message');
+
+    // 1. Проверки
+    if (playerGold < item.price) {
+        if (shopMsg) shopMsg.innerText = '❌ Недостаточно золота!';
+        return;
+    }
+    if (playerInventory.length >= 20) {
+        if (shopMsg) shopMsg.innerText = '❌ Инвентарь полон!';
+        return;
+    }
+
+    // 2. Логика покупки
+    playerGold -= item.price;
+
+    if (item.type === 'item') {
+        playerInventory.push({ id: item.id, rarity: 1 });
+        if (shopMsg) shopMsg.innerText = `✅ Куплен ${item.name}!`;
+    } 
+    else if (item.type === 'chest') {
+        // Логика выпадения из сундука (упростим запись, оставив твою математику)
+        const itemIds = Object.keys(itemsDatabase);
+        const randomId = itemIds[Math.floor(Math.random() * itemIds.length)];
+        const r = Math.random();
+        let rarity = 0;
+        const luck = getLuckBonus() / 100;
+        
+        if (r < (0.2 - luck)) rarity = 0;
+        else if (r < (0.7 - luck)) rarity = 1;
+        else if (r < (0.9 - luck)) rarity = 2;
+        else if (r < (0.98 - luck)) rarity = 3;
+        else rarity = 4;
+
+        playerInventory.push({ id: randomId, rarity: rarity });
+        playerXp += Math.floor(50 * getXpMultiplier());
+        
+        const baseItem = itemsDatabase[randomId];
+        if (shopMsg) shopMsg.innerHTML = `📦 Выпало: ${baseItem.img} ${baseItem.name}<br>+50 XP!`;
+    }
+
+    // 3. Финал: сохраняем и обновляем всё одной командой
+    saveGame();
+    updateUI(); 
+    SoundManager.playEffect('buy');
+    
+    // Очистка сообщения через 3 сек
+    setTimeout(() => { if (shopMsg) shopMsg.innerText = ''; }, 3000);
+}
 
         // ========== НАСТРОЙКИ ==========
 

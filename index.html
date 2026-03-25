@@ -650,42 +650,18 @@ const bosses = [
 // 3. СОСТОЯНИЕ ИГРЫ 
 // ============================================================================
 
-    let playerGold = parseInt(localStorage.getItem('rpg_gold')) || 10000;
-    let playerXp = parseInt(localStorage.getItem('rpg_xp')) || 250;
-    let playerLevel = parseInt(localStorage.getItem('rpg_level')) || 0;
-    let maxXp = 1000;
-    let playerHp = parseInt(localStorage.getItem('rpg_hp')) || 1000;
-    let maxHp = 1000;
-    let talentPoints = parseInt(localStorage.getItem('rpg_talent_points')) || 0;    
-    let playerStats = JSON.parse(localStorage.getItem('rpg_stats')) || {
-        "Сила": 10, "Ловкость": 10, "Выносливость": 10, "Интеллект": 10,
-        "Сила духа": 10, "Гибкость": 10, "Концентрация": 10, "Здоровье": 10
-        };
-    let playerInventory = JSON.parse(localStorage.getItem('rpg_inv_v2')) || [
-        { id: "sword", rarity: 1 },
-        { id: "sword", rarity: 1 },
-        { id: "sword", rarity: 1 },
-        { id: "shoes", rarity: 0 }
-        ];
-    let equippedItems = JSON.parse(localStorage.getItem('rpg_equipped_v2')) || {};
-    let completedQuests = JSON.parse(localStorage.getItem('rpg_completed')) || [];
-    let talentsState = JSON.parse(localStorage.getItem('rpg_talents_state')) || {};    //уровень таланта 
-    defeatedMobsCount = parseInt(localStorage.getItem('rpg_defeated_mobs')) || 0;
-    bossAvailable = localStorage.getItem('rpg_boss_available') === 'true';
-    currentEnemy = null;
-            
-// Статистика тренировок 
-    let metricsHistory = JSON.parse(localStorage.getItem('metrics_history')) || []; 
-    let totalLoginDays = parseInt(localStorage.getItem('stats_login_days')) || 0;
-    let totalCompletedQuests = parseInt(localStorage.getItem('stats_total_quests')) || 0;
-    let totalPushups = parseInt(localStorage.getItem('stats_pushups')) || 0;
-    let totalPullups = parseInt(localStorage.getItem('stats_pullups')) || 0;
-    let totalAbs = parseInt(localStorage.getItem('stats_abs')) || 0;
-    let totalPlank = parseInt(localStorage.getItem('stats_plank')) || 0;
-    let totalStretch = parseInt(localStorage.getItem('stats_stretch')) || 0;
+let playerGold, playerXp, playerLevel, maxXp = 1000;
+let playerHp, maxHp = 1000;
+let talentPoints, playerStats, playerInventory, equippedItems;
+let completedQuests, talentsState;
+let defeatedMobsCount, bossAvailable, currentEnemy = null;
 
-    let soundEnabled = localStorage.getItem('rpg_sound_enabled') !== 'true';
-    let musicEnabled = localStorage.getItem('rpg_music_enabled') !== 'true';
+// Статистика тренировок
+let metricsHistory, totalLoginDays, totalCompletedQuests;
+let totalPushups, totalPullups, totalAbs, totalPlank, totalStretch;
+
+// Настройки
+let soundEnabled, musicEnabled;
 
 // ============================================================================
 // 4. ЗВУК 
@@ -907,48 +883,74 @@ const SoundManager = (function() {
 // ============================================================================
 
 function saveGame() {
+    // Сохранение героя
     localStorage.setItem('rpg_gold', playerGold);
     localStorage.setItem('rpg_xp', playerXp);
     localStorage.setItem('rpg_level', playerLevel);
+    localStorage.setItem('rpg_hp', playerHp);
     localStorage.setItem('rpg_talent_points', talentPoints);
     localStorage.setItem('rpg_stats', JSON.stringify(playerStats));
     localStorage.setItem('rpg_inv_v2', JSON.stringify(playerInventory));
     localStorage.setItem('rpg_equipped_v2', JSON.stringify(equippedItems));
     localStorage.setItem('rpg_completed', JSON.stringify(completedQuests));
     localStorage.setItem('rpg_talents_state', JSON.stringify(talentsState));
-    localStorage.setItem('metrics_history', JSON.stringify(metricsHistory));
+    
+    // Сохранение мира
     localStorage.setItem('rpg_defeated_mobs', defeatedMobsCount);
     localStorage.setItem('rpg_boss_available', bossAvailable);
+    
+    // Сохранение метрик
+    localStorage.setItem('metrics_history', JSON.stringify(metricsHistory));
+    localStorage.setItem('stats_login_days', totalLoginDays);
+    localStorage.setItem('stats_total_quests', totalCompletedQuests);
+    localStorage.setItem('stats_pushups', totalPushups);
+    localStorage.setItem('stats_pullups', totalPullups);
+    localStorage.setItem('stats_abs', totalAbs);
+    localStorage.setItem('stats_plank', totalPlank);
+    localStorage.setItem('stats_stretch', totalStretch);
+
+    // Сохранение настроек
     localStorage.setItem('rpg_sound_enabled', soundEnabled);
-    localStorage.setItem('rpg_hp', playerHp);
+    localStorage.setItem('rpg_music_enabled', musicEnabled);
     localStorage.setItem('rpg_last_login', getToday());
-    }
-            
+}
+
 function loadGame() {
     playerGold = parseInt(localStorage.getItem('rpg_gold')) || 10000;
-    playerXp = parseInt(localStorage.getItem('rpg_xp')) || 0;
+    playerXp = parseInt(localStorage.getItem('rpg_xp')) || 250;
     playerLevel = parseInt(localStorage.getItem('rpg_level')) || 0;
     playerHp = parseInt(localStorage.getItem('rpg_hp')) || 1000;
-    defeatedMobsCount = parseInt(localStorage.getItem('rpg_defeated_mobs')) || 0;
-    bossAvailable = localStorage.getItem('rpg_boss_available') === 'true';
     talentPoints = parseInt(localStorage.getItem('rpg_talent_points')) || 0;
+    
     playerStats = JSON.parse(localStorage.getItem('rpg_stats')) || {
         "Сила": 10, "Ловкость": 10, "Выносливость": 10, "Интеллект": 10,
-        "Сила духа": 10, "Гибкость": 10, "Концентрация": 10, "Здоровье": 10
-        };
+        "Сила духа": 10, "Гибкость": 10, "Концентрация": 10, "Креативность": 10
+    };
+    
     playerInventory = JSON.parse(localStorage.getItem('rpg_inv_v2')) || [
-        { id: "sword", rarity: 1 },
-        { id: "sword", rarity: 1 },
-        { id: "sword", rarity: 1 },
-        { id: "shoes", rarity: 0 }
-        ];
+        { id: "sword", rarity: 1 }, { id: "sword", rarity: 1 }, 
+        { id: "sword", rarity: 1 }, { id: "shoes", rarity: 0 }
+    ];
+    
     equippedItems = JSON.parse(localStorage.getItem('rpg_equipped_v2')) || {};
     completedQuests = JSON.parse(localStorage.getItem('rpg_completed')) || [];
     talentsState = JSON.parse(localStorage.getItem('rpg_talents_state')) || {};
+    
+    defeatedMobsCount = parseInt(localStorage.getItem('rpg_defeated_mobs')) || 0;
+    bossAvailable = localStorage.getItem('rpg_boss_available') === 'true';
+    
     metricsHistory = JSON.parse(localStorage.getItem('metrics_history')) || [];
+    totalLoginDays = parseInt(localStorage.getItem('stats_login_days')) || 0;
+    totalCompletedQuests = parseInt(localStorage.getItem('stats_total_quests')) || 0;
+    totalPushups = parseInt(localStorage.getItem('stats_pushups')) || 0;
+    totalPullups = parseInt(localStorage.getItem('stats_pullups')) || 0;
+    totalAbs = parseInt(localStorage.getItem('stats_abs')) || 0;
+    totalPlank = parseInt(localStorage.getItem('stats_plank')) || 0;
+    totalStretch = parseInt(localStorage.getItem('stats_stretch')) || 0;
+
     soundEnabled = localStorage.getItem('rpg_sound_enabled') !== 'false';
-        }
-            
+    musicEnabled = localStorage.getItem('rpg_music_enabled') !== 'false';
+}
 
 // ============================================================================
 // 6. ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ 
@@ -2133,6 +2135,7 @@ function closeChestModal() {
             }
 
         // Инициализация
+        loadGame(); 
         renderQuests();
         recalcStats();
         SoundManager.loadSettings();

@@ -109,218 +109,215 @@
         .task-reward { color: var(--accent-green); font-size: 6px; }
         .btn-action { background: var(--accent-green); color: white; border: none; padding: 6px 8px; font-size: 6px; border-radius: 3px; font-family: 'Press Start 2P', cursive; }
 
-/* Стили для настроек */
-.settings-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: #111;
-    border: 1px solid var(--border-gray);
-    border-radius: 4px;
-    padding: 12px;
-    margin-bottom: 10px;
-}
-.settings-label {
-    font-size: 8px;
-    color: var(--accent-yellow);
-}
-.toggle-btn {
-    background: #333;
-    border: 1px solid var(--border-gray);
-    border-radius: 4px;
-    padding: 8px 12px;
-    font-size: 8px;
-    color: white;
-    cursor: pointer;
-    font-family: 'Press Start 2P', cursive;
-}
-.toggle-btn.on {
-    background: var(--accent-green);
-}
-.danger-btn {
-    background: #8b0000;
-    border: none;
-    border-radius: 4px;
-    padding: 10px;
-    font-size: 8px;
-    color: white;
-    cursor: pointer;
-    width: 100%;
-    font-family: 'Press Start 2P', cursive;
-}
-
-/* Стили для метрик */
-.metrics-tabs {
-    display: flex;
-    gap: 5px;
-    margin-bottom: 15px;
-}
-.tab-btn {
-    flex: 1;
-    background: #111;
-    border: 1px solid var(--border-gray);
-    padding: 8px;
-    text-align: center;
-    font-size: 8px;
-    cursor: pointer;
-    border-radius: 4px;
-}
-.tab-btn.active {
-    background: var(--accent-green);
-    color: white;
-}
-.metrics-input-group {
-    margin-bottom: 15px;
-    background: #111;
-    border: 1px solid var(--border-gray);
-    border-radius: 4px;
-    padding: 10px;
-}
-.metrics-input-group label {
-    display: block;
-    font-size: 7px;
-    margin-bottom: 5px;
-    color: var(--accent-yellow);
-}
-.metrics-input-group input {
-    width: 100%;
-    background: #222;
-    border: 1px solid var(--border-gray);
-    color: white;
-    padding: 8px;
-    font-family: 'Press Start 2P', cursive;
-    font-size: 8px;
-    border-radius: 3px;
-}
-.metrics-save-btn {
-    background: var(--accent-green);
-    width: 100%;
-    padding: 10px;
-    border: none;
-    color: white;
-    font-family: 'Press Start 2P', cursive;
-    font-size: 8px;
-    border-radius: 4px;
-    cursor: pointer;
-}
-.metric-card {
-    background: #111;
-    border: 1px solid var(--border-gray);
-    border-radius: 4px;
-    padding: 10px;
-    margin-bottom: 15px;
-}
-.metric-title {
-    color: var(--accent-yellow);
-    font-size: 8px;
-    margin-bottom: 8px;
-}
-.metric-value {
-    font-size: 12px;
-    font-weight: bold;
-}
-.metric-change {
-    font-size: 6px;
-    color: #aaa;
-}
-.forecast {
-    font-size: 6px;
-    color: var(--accent-green);
-    margin-top: 5px;
-}
-canvas {
-    max-height: 200px;
-    width: 100%;
-    margin: 10px 0;
-}
-.equipment-grid-new {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    align-items: center;
-}
-.slot-top, .slot-bottom {
-    display: flex;
-    gap: 15px;
-    justify-content: center;
-}
-.equipment-mid {
-    display: flex;
-    gap: 20px;
-    align-items: center;
-    justify-content: center;
-}
-.slot-col-left, .slot-col-right {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-.character-sprite {
-    width: 70px;
-    height: 70px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 1px dashed var(--border-gray);
-    background: #111;
-    font-size: 10px;
-}
-
-@keyframes pop {
-    0% { transform: scale(0); opacity: 0; }
-    80% { transform: scale(1.1); }
-    100% { transform: scale(1); opacity: 1; }
-}
-.chest-item {
-    background: #111;
-    border: 1px solid var(--border-gray);
-    border-radius: 8px;
-    padding: 10px;
-    text-align: center;
-    width: 70px;
-    animation: pop 0.3s ease-out forwards;
-    opacity: 0;
-}
-.chest-item img {
-    font-size: 30px;
-}
-
-    /* --- НОВЫЕ КРАСИВЫЕ ЭФФЕКТЫ --- */
-.box, .modal-content {
-    box-shadow: 0 8px 16px rgba(0,0,0,0.8), inset 0 0 10px rgba(255,255,255,0.05);
-}
-.btn-action, .btn-menu {
-    transition: transform 0.1s, filter 0.1s;
-}
-.btn-action:active, .btn-menu:active {
-    transform: scale(0.95);
-    filter: brightness(0.8);
-}
-
-@keyframes glow-epic { 0% { box-shadow: 0 0 2px #a335ee; } 50% { box-shadow: 0 0 12px #a335ee; } 100% { box-shadow: 0 0 2px #a335ee; } }
-@keyframes glow-leg { 0% { box-shadow: 0 0 2px #ff8000; } 50% { box-shadow: 0 0 15px #ff8000; } 100% { box-shadow: 0 0 2px #ff8000; } }
-.glow-3 { animation: glow-epic 2s infinite; }
-.glow-4 { animation: glow-leg 2s infinite; }
-
-@keyframes shake {
-    0%, 100% { transform: translateX(0); }
-    25% { transform: translateX(-5px) rotate(-5deg); }
-    75% { transform: translateX(5px) rotate(5deg); }
-}
-.shake { animation: shake 0.3s ease-in-out; }
-
-@keyframes floatUp {
-    0% { opacity: 1; transform: translateY(0) scale(1); }
-    100% { opacity: 0; transform: translateY(-40px) scale(1.5); }
-}
-.floating-text {
-    position: fixed;
-    pointer-events: none;
-    animation: floatUp 1s ease-out forwards;
-    font-weight: bold;
-    text-shadow: 1px 1px 2px black;
-    z-index: 9999;
-}
+    .settings-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: #111;
+        border: 1px solid var(--border-gray);
+        border-radius: 4px;
+        padding: 12px;
+        margin-bottom: 10px;
+    }
+    .settings-label {
+        font-size: 8px;
+        color: var(--accent-yellow);
+    }
+    .toggle-btn {
+        background: #333;
+        border: 1px solid var(--border-gray);
+        border-radius: 4px;
+        padding: 8px 12px;
+        font-size: 8px;
+        color: white;
+        cursor: pointer;
+        font-family: 'Press Start 2P', cursive;
+    }
+    .toggle-btn.on {
+        background: var(--accent-green);
+    }
+    .danger-btn {
+        background: #8b0000;
+        border: none;
+        border-radius: 4px;
+        padding: 10px;
+        font-size: 8px;
+        color: white;
+        cursor: pointer;
+        width: 100%;
+        font-family: 'Press Start 2P', cursive;
+    }
+    
+    .metrics-tabs {
+        display: flex;
+        gap: 5px;
+        margin-bottom: 15px;
+    }
+    .tab-btn {
+        flex: 1;
+        background: #111;
+        border: 1px solid var(--border-gray);
+        padding: 8px;
+        text-align: center;
+        font-size: 8px;
+        cursor: pointer;
+        border-radius: 4px;
+    }
+    .tab-btn.active {
+        background: var(--accent-green);
+        color: white;
+    }
+    .metrics-input-group {
+        margin-bottom: 15px;
+        background: #111;
+        border: 1px solid var(--border-gray);
+        border-radius: 4px;
+        padding: 10px;
+    }
+    .metrics-input-group label {
+        display: block;
+        font-size: 7px;
+        margin-bottom: 5px;
+        color: var(--accent-yellow);
+    }
+    .metrics-input-group input {
+        width: 100%;
+        background: #222;
+        border: 1px solid var(--border-gray);
+        color: white;
+        padding: 8px;
+        font-family: 'Press Start 2P', cursive;
+        font-size: 8px;
+        border-radius: 3px;
+    }
+    .metrics-save-btn {
+        background: var(--accent-green);
+        width: 100%;
+        padding: 10px;
+        border: none;
+        color: white;
+        font-family: 'Press Start 2P', cursive;
+        font-size: 8px;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+    .metric-card {
+        background: #111;
+        border: 1px solid var(--border-gray);
+        border-radius: 4px;
+        padding: 10px;
+        margin-bottom: 15px;
+    }
+    .metric-title {
+        color: var(--accent-yellow);
+        font-size: 8px;
+        margin-bottom: 8px;
+    }
+    .metric-value {
+        font-size: 12px;
+        font-weight: bold;
+    }
+    .metric-change {
+        font-size: 6px;
+        color: #aaa;
+    }
+    .forecast {
+        font-size: 6px;
+        color: var(--accent-green);
+        margin-top: 5px;
+    }
+    canvas {
+        max-height: 200px;
+        width: 100%;
+        margin: 10px 0;
+    }
+    .equipment-grid-new {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        align-items: center;
+    }
+    .slot-top, .slot-bottom {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+    }
+    .equipment-mid {
+        display: flex;
+        gap: 20px;
+        align-items: center;
+        justify-content: center;
+    }
+    .slot-col-left, .slot-col-right {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+    .character-sprite {
+        width: 70px;
+        height: 70px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px dashed var(--border-gray);
+        background: #111;
+        font-size: 10px;
+    }
+    
+    @keyframes pop {
+        0% { transform: scale(0); opacity: 0; }
+        80% { transform: scale(1.1); }
+        100% { transform: scale(1); opacity: 1; }
+    }
+    .chest-item {
+        background: #111;
+        border: 1px solid var(--border-gray);
+        border-radius: 8px;
+        padding: 10px;
+        text-align: center;
+        width: 70px;
+        animation: pop 0.3s ease-out forwards;
+        opacity: 0;
+    }
+    .chest-item img {
+        font-size: 30px;
+    }
+    
+    .box, .modal-content {
+        box-shadow: 0 8px 16px rgba(0,0,0,0.8), inset 0 0 10px rgba(255,255,255,0.05);
+    }
+    .btn-action, .btn-menu {
+        transition: transform 0.1s, filter 0.1s;
+    }
+    .btn-action:active, .btn-menu:active {
+        transform: scale(0.95);
+        filter: brightness(0.8);
+    }
+    
+    @keyframes glow-epic { 0% { box-shadow: 0 0 2px #a335ee; } 50% { box-shadow: 0 0 12px #a335ee; } 100% { box-shadow: 0 0 2px #a335ee; } }
+    @keyframes glow-leg { 0% { box-shadow: 0 0 2px #ff8000; } 50% { box-shadow: 0 0 15px #ff8000; } 100% { box-shadow: 0 0 2px #ff8000; } }
+    .glow-3 { animation: glow-epic 2s infinite; }
+    .glow-4 { animation: glow-leg 2s infinite; }
+    
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-5px) rotate(-5deg); }
+        75% { transform: translateX(5px) rotate(5deg); }
+    }
+    .shake { animation: shake 0.3s ease-in-out; }
+    
+    @keyframes floatUp {
+        0% { opacity: 1; transform: translateY(0) scale(1); }
+        100% { opacity: 0; transform: translateY(-40px) scale(1.5); }
+    }
+    .floating-text {
+        position: fixed;
+        pointer-events: none;
+        animation: floatUp 1s ease-out forwards;
+        font-weight: bold;
+        text-shadow: 1px 1px 2px black;
+        z-index: 9999;
+    }
         
     </style>
 </head>
@@ -339,15 +336,12 @@ canvas {
 
     <div class="box">
 <div class="equipment-grid-new">
-    <!-- Верхний ряд -->
     <div class="slot-top">
         <div class="slot" id="slot-head"><div class="slot-name">Шлем</div></div>
         <div class="slot" id="slot-amulet"><div class="slot-name">Амулет</div></div>
         <div class="slot" id="slot-amulet-2"><div class="slot-name">Амулет</div></div>
         <div class="slot" id="slot-cape"><div class="slot-name">Плащ</div></div>
     </div>
-
-    <!-- Средняя часть: левая колонка + персонаж + правая колонка -->
     <div class="equipment-mid">
         <div class="slot-col-left">
             <div class="slot" id="slot-shoulders"><div class="slot-name">Наплечники</div></div>
@@ -356,11 +350,9 @@ canvas {
             <div class="slot" id="slot-ring-1"><div class="slot-name">Кольцо</div></div>
             <div class="slot" id="slot-gloves"><div class="slot-name">Перчатки</div></div>
         </div>
-
         <div class="character-sprite" id="hero-sprite" style="padding: 0; background: #111; overflow: hidden;">
     <canvas id="avatar-canvas" width="70" height="70"></canvas>
 </div>
-
         <div class="slot-col-right">
             <div class="slot" id="slot-armor"><div class="slot-name">Нагрудник</div></div>
             <div class="slot" id="slot-left-hand"><div class="slot-name">Левая рука</div></div>
@@ -369,8 +361,6 @@ canvas {
             <div class="slot" id="slot-ring-2"><div class="slot-name">Кольцо</div></div>
         </div>
     </div>
-
-    <!-- Нижний ряд -->
     <div class="slot-bottom">
         <div class="slot" id="slot-belt"><div class="slot-name">Пояс</div></div>
         <div class="slot" id="slot-legs"><div class="slot-name">Штаны</div></div>
@@ -414,7 +404,6 @@ canvas {
         <div id="quests-container"></div>
     </div>
 
-    <!-- Модальное окно инвентаря -->
     <div id="modal-inventory" class="modal-overlay">
         <div class="modal-content">
             <button class="close-btn" onclick="closeInventory()">✖</button>
@@ -433,7 +422,6 @@ canvas {
         </div>
     </div>
 
-    <!-- Модальное окно магазина -->
     <div id="modal-shop" class="modal-overlay">
         <div class="modal-content">
             <button class="close-btn" onclick="closeShop()">✖</button>
@@ -443,27 +431,25 @@ canvas {
         </div>
     </div>
 
-    <!-- Модальное окно талантов -->
-<div id="modal-talents" class="modal-overlay">
-        <div class="modal-content" style="padding: 10px;">
-            <button class="close-btn" onclick="closeTalents()">✖</button>
-            <h2 style="margin-bottom: 5px;">ТАЛАНТЫ</h2>
-            <div style="font-size: 9px; margin-bottom: 10px; text-align: center;">Очки: <span id="talent-points-display">0</span></div>
-            
-            <div id="talent-tree-container" style="position: relative; width: 100%; height: 250px; overflow: auto; background: #0a0a0a; border: 1px solid var(--border-gray); border-radius: 4px;">
-                <div id="talent-scroll-area" style="position: relative; width: 400px; height: 400px;">
-                    <svg id="talent-lines" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;"></svg>
-                    <div id="talent-nodes"></div>
+    <div id="modal-talents" class="modal-overlay">
+            <div class="modal-content" style="padding: 10px;">
+                <button class="close-btn" onclick="closeTalents()">✖</button>
+                <h2 style="margin-bottom: 5px;">ТАЛАНТЫ</h2>
+                <div style="font-size: 9px; margin-bottom: 10px; text-align: center;">Очки: <span id="talent-points-display">0</span></div>
+                
+                <div id="talent-tree-container" style="position: relative; width: 100%; height: 250px; overflow: auto; background: #0a0a0a; border: 1px solid var(--border-gray); border-radius: 4px;">
+                    <div id="talent-scroll-area" style="position: relative; width: 400px; height: 400px;">
+                        <svg id="talent-lines" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;"></svg>
+                        <div id="talent-nodes"></div>
+                    </div>
+                </div>
+                
+                <div id="talent-info" style="margin-top: 10px; height: 65px; text-align: center; background: #111; border: 1px solid var(--border-gray); border-radius: 4px; padding: 5px; display: flex; flex-direction: column; justify-content: center;">
+                    <div style="color: #aaa; font-size: 6px;">Нажми на узел, чтобы увидеть детали</div>
                 </div>
             </div>
-            
-            <div id="talent-info" style="margin-top: 10px; height: 65px; text-align: center; background: #111; border: 1px solid var(--border-gray); border-radius: 4px; padding: 5px; display: flex; flex-direction: column; justify-content: center;">
-                <div style="color: #aaa; font-size: 6px;">Нажми на узел, чтобы увидеть детали</div>
-            </div>
         </div>
-    </div>
 
-    <!-- Модальное окно настроек -->
     <div id="modal-settings" class="modal-overlay">
         <div class="modal-content">
             <button class="close-btn" onclick="closeSettings()">✖</button>
@@ -487,45 +473,41 @@ canvas {
         </div>
     </div>
 
-    <!-- Модальное окно битвы -->
-<div id="modal-battle" class="modal-overlay">
-    <div class="modal-content" style="max-width: 90%; text-align: center;">
-        <button class="close-btn" onclick="closeBattle()">✖</button>
-        <h2>⚔️ СРАЖЕНИЕ ⚔️</h2>
-        <div id="battle-log" style="height: 150px; overflow-y: auto; font-size: 7px; text-align: left; margin: 10px 0; background: #111; padding: 8px;"></div>
-        <div style="display: flex; justify-content: space-between; margin: 10px 0;">
-            <div>
-                <div>❤️ ГЕРОЙ</div>
-                <div id="hero-hp-display">HP: 100/100</div>
-                <div id="hero-power-display">⚔️ Сила: 0</div>
+    <div id="modal-battle" class="modal-overlay">
+        <div class="modal-content" style="max-width: 90%; text-align: center;">
+            <button class="close-btn" onclick="closeBattle()">✖</button>
+            <h2>⚔️ СРАЖЕНИЕ ⚔️</h2>
+            <div id="battle-log" style="height: 150px; overflow-y: auto; font-size: 7px; text-align: left; margin: 10px 0; background: #111; padding: 8px;"></div>
+            <div style="display: flex; justify-content: space-between; margin: 10px 0;">
+                <div>
+                    <div>❤️ ГЕРОЙ</div>
+                    <div id="hero-hp-display">HP: 100/100</div>
+                    <div id="hero-power-display">⚔️ Сила: 0</div>
+                </div>
+                <div>
+                    <div id="enemy-name">👾 МОБ</div>
+                    <div id="enemy-power-display">⚔️ Сила: 0</div>
+                    <div id="enemy-weakness" style="font-size: 6px;">Слабость: -</div>
+                </div>
             </div>
-            <div>
-                <div id="enemy-name">👾 МОБ</div>
-                <div id="enemy-power-display">⚔️ Сила: 0</div>
-                <div id="enemy-weakness" style="font-size: 6px;">Слабость: -</div>
+            <div style="display: flex; gap: 5px;">
+                <button id="attack-btn" class="btn-action" style="flex: 1;">В БОЙ</button>
+                <button id="restore-hp-btn" class="btn-action" style="flex: 1; background: #2c5e2e;" onclick="restoreHp()">🏥 Отдохнуть (10💰 → +10❤️)</button>
             </div>
-        </div>
-        <div style="display: flex; gap: 5px;">
-            <button id="attack-btn" class="btn-action" style="flex: 1;">В БОЙ</button>
-            <button id="restore-hp-btn" class="btn-action" style="flex: 1; background: #2c5e2e;" onclick="restoreHp()">🏥 Отдохнуть (10💰 → +10❤️)</button>
         </div>
     </div>
-</div>
 
 
-    <!-- Модальное окно открытия сундука -->
-<div id="modal-chest" class="modal-overlay">
-    <div class="modal-content" style="max-width: 90%; text-align: center;">
-        <button class="close-btn" onclick="closeChestModal()">✖</button>
-        <h2>🎁 ОТКРЫТИЕ СУНДУКА 🎁</h2>
-        <div id="chest-animation" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; margin: 20px 0;">
-            <!-- Сюда будут добавляться карточки предметов -->
+    <div id="modal-chest" class="modal-overlay">
+        <div class="modal-content" style="max-width: 90%; text-align: center;">
+            <button class="close-btn" onclick="closeChestModal()">✖</button>
+            <h2>🎁 ОТКРЫТИЕ СУНДУКА 🎁</h2>
+            <div id="chest-animation" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; margin: 20px 0;">
+            </div>
+            <button class="btn-action" onclick="closeChestModal()">ЗАКРЫТЬ</button>
         </div>
-        <button class="btn-action" onclick="closeChestModal()">ЗАКРЫТЬ</button>
     </div>
-</div>
     
-     <!-- Модальное окно метрик -->
     <div id="modal-metrics" class="modal-overlay">
         <div class="modal-content">
             <button class="close-btn" onclick="closeMetrics()">✖</button>
@@ -593,26 +575,19 @@ canvas {
     </div> 
 <script>
 
-
-    
 const tg = window.Telegram.WebApp;
 tg.ready();
 tg.expand();   
-    
-
-
 
 // ==========================================
 // 1. БАЗА ДАННЫХ
 // ==========================================
 
-
-    
 // Квесты
 const questsDatabase = [
     
 // Ежедневные
-    { id: "d1", type: "daily", title: "Шаги (10к)", xp: 10, gold: 2, stat: "Выносливость" },
+    { id: "d1", type: "daily", title: "Шаги (10к)", xp: 10, gold: 2, stat: "Выносливость", metricKey: null},
     { id: "d2", type: "daily", title: "Вода", xp: 5, gold: 1, stat: "Выносливость" },
     { id: "d3", type: "daily", title: "Питание", xp: 10, gold: 2, stat: "Сила духа" },
     { id: "d4", type: "daily", title: "Дефицит", xp: 15, gold: 3, stat: "Концентрация" },
@@ -644,9 +619,7 @@ const questsDatabase = [
     ];
     
 // Предметы 
-
 const itemsDatabase = {
-  // старые предметы (сохраняем для совместимости)
   "sword": { name: "Меч", type: "Правая рука", slotId: "slot-right-hand", stat: "Сила", baseBonus: 1, img: "⚔️" },
   "shoes": { name: "Ботинки", type: "Обувь", slotId: "slot-shoes", stat: "Выносливость", baseBonus: 2, img: "👟" }
 };
@@ -672,7 +645,6 @@ const slots = [
   { id: "slot-shoes", type: "Обувь" }
 ];
 
-// Возможные характеристики (stat) и их эмодзи
 const stats = [
   { name: "Сила", img: "💪" },
   { name: "Ловкость", img: "🏹" },
@@ -680,7 +652,7 @@ const stats = [
   { name: "Выносливость", img: "🛡️" },
   { name: "Дух", img: "✨" }
 ];
-// Варианты названий для каждого типа слота (по 5 штук)
+
 const nameVariants = {
   "Шлем": ["Шлем воина", "Колдовская корона", "Капюшон теней", "Стальной шлем", "Кожаный капюшон"],
   "Амулет": ["Амулет силы", "Оберег мудрости", "Кулон ловкости", "Талисман стойкости", "Амулет духов"],
@@ -699,20 +671,25 @@ const nameVariants = {
   "Обувь": ["Сапоги скорости", "Ботинки мага", "Кожаные сапоги", "Латные сапоги", "Сапоги следопыта"]
 };
 
-// Генерация предметов
-let itemId = 1000; // начальный id для новых предметов (чтобы не конфликтовать с существующими)
+const chestTypes = [
+    { name: "Деревянный", rarity: 0, dropChance: 0.5, img: "🪵", color: "#8B5A2B" },
+    { name: "Бронзовый", rarity: 1, dropChance: 0.3, img: "🥉", color: "#CD7F32" },
+    { name: "Серебряный", rarity: 2, dropChance: 0.15, img: "🥈", color: "#C0C0C0" },
+    { name: "Золотой", rarity: 3, dropChance: 0.04, img: "🥇", color: "#FFD700" },
+    { name: "Алмазный", rarity: 4, dropChance: 0.01, img: "💎", color: "#B9F2FF" }
+];
+    
+let itemId = 1000; 
 
 slots.forEach(slot => {
   const typeName = slot.type;
   const variants = nameVariants[typeName];
   if (!variants) return;
 
-  // Для каждого слота создаём 5 предметов с разными характеристиками
   for (let i = 0; i < 5; i++) {
-    const statIndex = i % stats.length; // циклически выбираем стат
+    const statIndex = i % stats.length; 
     const statObj = stats[statIndex];
-    const baseBonus = Math.floor(Math.random() * 5) + 1; // бонус от 1 до 5 (можно задать иначе, но для разнообразия)
-    // Формируем уникальный ключ
+    const baseBonus = Math.floor(Math.random() * 5) + 1; 
     const key = `${slot.id.replace('slot-', '')}_${i+1}`;
     itemsDatabase[key] = {
       name: variants[i],
@@ -730,23 +707,23 @@ slots.forEach(slot => {
 const rarities = ["Сломанный", "Обычный", "Редкий", "Эпический", "Легендарный"]; 
 const rarityColors = ["#777777", "#ffffff", "#0070dd", "#a335ee", "#ff8000"]; 
 const statMultipliers = [1, 2, 4, 8, 15]; 
-    
-// ------------------------------------------------------------------
-// 2. РАСШИРЕННЫЙ МАГАЗИН (shopItems)
-// ------------------------------------------------------------------
-// Добавляем все сгенерированные предметы в магазин с разумной ценой
-const shopItems = [
-  // старые товары
-  { id: "sword", name: "Меч тренировок", price: 100, type: "item" },
-  { id: "shoes", name: "Кроссовки", price: 150, type: "item" },
-  { name: "Сундук", price: 200, type: "chest" }
-];
 
-// Добавляем все новые предметы
+const achievementsData = [
+    { id: "a1", title: "Новичок отжиманий", desc: "Сделать 50 отжиманий", metric: "pushups", target: 50, rewardXp: 100, rewardGold: 50 },
+    { id: "a2", title: "Машина", desc: "Сделать 1000 отжиманий", metric: "pushups", target: 1000, rewardXp: 500, rewardGold: 300 },
+    { id: "a3", title: "Легкоатлет", desc: "Пробежать 10 км суммарно", metric: "runKm", target: 10, rewardXp: 150, rewardGold: 80 },
+    { id: "a4", title: "Марафонец", desc: "Пробежать 42 км суммарно", metric: "runKm", target: 42, rewardXp: 1000, rewardGold: 500 },
+    { id: "a5", title: "Стальные ноги", desc: "Сделать 200 приседаний", metric: "squats", target: 200, rewardXp: 200, rewardGold: 100 },
+    { id: "a6", title: "Дисциплина", desc: "Выполнить 50 квестов", metric: "quests", target: 50, rewardXp: 300, rewardGold: 150 }
+];
+    
+const shopItems = [
+  { name: "Сундук", price: 200, type: "chest" }
+    ];
+
 for (let [id, item] of Object.entries(itemsDatabase)) {
-  // Пропускаем старые, чтобы не дублировать (sword и shoes уже добавлены)
+
   if (id === "sword" || id === "shoes") continue;
-  // Цена = базовая 80 + бонус * 20
   const price = 80 + item.baseBonus * 20;
   shopItems.push({
     id: id,
@@ -756,26 +733,16 @@ for (let [id, item] of Object.entries(itemsDatabase)) {
   });
 }
 
-// ------------------------------------------------------------------
-// ПРОВЕРКА: количество предметов в каждом слоте (для отладки)
-// ------------------------------------------------------------------
 const countBySlot = {};
 Object.values(itemsDatabase).forEach(item => {
   const slotId = item.slotId;
   countBySlot[slotId] = (countBySlot[slotId] || 0) + 1;
 });
 console.log("Количество предметов по слотам:", countBySlot);
-// Типы сундуков
-const chestTypes = [
-    { name: "Деревянный", rarity: 0, dropChance: 0.5, img: "🪵", color: "#8B5A2B" },
-    { name: "Бронзовый", rarity: 1, dropChance: 0.3, img: "🥉", color: "#CD7F32" },
-    { name: "Серебряный", rarity: 2, dropChance: 0.15, img: "🥈", color: "#C0C0C0" },
-    { name: "Золотой", rarity: 3, dropChance: 0.04, img: "🥇", color: "#FFD700" },
-    { name: "Алмазный", rarity: 4, dropChance: 0.01, img: "💎", color: "#B9F2FF" }
-];
     
-// Дерево Талантов (координаты x, y для отрисовки на холсте 400x400)
-    // Внести новую строчку в массив talentTree, укажи координаты (двигай по X и Y с шагом 65 для красоты) и укажи в req id родительского таланта
+// Типы сундуков
+
+// Дерево Талантов 
 const talentTree = [
     { id: 'start', name: 'Начало пути', desc: '+1 ко всем статам', x: 185, y: 185, cost: 1, req: [], effectType: 'all_stats', value: 1, icon: '🌟' },
     
@@ -799,7 +766,7 @@ const talentTree = [
     { id: 'luck_1', name: 'Удача', desc: '+5% к шансу редких вещей', x: 120, y: 120, cost: 2, req: ['str_1', 'util_1'], effectType: 'luck', value: 5, icon: '🍀' }
 ];
 
-let learnedTalents = []; // Массив изученных узлов
+let learnedTalents = []; 
     
 // Мобы
 const mobs = [
@@ -834,11 +801,8 @@ let claimedAchievements = []; // Список забранных наград
 
 // Настройки
 let soundEnabled, musicEnabled;
-
-
     
 function saveGame() {
-    // Сохранение героя
     localStorage.setItem('rpg_gold', playerGold);
     localStorage.setItem('rpg_xp', playerXp);
     localStorage.setItem('rpg_level', playerLevel);
@@ -893,11 +857,6 @@ function loadGame() {
     completedQuests = JSON.parse(localStorage.getItem('rpg_completed')) || [];
     learnedTalents = JSON.parse(localStorage.getItem('rpg_learned_talents')) || [];
     
-    // Если ты уже играл, но дерево пустое — вернем тебе очки за твои уровни!
-    if (learnedTalents.length === 0 && playerLevel > 0) {
-        talentPoints = playerLevel;
-    }
-    
     defeatedMobsCount = parseInt(localStorage.getItem('rpg_defeated_mobs')) || 0;
     bossAvailable = localStorage.getItem('rpg_boss_available') === 'true';
     
@@ -919,17 +878,14 @@ function loadGame() {
     claimedAchievements = JSON.parse(localStorage.getItem('rpg_achievements')) || [];
 }
 
-    
 // ==========================================
 // 3. ИНТРФЕЙС
 // ==========================================
-
 
 // ==========================================
 // 4. ЛОГИКА ИГРЫ 
 // ==========================================
 
-    
 const SoundManager = (function() {
     let audioCtx = null;
     let musicInterval = null;
@@ -1139,9 +1095,6 @@ const SoundManager = (function() {
     };
 })();
 
-
-
-// --- УМНЫЙ ИНВЕНТАРЬ ---
 function addItemToInventory(newItem, amount = 1) {
     let found = playerInventory.find(item => 
         (newItem.type === 'chest' && item.type === 'chest' && item.chestRarity === newItem.chestRarity) ||
@@ -1149,24 +1102,21 @@ function addItemToInventory(newItem, amount = 1) {
     );
 
     if (found) {
-        found.count = (found.count || 1) + amount; // Увеличиваем счетчик
+        found.count = (found.count || 1) + amount; 
     } else {
-        newItem.count = amount; // Создаем новый стак
+        newItem.count = amount; 
         playerInventory.push(newItem);
     }
 }
 
 function removeItemFromInventory(index, amount = 1) {
     if ((playerInventory[index].count || 1) > amount) {
-        playerInventory[index].count -= amount; // Уменьшаем стопку
+        playerInventory[index].count -= amount; 
     } else {
-        playerInventory.splice(index, 1); // Удаляем ячейку, если кончились
+        playerInventory.splice(index, 1); 
     }
 }
 
-
-
-// Главная функция обновления всех показателей на экране
 function updateUI() {
     const goldEl = document.getElementById('gold');
     if (goldEl) goldEl.innerText = playerGold;
@@ -1180,8 +1130,6 @@ function updateUI() {
     updateEnergyDisplay();
 }  
     
-    
-    
 function calculatePower() {
     let power = 0;
         for (let stat in playerStats) {
@@ -1190,9 +1138,6 @@ function calculatePower() {
     return power;
     }
 
-
-
-// Функции для расчета бонусов (множителей)
 function getGoldMultiplier() {
     let multiplier = 1.0;
     if (talentsState && talentsState['gold_obsessed']) multiplier += 0.2;
@@ -1211,11 +1156,9 @@ function getLuckBonus() {
     return luck;
 }
 
-// Функция для получения даты (нужна для сохранений)
 function getToday() {
     return new Date().toISOString().split('T')[0];
 }
-
 
 function updatePowerDisplay() {
 const powerSpan = document.getElementById('player-power');
@@ -1228,8 +1171,6 @@ function closeInventory() {
     document.getElementById('modal-inventory').style.display = 'none';
 }
     
-
-
             function renderQuests() {
                 const container = document.getElementById('quests-container');
                 container.innerHTML = '';
@@ -1249,18 +1190,13 @@ function closeInventory() {
             }
 
 function completeQuest(questId, xpReward, goldReward, statName) {
-    // 1. Начисляем награды
     playerGold += Math.floor(goldReward * getGoldMultiplier());
     playerXp += Math.floor(xpReward * getXpMultiplier());
-    
     if (playerStats[statName] !== undefined) {
         playerStats[statName] += 1;
-        // Обновляем конкретный стат на экране, если он открыт
         const statEl = document.getElementById('stat-' + statName);
         if (statEl) statEl.innerText = playerStats[statName];
     }
-    
-    // 2. Проверка уровня
     while (playerXp >= maxXp) {
         playerLevel++;
         playerXp -= maxXp;
@@ -1268,12 +1204,9 @@ function completeQuest(questId, xpReward, goldReward, statName) {
         tg.showPopup({ title: 'Уровень повышен!', message: `Теперь ты ${playerLevel} уровня.`, buttons: [{ type: 'ok' }] });
         SoundManager.playEffect('levelup');
     }
-    
-    // 3. Записываем прогресс
     completedQuests.push(questId);
     totalCompletedQuests++;
-    
-// --- УМНЫЙ СЧЕТЧИК И ВОПРОСЫ ---
+
     const title = questsDatabase.find(q => q.id === questId)?.title || '';
     
     if (title.toLowerCase().includes('отжимания')) {
@@ -1318,7 +1251,6 @@ function completeQuest(questId, xpReward, goldReward, statName) {
     }
     else if (title.toLowerCase().includes('растяжка')) totalStretch++;
 
-    // 4. Финализируем (Сохраняем всё разом, обновляем UI разом, проигрываем звук)
     saveGame();
     updateUI();
     
@@ -1326,20 +1258,16 @@ function completeQuest(questId, xpReward, goldReward, statName) {
         window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
     }
     SoundManager.playEffect('quest');
-    // 💥 Выпускаем цифры опыта из кнопки
     const btn = document.getElementById(`btn-quest-${questId}`);
     if (btn) {
         showFloatingText(btn, `+${Math.floor(xpReward * getXpMultiplier())} XP`, 'var(--accent-green)');
         showFloatingText(btn, `+${Math.floor(goldReward * getGoldMultiplier())} 💰`, 'gold');
     }
-    renderQuests(); // перерисовываем список квестов
+    renderQuests();
 }
     
-
-
         function openBattle() {
     updateCurrentEnemy();
-    // обновляем информацию в окне
     
     document.getElementById('hero-power-display').innerText = `⚔️ Сила: ${getEffectiveHeroPower(currentEnemy)}`;
     document.getElementById('hero-hp-display').innerHTML = `❤️ HP: ${playerHp}/${maxHp}`;
@@ -1349,7 +1277,7 @@ function completeQuest(questId, xpReward, goldReward, statName) {
     document.getElementById('battle-log').innerHTML = '';
     document.getElementById('modal-battle').style.display = 'flex';
     SoundManager.startMusic('battle');
-    // навешиваем обработчик на кнопку боя (удаляем старый, чтобы не дублировался)
+
     const attackBtn = document.getElementById('attack-btn');
     attackBtn.onclick = startBattle;
 }
@@ -1362,8 +1290,8 @@ function closeBattle() {
 
 function startBattle() {
     const log = document.getElementById('battle-log');
-    const enemyDisplay = document.getElementById('enemy-name'); // Для анимации
-    const heroAvatar = document.getElementById('hero-sprite');  // Для анимации
+    const enemyDisplay = document.getElementById('enemy-name'); 
+    const heroAvatar = document.getElementById('hero-sprite');  
     
     if (!log) return;
     log.innerHTML = ''; 
@@ -1387,7 +1315,6 @@ function startBattle() {
     log.innerHTML += `<div>⚔️ Ваша сила: ${heroPower}</div>`;
     log.innerHTML += `<div>👾 Сила врага: ${enemyPower}</div>`;
 
-    // 💥 СОК: Анимация удара героя по врагу
     if (enemyDisplay) {
         showFloatingText(enemyDisplay, `-${heroPower}`, 'white');
         enemyDisplay.classList.add('shake');
@@ -1395,7 +1322,6 @@ function startBattle() {
     }
 
     if (heroPower >= enemyPower) {
-        // --- ПОБЕДА ---
         log.innerHTML += `<div style="color: lightgreen;">✅ ПОБЕДА!</div>`;
         SoundManager.playEffect('victory');
 
@@ -1405,7 +1331,6 @@ function startBattle() {
         playerXp += earnedXp;
         playerGold += earnedGold;
 
-        // 💥 СОК: Вылетающие награды над врагом
         setTimeout(() => {
             if (enemyDisplay) {
                 showFloatingText(enemyDisplay, `+${earnedXp} XP`, 'var(--accent-green)');
@@ -1439,12 +1364,11 @@ function startBattle() {
 
         updateCurrentEnemy();
     } else {
-        // --- ПОРАЖЕНИЕ ---
+
         log.innerHTML += `<div style="color: red;">💔 ПОРАЖЕНИЕ!</div>`;
         playerHp = Math.max(0, playerHp - 10);
         SoundManager.playEffect('defeat');
         
-        // 💥 СОК: Анимация получения урона героем
         if (heroAvatar) {
             showFloatingText(heroAvatar, `-10 ❤️`, 'red');
             heroAvatar.classList.add('shake');
@@ -1462,7 +1386,6 @@ function startBattle() {
 }
 
 function addChest(chestRarity) {
-    // Просто добавляем сундук, никаких лимитов!
     addItemToInventory({ type: 'chest', chestRarity: chestRarity });
     saveGame();
 }
@@ -1476,10 +1399,8 @@ function restoreHp() {
         document.getElementById('gold').innerText = playerGold;
         updateHpDisplay();
         SoundManager.playEffect('heal');
-        // Обновляем отображение в окне боя, если оно открыто
         const heroHpDiv = document.getElementById('hero-hp-display');
         if (heroHpDiv) heroHpDiv.innerHTML = `❤️ HP: ${playerHp}/${maxHp}`;
-        // Разблокируем кнопку боя, если HP > 0
         if (playerHp > 0) {
             const attackBtn = document.getElementById('attack-btn');
             if (attackBtn) {
@@ -1493,8 +1414,6 @@ function restoreHp() {
     }
 }
 
-
-
 function renderStats() {
     document.getElementById('stats-login-days').innerText = totalLoginDays;
     document.getElementById('stats-total-quests').innerText = totalCompletedQuests;
@@ -1507,9 +1426,7 @@ function renderStats() {
     document.getElementById('stats-run-km').innerText = totalRunKm;
     document.getElementById('stats-run-mins').innerText = totalRunMins;
 }
-    
-    
-             // Получить сегодняшнюю дату в формате YYYY-MM-DD
+
             function getToday() {
             return new Date().toISOString().split('T')[0];
           }
@@ -1530,8 +1447,6 @@ function renderStats() {
                 return `<div class="forecast">${name}: через месяц → ${formatTime(month)}, через полгода → ${formatTime(halfYear)}, через год → ${formatTime(year)}</div>`;
             }
         
-
-            // Линейная экстраполяция на основе последних 7 точек
             function extrapolate(values, daysForward) {
                 if (values.length < 2) return null;
                 const recent = values.slice(-7);
@@ -1550,7 +1465,6 @@ function renderStats() {
                 return Math.round(predicted);
             }
 
-            // Обновление XP на экране
             function updateXPdisplay() {
                 document.getElementById('xp-current').innerText = playerXp;
                 document.getElementById('xp-max').innerText = maxXp;
@@ -1589,19 +1503,13 @@ function renderStats() {
                 localStorage.setItem('rpg_achievements', JSON.stringify(claimedAchievements));        
             }
 
-
-            // Форматирование времени из секунд в минуты:секунды
+    
             function formatTime(sec) {
                 if (!sec) return '—';
                 const mins = Math.floor(sec / 60);
                 const seconds = sec % 60;
                 return `${mins}:${seconds.toString().padStart(2,'0')}`;
             }
-
-
-
-
-
 
 const today = new Date().toISOString().split('T')[0];
 let lastLoginDate = localStorage.getItem('rpg_last_login');
@@ -1613,8 +1521,6 @@ if (lastLoginDate !== today) {
     saveStats();  
 }
             
-
-        // Глобальные функции для вызова из HTML
 function toggleSfx() {
     SoundManager.toggleSfx();
 }
@@ -1622,8 +1528,7 @@ function toggleSfx() {
 function toggleMusic() {
     SoundManager.toggleMusic();
 }
-
-
+    
         function updateSfxButton() {
     const btn = document.getElementById('sound-toggle');
     if (btn) {
@@ -1640,70 +1545,52 @@ function updateMusicButton() {
     }
 }
 
-        
-        
-        
-        // ============================================================================
-        // 4. ФУНКЦИИ ОБНОВЛЕНИЯ ИНТЕРФЕЙСА 
-        // ============================================================================
-
-
-// --- ОТРИСОВКА АВАТАРА ПЕРСОНАЖА ---
 function drawAvatar() {
     const canvas = document.getElementById('avatar-canvas');
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     
-    // Очищаем холст
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
-    // Вспомогательная функция для получения цвета по редкости вещи
     function getColor(slotId, defaultColor) {
         const item = equippedItems[slotId];
         if (item) return rarityColors[item.rarity];
         return defaultColor;
     }
 
-    // 1. Плащ (Рисуется на самом заднем фоне)
     if (equippedItems['slot-cape']) {
         ctx.fillStyle = getColor('slot-cape', '#8b0000');
         ctx.fillRect(20, 25, 30, 40);
     }
 
-    // 2. БАЗОВОЕ ТЕЛО (Кожа и "нижнее белье")
-    ctx.fillStyle = '#f1c27d'; // Цвет кожи
-    ctx.beginPath(); ctx.arc(35, 16, 8, 0, Math.PI * 2); ctx.fill(); // Голова
-    ctx.fillRect(33, 24, 4, 3); // Шея
-    
-    ctx.fillStyle = '#c89f65'; // Темный торс
-    ctx.fillRect(27, 27, 16, 18); // Торс
-    
     ctx.fillStyle = '#f1c27d'; 
-    ctx.fillRect(20, 27, 5, 16); // Правая рука (слева на экране)
-    ctx.fillRect(45, 27, 5, 16); // Левая рука (справа на экране)
+    ctx.beginPath(); ctx.arc(35, 16, 8, 0, Math.PI * 2); ctx.fill();
+    ctx.fillRect(33, 24, 4, 3); 
     
     ctx.fillStyle = '#c89f65'; 
-    ctx.fillRect(27, 45, 6, 18); // Правая нога
-    ctx.fillRect(37, 45, 6, 18); // Левая нога
+    ctx.fillRect(27, 27, 16, 18); 
+    
+    ctx.fillStyle = '#f1c27d'; 
+    ctx.fillRect(20, 27, 5, 16); 
+    ctx.fillRect(45, 27, 5, 16); 
+    
+    ctx.fillStyle = '#c89f65'; 
+    ctx.fillRect(27, 45, 6, 18); 
+    ctx.fillRect(37, 45, 6, 18); 
 
-    // 3. ЭКИПИРОВКА (Слои поверх тела)
-
-    // Штаны
     if (equippedItems['slot-legs']) {
         ctx.fillStyle = getColor('slot-legs', '#444');
-        ctx.fillRect(26, 44, 18, 6); // Пояс штанов
-        ctx.fillRect(26, 50, 7, 12); // Левая штанина
-        ctx.fillRect(37, 50, 7, 12); // Правая штанина
+        ctx.fillRect(26, 44, 18, 6); 
+        ctx.fillRect(26, 50, 7, 12); 
+        ctx.fillRect(37, 50, 7, 12); 
     }
 
-    // Обувь
     if (equippedItems['slot-shoes']) {
         ctx.fillStyle = getColor('slot-shoes', '#555');
         ctx.fillRect(25, 62, 8, 6);
         ctx.fillRect(37, 62, 8, 6);
     }
 
-    // Нагрудник (Броня)
     if (equippedItems['slot-armor']) {
         ctx.fillStyle = getColor('slot-armor', '#aaa');
         ctx.fillRect(25, 27, 20, 18);
@@ -1711,38 +1598,33 @@ function drawAvatar() {
         ctx.fillRect(33, 27, 4, 18);
     }
 
-    // Наплечники
     if (equippedItems['slot-shoulders']) {
         ctx.fillStyle = getColor('slot-shoulders', '#999');
         ctx.fillRect(18, 25, 10, 6);
         ctx.fillRect(42, 25, 10, 6);
     }
 
-    // Перчатки
     if (equippedItems['slot-gloves']) {
         ctx.fillStyle = getColor('slot-gloves', '#555');
         ctx.fillRect(19, 39, 7, 6);
         ctx.fillRect(44, 39, 7, 6);
     }
 
-    // Шлем
     if (equippedItems['slot-head']) {
         ctx.fillStyle = getColor('slot-head', '#aaa');
         ctx.beginPath(); ctx.arc(35, 15, 9, Math.PI, 0); ctx.fill(); // Купол
         ctx.fillRect(26, 15, 18, 6); // Забрало/Козырек
     }
 
-    // Оружие в правой руке (слева на холсте)
     if (equippedItems['slot-right-hand']) {
-        ctx.fillStyle = '#8B5A2B'; // Рукоять
+        ctx.fillStyle = '#8B5A2B'; 
         ctx.fillRect(21, 35, 3, 12);
-        ctx.fillStyle = getColor('slot-right-hand', '#ddd'); // Лезвие
+        ctx.fillStyle = getColor('slot-right-hand', '#ddd'); 
         ctx.fillRect(21, 10, 3, 25);
-        ctx.fillStyle = '#555'; // Гарда
+        ctx.fillStyle = '#555'; 
         ctx.fillRect(18, 34, 9, 2);
     }
 
-    // Щит в левой руке (справа на холсте)
     if (equippedItems['slot-left-hand']) {
         ctx.fillStyle = getColor('slot-left-hand', '#8B5A2B');
         ctx.beginPath(); ctx.arc(47, 38, 8, 0, Math.PI * 2); ctx.fill();
@@ -1751,8 +1633,6 @@ function drawAvatar() {
     }
 }
 
-
-    // Функция создания вылетающих цифр
 function showFloatingText(element, text, color) {
     if (!element) return;
     const rect = element.getBoundingClientRect();
@@ -1761,7 +1641,6 @@ function showFloatingText(element, text, color) {
     floatEl.style.color = color;
     floatEl.innerText = text;
     
-    // Чуть-чуть рандомим позицию, чтобы цифры не слипались
     const offsetX = (Math.random() - 0.5) * 30;
     floatEl.style.left = (rect.left + rect.width / 2 + offsetX) + 'px';
     floatEl.style.top = rect.top + 'px';
@@ -1771,15 +1650,8 @@ function showFloatingText(element, text, color) {
 }
         
 
-        // ============================================================================
-        // 5. МЕХАНИКИ ИГРЫ 
-        // ============================================================================
-
-
-
                 function updateCurrentEnemy() {
                     if (bossAvailable && bosses.length > 0) {
-                        // Выбираем случайного босса (можно сделать по очереди)
                         const randomIndex = Math.floor(Math.random() * bosses.length);
                         currentEnemy = { ...bosses[randomIndex], isBoss: true };
                     } else {
@@ -1789,35 +1661,26 @@ function showFloatingText(element, text, color) {
                 }
 
 function getEffectiveHeroPower(enemy) {
-    let basePower = calculatePower(); // сумма всех статов
+    let basePower = calculatePower();
     if (enemy.weakness && playerStats[enemy.weakness]) {
-        // добавляем значение слабого стата как бонус
         basePower += playerStats[enemy.weakness];
     }
     return basePower;
 }
 
-  
-        // Функция открытия битвы 
-
-        
-        // Инвентарь и экипировка
 function openInventory() {
     const modal = document.getElementById('modal-inventory');
     const grid = document.getElementById('inventory-grid');
     grid.innerHTML = '';
     hideItemDetails();
     
-    // Рисуем все предметы, сколько бы их ни было
     for (let i = 0; i < playerInventory.length; i++) {
         const item = playerInventory[i];
-        const count = item.count || 1; // Защита для старых предметов
         
         const slotDiv = document.createElement('div');
         slotDiv.className = 'inv-slot';
-        slotDiv.style.position = 'relative'; // Нужно, чтобы бейдж количества позиционировался ровно
+        slotDiv.style.position = 'relative'; 
         
-        // Рисуем бейдж с количеством, если предметов больше 1
         const countBadge = count > 1 ? `<div style="position: absolute; bottom: 2px; right: 2px; font-size: 5px; background: rgba(0,0,0,0.8); color: white; padding: 2px; border-radius: 2px;">x${count}</div>` : '';
 
         if (item.type === 'chest') {
@@ -1838,7 +1701,6 @@ function openInventory() {
         grid.appendChild(slotDiv);
     }
     
-    // Добиваем пустыми слотами для красоты (минимум 20 слотов)
     const emptySlots = Math.max(0, 20 - playerInventory.length);
     for(let i = 0; i < emptySlots; i++){
         const slotDiv = document.createElement('div');
@@ -1848,7 +1710,6 @@ function openInventory() {
 
     modal.style.display = 'flex';
 }
-
 
         function upgradeTalent(talentId) {
             const talent = talentsData.find(t => t.id === talentId);
@@ -1862,13 +1723,7 @@ function openInventory() {
             document.getElementById('talent-points-display').innerText = talentPoints;
             renderTalents();
         }
-
-        // ============================================================================
-        // 6. ЗАПУСК ПРИЛОЖЕНИЯ 
-        // ============================================================================
-        
-        
-        // Сохранить показатели за сегодня (если запись за сегодня уже есть, обновляем, иначе добавляем)
+    
         function saveMetrics() {
             const today = getToday();
             const pushups = parseInt(document.getElementById('metric-pushups').value) || 0;
@@ -1879,7 +1734,6 @@ function openInventory() {
             const run5k = parseInt(document.getElementById('metric-run5k').value) || 0;
             const run21k = parseInt(document.getElementById('metric-run21k').value) || 0;
 
-            // Проверяем, есть ли запись за сегодня
             const existingIndex = metricsHistory.findIndex(entry => entry.date === today);
             const newEntry = { date: today, pushups, pullups, barbell, bodyweight, run1k, run5k, run21k };
 
@@ -1887,12 +1741,10 @@ function openInventory() {
                 metricsHistory[existingIndex] = newEntry;
             } else {
                 metricsHistory.push(newEntry);
-                // Сортируем по дате
                 metricsHistory.sort((a,b) => new Date(a.date) - new Date(b.date));
             }
             localStorage.setItem('metrics_history', JSON.stringify(metricsHistory));
             tg.showPopup({ title: 'Сохранено', message: 'Показатели сохранены!', buttons: [{ type: 'ok' }] });
-            // Очищаем поля
             document.getElementById('metric-pushups').value = '';
             document.getElementById('metric-pullups').value = '';
             document.getElementById('metric-barbell').value = '';
@@ -1900,15 +1752,11 @@ function openInventory() {
             document.getElementById('metric-run1k').value = '';
             document.getElementById('metric-run5k').value = '';
             document.getElementById('metric-run21k').value = '';
-            // Обновляем графики
             if (document.getElementById('metrics-graphs-tab').style.display !== 'none') {
                 renderGraphs();
             }
         }
 
-
-
-        // Рендер дашборда и графиков
         let metricsChart = null;
         function renderGraphs() {
             if (metricsHistory.length === 0) {
@@ -1918,7 +1766,6 @@ function openInventory() {
                 return;
             }
 
-            // Подготовка данных
             const dates = metricsHistory.map(e => e.date);
             const pushups = metricsHistory.map(e => e.pushups);
             const pullups = metricsHistory.map(e => e.pullups);
@@ -1928,7 +1775,6 @@ function openInventory() {
             const run5k = metricsHistory.map(e => e.run5k);
             const run21k = metricsHistory.map(e => e.run21k);
 
-            // Дашборд: последние значения и изменения
             const last = metricsHistory[metricsHistory.length-1];
             const prev = metricsHistory.length>1 ? metricsHistory[metricsHistory.length-2] : null;
             const dashboardHtml = `
@@ -1952,7 +1798,6 @@ function openInventory() {
             `;
             document.getElementById('metrics-dashboard').innerHTML = dashboardHtml;
 
-            // График (один общий, можно переключать, но для простоты покажем один избранный)
             if (metricsChart) metricsChart.destroy();
             const ctx = document.getElementById('metrics-chart').getContext('2d');
             metricsChart = new Chart(ctx, {
@@ -1974,7 +1819,6 @@ function openInventory() {
                 }
             });
 
-            // Прогнозы
             const forecastHtml = `
                 <div class="metric-card">
                     <div class="metric-title">📈 Прогноз (при сохранении темпа)</div>
@@ -1990,11 +1834,8 @@ function openInventory() {
             document.getElementById('forecast-container').innerHTML = forecastHtml;
         }
 
-
-
         function openMetrics() {
             document.getElementById('modal-metrics').style.display = 'flex';
-            // По умолчанию показываем вкладку ввода
             document.querySelector('.tab-btn[data-tab="input"]').click();
             renderGraphs();
             renderStats();
@@ -2003,7 +1844,6 @@ function openInventory() {
             document.getElementById('modal-metrics').style.display = 'none';
         }
 
-        // Переключение вкладок
         document.querySelectorAll('.tab-btn').forEach(btn => {
             btn.addEventListener('click', function() {
                 const tab = this.dataset.tab;
@@ -2018,21 +1858,16 @@ function openInventory() {
             });
         });
 
-
-
-
         updateXPdisplay();
         document.getElementById('gold').innerText = playerGold;
         document.getElementById('level').innerText = playerLevel;
 
-// Заменяем старую функцию recalcStats:
 function recalcStats() {
     let newStats = {
         "Сила": 10, "Ловкость": 10, "Выносливость": 10, "Интеллект": 10,
         "Сила духа": 10, "Гибкость": 10, "Концентрация": 10, "Креативность": 10
     };
     
-    // Бонусы от экипировки
     for (let slotId in equippedItems) {
         let item = equippedItems[slotId];
         let baseItem = itemsDatabase[item.id];
@@ -2042,7 +1877,6 @@ function recalcStats() {
         }
     }
 
-    // Бонусы от ДЕРЕВА ТАЛАНТОВ
     learnedTalents.forEach(nodeId => {
         const node = talentTree.find(n => n.id === nodeId);
         if (node) {
@@ -2063,7 +1897,6 @@ function recalcStats() {
     updatePowerDisplay();          
 }
 
-// Заменяем старые функции множителей:
 function getXpMultiplier() {
     let mult = 1.0;
     learnedTalents.forEach(nodeId => {
@@ -2106,12 +1939,10 @@ function openTalents() {
     document.getElementById('modal-talents').style.display = 'flex';
     document.getElementById('talent-points-display').innerText = talentPoints;
     
-    // Сбрасываем окно инфы
     document.getElementById('talent-info').innerHTML = `<div style="color: #aaa; font-size: 6px;">Нажми на узел, чтобы увидеть детали</div>`;
     
     renderTalentTree();
     
-    // Центрируем скролл на Начале (x: 185, y: 185)
     setTimeout(() => {
         const container = document.getElementById('talent-tree-container');
         container.scrollLeft = 85; 
@@ -2129,7 +1960,6 @@ function renderTalentTree() {
     svg.innerHTML = '';
     nodesContainer.innerHTML = '';
 
-    // 1. Рисуем линии связей (чтобы они были позади узлов)
     talentTree.forEach(node => {
         node.req.forEach(reqId => {
             const parent = talentTree.find(n => n.id === reqId);
@@ -2137,12 +1967,12 @@ function renderTalentTree() {
                 const isLearned = learnedTalents.includes(node.id);
                 const isAvailable = learnedTalents.includes(reqId) && !isLearned;
                 
-                let color = '#333'; // Недоступно
-                if (isLearned) color = 'var(--accent-yellow)'; // Изучено
-                else if (isAvailable) color = 'var(--accent-green)'; // Можно изучить
+                let color = '#333'; 
+                if (isLearned) color = 'var(--accent-yellow)'; 
+                else if (isAvailable) color = 'var(--accent-green)'; 
 
                 const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-                line.setAttribute('x1', parent.x + 15); // Центр кружка (30/2)
+                line.setAttribute('x1', parent.x + 15); 
                 line.setAttribute('y1', parent.y + 15);
                 line.setAttribute('x2', node.x + 15);
                 line.setAttribute('y2', node.y + 15);
@@ -2153,7 +1983,6 @@ function renderTalentTree() {
         });
     });
 
-    // 2. Рисуем сами кружочки-узлы
     talentTree.forEach(node => {
         const isLearned = learnedTalents.includes(node.id);
         const canLearn = (node.req.length === 0 || node.req.some(r => learnedTalents.includes(r))) && !isLearned;
@@ -2166,7 +1995,6 @@ function renderTalentTree() {
         el.style.height = '30px';
         el.style.borderRadius = '50%';
         
-        // Цвета рамки и фона
         let borderColor = '#333';
         let bgColor = '#111';
         if (isLearned) { borderColor = 'var(--accent-yellow)'; bgColor = '#222'; }
@@ -2223,11 +2051,9 @@ function learnTalent(nodeId) {
     recalcStats();
     renderTalentTree();
     document.getElementById('talent-points-display').innerText = talentPoints;
-    selectTalentNode(node, false, true); // Обновляем окошко инфы
+    selectTalentNode(node, false, true); 
     SoundManager.playEffect('levelup');
 }
-
-        
 
         function getXpMultiplier() {
             let mult = 1.0;
@@ -2248,10 +2074,6 @@ function learnTalent(nodeId) {
             if (luckTalent) return getTalentLevel('luck') * luckTalent.baseEffect;
             return 0;
         }
-
-        
-
-
 
         function hideItemDetails() {
             document.getElementById('item-details').style.display = 'none';
@@ -2304,15 +2126,12 @@ function openChest(invIndex) {
     if (!chestItem || chestItem.type !== 'chest') return;
     const chestRarity = chestItem.chestRarity;
 
-    // 1. Забираем 1 сундук из инвентаря
     removeItemFromInventory(invIndex, 1);
     saveGame();
 
-    // 2. Определяем количество предметов (3-6 + бонус за редкость)
     let itemCount = Math.floor(Math.random() * 4) + 3;
     itemCount += chestRarity;
 
-    // 3. Генерируем предметы
     const newItems = [];
     for (let i = 0; i < itemCount; i++) {
         const itemIds = Object.keys(itemsDatabase);
@@ -2337,13 +2156,11 @@ function openChest(invIndex) {
         newItems.push({ id: randomId, rarity: itemRarity });
     }
 
-    // 4. Просто добавляем все выпавшие предметы в умный инвентарь
     for (let item of newItems) {
         addItemToInventory(item);
     }
     saveGame();
 
-    // 5. Закрываем инвентарь и показываем красивую анимацию
     closeInventory();
     showChestAnimation(chestRarity, newItems);
 }
@@ -2353,7 +2170,6 @@ function openChest(invIndex) {
     const animationDiv = document.getElementById('chest-animation');
     animationDiv.innerHTML = '';
 
-    // Добавляем карточки предметов с задержкой
     items.forEach((item, idx) => {
         const baseItem = itemsDatabase[item.id];
         const rarityColor = rarityColors[item.rarity];
@@ -2375,22 +2191,19 @@ function openChest(invIndex) {
 
 function closeChestModal() {
     document.getElementById('modal-chest').style.display = 'none';
-    openInventory(); // Вот теперь инвентарь откроется ПОСЛЕ того, как мы закроем анимацию!
+    openInventory(); 
 }
                 
         function equipItem(invIndex) {
     const itemData = playerInventory[invIndex];
     const baseItem = itemsDatabase[itemData.id];
     
-    // Если слот уже занят, возвращаем надетый предмет в инвентарь
     if (equippedItems[baseItem.slotId]) {
         addItemToInventory(equippedItems[baseItem.slotId]);
     }
     
-    // Надеваем выбранный (копируем его без количества)
     equippedItems[baseItem.slotId] = { id: itemData.id, rarity: itemData.rarity };
     
-    // Забираем ровно 1 предмет из стопки в инвентаре
     removeItemFromInventory(invIndex, 1);
     
     localStorage.setItem('rpg_inv_v2', JSON.stringify(playerInventory));
@@ -2402,7 +2215,7 @@ function closeChestModal() {
 }
 
 function unequipItem(slotId) {
-    // Лимитов больше нет, просто закидываем обратно в инвентарь
+
     addItemToInventory(equippedItems[slotId]);
     delete equippedItems[slotId];
     
@@ -2415,7 +2228,6 @@ function unequipItem(slotId) {
 }
 
         function renderEquipment() {
-    // Список всех слотов с их новыми ID
     const slotMap = {
         "slot-head": "Голова",
         "slot-amulet": "Амулет",
@@ -2437,7 +2249,6 @@ function unequipItem(slotId) {
         "slot-shoes": "Обувь"
     };
 
-    // Очищаем все слоты
     for (let slotId in slotMap) {
         const slotHtml = document.getElementById(slotId);
         if (slotHtml) {
@@ -2447,13 +2258,12 @@ function unequipItem(slotId) {
         }
     }
 
-    // Заполняем надетые вещи
     for (let slotId in equippedItems) {
         const itemData = equippedItems[slotId];
         const baseItem = itemsDatabase[itemData.id];
         const slotHtml = document.getElementById(slotId);
         if (slotHtml && baseItem) {
-            slotHtml.className = 'slot'; // Сбрасываем старые классы
+            slotHtml.className = 'slot'; 
             if (itemData.rarity === 3) slotHtml.classList.add('glow-3');
             if (itemData.rarity === 4) slotHtml.classList.add('glow-4');
             slotHtml.style.borderColor = rarityColors[itemData.rarity];
@@ -2467,11 +2277,11 @@ function unequipItem(slotId) {
        function mergeItem(invIndex) {
     const itemData = playerInventory[invIndex];
     if ((itemData.count || 1) >= 3) {
-        removeItemFromInventory(invIndex, 3); // Забираем 3 штуки из стопки
-        addItemToInventory({ id: itemData.id, rarity: itemData.rarity + 1 }); // Кладем 1 улучшенный
+        removeItemFromInventory(invIndex, 3); 
+        addItemToInventory({ id: itemData.id, rarity: itemData.rarity + 1 }); 
         saveGame();
         hideItemDetails();
-        openInventory(); // Перерисовываем
+        openInventory(); 
         tg.showPopup({ title: 'Успех', message: '⚔️ УСПЕШНОЕ СЛИЯНИЕ! Предмет улучшен.', buttons: [{ type: 'ok' }] });
     }
 }
@@ -2508,7 +2318,6 @@ function unequipItem(slotId) {
             openInventory();
             renderEquipment();
         }
-
 
         function openShop() {
             document.getElementById('modal-shop').style.display = 'flex';
@@ -2554,7 +2363,6 @@ function buyItem(index) {
         if (shopMsg) shopMsg.innerText = `✅ Куплен ${item.name}!`;
     } 
     else if (item.type === 'chest') {
-        // Создаем случайный сундук по тем же правилам, что и в бою!
         let chestRarity = 0;
         let random = Math.random();
         let cumulative = 0;
@@ -2563,7 +2371,6 @@ function buyItem(index) {
             if (random < cumulative) { chestRarity = chestTypes[i].rarity; break; }
         }
         
-        // Кладем его в инвентарь!
         addItemToInventory({ type: 'chest', chestRarity: chestRarity });
         if (shopMsg) shopMsg.innerText = `📦 Сундук добавлен в инвентарь!`;
     }
@@ -2573,8 +2380,6 @@ function buyItem(index) {
     SoundManager.playEffect('buy');
     setTimeout(() => { if (shopMsg) shopMsg.innerText = ''; }, 3000);
 }
-
-        // ========== НАСТРОЙКИ ==========
 
             function resetProgress() {
                 if (confirm('Вы уверены? Весь прогресс (уровень, золото, предметы, таланты, метрики) будет удалён без возможности восстановления.')) {
@@ -2587,18 +2392,16 @@ function buyItem(index) {
                 }
             }
 
-  // Инициализация игры
         try {
-            loadGame();      // Загружаем данные
-            updateUI();      // СРАЗУ рисуем их на экране (Золото, ХП, Опыт)
-            renderQuests();  // Загружаем квесты
-            recalcStats();   // Считаем силу
+            loadGame();     
+            updateUI();      
+            renderQuests();  
+            recalcStats();   
             renderEquipment();
             SoundManager.loadSettings();
             updateSfxButton();
             updateMusicButton();
             
-            // Активируем звук после первого клика
             document.body.addEventListener('click', function once() {
                 SoundManager.init();
                 document.body.removeEventListener('click', once);
@@ -2609,17 +2412,6 @@ function buyItem(index) {
             console.error("Ошибка при запуске игры:", e);
         }
 
-    // База достижений (Легко менять названия, цели и награды)
-    const achievementsData = [
-        { id: "a1", title: "Новичок отжиманий", desc: "Сделать 50 отжиманий", metric: "pushups", target: 50, rewardXp: 100, rewardGold: 50 },
-        { id: "a2", title: "Машина", desc: "Сделать 1000 отжиманий", metric: "pushups", target: 1000, rewardXp: 500, rewardGold: 300 },
-        { id: "a3", title: "Легкоатлет", desc: "Пробежать 10 км суммарно", metric: "runKm", target: 10, rewardXp: 150, rewardGold: 80 },
-        { id: "a4", title: "Марафонец", desc: "Пробежать 42 км суммарно", metric: "runKm", target: 42, rewardXp: 1000, rewardGold: 500 },
-        { id: "a5", title: "Стальные ноги", desc: "Сделать 200 приседаний", metric: "squats", target: 200, rewardXp: 200, rewardGold: 100 },
-        { id: "a6", title: "Дисциплина", desc: "Выполнить 50 квестов", metric: "quests", target: 50, rewardXp: 300, rewardGold: 150 }
-    ];
-
-    // Добавляем окно в HTML
     document.body.insertAdjacentHTML('beforeend', `
         <div id="modal-achievements" class="modal-overlay">
             <div class="modal-content">
@@ -2690,7 +2482,7 @@ function buyItem(index) {
         saveGame();
         saveStats();
         updateUI();
-        openAchievements(); // Обновляем окошко наград
+        openAchievements(); 
         SoundManager.playEffect('victory');
     }
 

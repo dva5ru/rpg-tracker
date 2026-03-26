@@ -405,12 +405,22 @@ canvas {
     </div>
 
     <!-- Модальное окно талантов -->
-    <div id="modal-talents" class="modal-overlay">
-        <div class="modal-content">
+<div id="modal-talents" class="modal-overlay">
+        <div class="modal-content" style="padding: 10px;">
             <button class="close-btn" onclick="closeTalents()">✖</button>
-            <h2>ТАЛАНТЫ</h2>
-            <div style="font-size: 9px; margin-bottom: 15px; text-align: center;">Очки талантов: <span id="talent-points-display">0</span></div>
-            <div id="talents-container" style="display: flex; flex-direction: column; gap: 10px;"></div>
+            <h2 style="margin-bottom: 5px;">ТАЛАНТЫ</h2>
+            <div style="font-size: 9px; margin-bottom: 10px; text-align: center;">Очки: <span id="talent-points-display">0</span></div>
+            
+            <div id="talent-tree-container" style="position: relative; width: 100%; height: 250px; overflow: auto; background: #0a0a0a; border: 1px solid var(--border-gray); border-radius: 4px;">
+                <div id="talent-scroll-area" style="position: relative; width: 400px; height: 400px;">
+                    <svg id="talent-lines" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;"></svg>
+                    <div id="talent-nodes"></div>
+                </div>
+            </div>
+            
+            <div id="talent-info" style="margin-top: 10px; height: 65px; text-align: center; background: #111; border: 1px solid var(--border-gray); border-radius: 4px; padding: 5px; display: flex; flex-direction: column; justify-content: center;">
+                <div style="color: #aaa; font-size: 6px;">Нажми на узел, чтобы увидеть детали</div>
+            </div>
         </div>
     </div>
 
@@ -620,20 +630,31 @@ const chestTypes = [
     { name: "Алмазный", rarity: 4, dropChance: 0.01, img: "💎", color: "#B9F2FF" }
 ];
     
-// Таланты 
-const talentsData = [
-    { id: 'str', name: 'Сила', description: 'Увеличивает силу на +1 за уровень', maxLevel: 5, baseEffect: 1, effectType: 'stat', stat: 'Сила', cost: 1, dependencies: [] },
-    { id: 'dex', name: 'Ловкость', description: 'Увеличивает ловкость на +1 за уровень', maxLevel: 5, baseEffect: 1, effectType: 'stat', stat: 'Ловкость', cost: 1, dependencies: [] },
-    { id: 'end', name: 'Выносливость', description: 'Увеличивает выносливость на +1 за уровень', maxLevel: 5, baseEffect: 1, effectType: 'stat', stat: 'Выносливость', cost: 1, dependencies: [] },
-    { id: 'int', name: 'Интеллект', description: 'Увеличивает интеллект на +1 за уровень', maxLevel: 5, baseEffect: 1, effectType: 'stat', stat: 'Интеллект', cost: 1, dependencies: [] },
-    { id: 'spirit', name: 'Сила духа', description: 'Увеличивает силу духа на +1 за уровень', maxLevel: 5, baseEffect: 1, effectType: 'stat', stat: 'Сила духа', cost: 1, dependencies: [] },
-    { id: 'flex', name: 'Гибкость', description: 'Увеличивает гибкость на +1 за уровень', maxLevel: 5, baseEffect: 1, effectType: 'stat', stat: 'Гибкость', cost: 1, dependencies: [] },
-    { id: 'conc', name: 'Концентрация', description: 'Увеличивает концентрацию на +1 за уровень', maxLevel: 5, baseEffect: 1, effectType: 'stat', stat: 'Концентрация', cost: 1, dependencies: [] },
-    { id: 'crea', name: 'Креативность', description: 'Увеличивает креативность на +1 за уровень', maxLevel: 5, baseEffect: 1, effectType: 'stat', stat: 'Креативность', cost: 1, dependencies: [] },
-    { id: 'xp_boost', name: 'Опыт', description: 'Увеличивает получаемый опыт на 5% за уровень', maxLevel: 5, baseEffect: 5, effectType: 'xp_mult', cost: 2, dependencies: [] },
-    { id: 'gold_boost', name: 'Золото', description: 'Увеличивает получаемое золото на 5% за уровень', maxLevel: 5, baseEffect: 5, effectType: 'gold_mult', cost: 2, dependencies: [] },
-    { id: 'luck', name: 'Удача', description: 'Увеличивает шанс выпадения редких предметов на 2% за уровень', maxLevel: 5, baseEffect: 2, effectType: 'luck', cost: 3, dependencies: ['xp_boost', 'gold_boost'] }
-    ];
+// Дерево Талантов (координаты x, y для отрисовки на холсте 400x400)
+const talentTree = [
+    { id: 'start', name: 'Начало пути', desc: '+1 ко всем статам', x: 185, y: 185, cost: 1, req: [], effectType: 'all_stats', value: 1, icon: '🌟' },
+    
+    // Ветка Силы (Вверх)
+    { id: 'str_1', name: 'Мощь I', desc: '+2 Силы', x: 185, y: 120, cost: 1, req: ['start'], effectType: 'stat', stat: 'Сила', value: 2, icon: '💪' },
+    { id: 'str_2', name: 'Мощь II', desc: '+4 Силы', x: 185, y: 55, cost: 2, req: ['str_1'], effectType: 'stat', stat: 'Сила', value: 4, icon: '💥' },
+    
+    // Ветка Ловкости (Вправо)
+    { id: 'dex_1', name: 'Рефлексы I', desc: '+2 Ловкости', x: 250, y: 185, cost: 1, req: ['start'], effectType: 'stat', stat: 'Ловкость', value: 2, icon: '🏃' },
+    { id: 'dex_2', name: 'Рефлексы II', desc: '+4 Ловкости', x: 315, y: 185, cost: 2, req: ['dex_1'], effectType: 'stat', stat: 'Ловкость', value: 4, icon: '⚡' },
+    
+    // Ветка Выносливости (Вниз)
+    { id: 'end_1', name: 'Стойкость I', desc: '+2 Выносливости', x: 185, y: 250, cost: 1, req: ['start'], effectType: 'stat', stat: 'Выносливость', value: 2, icon: '🛡️' },
+    { id: 'end_2', name: 'Стойкость II', desc: '+4 Выносливости', x: 185, y: 315, cost: 2, req: ['end_1'], effectType: 'stat', stat: 'Выносливость', value: 4, icon: '⛰️' },
+    
+    // Ветка Золота/Опыта (Влево)
+    { id: 'util_1', name: 'Мудрость', desc: '+5% к Опыту', x: 120, y: 185, cost: 1, req: ['start'], effectType: 'xp_mult', value: 5, icon: '🧠' },
+    { id: 'util_2', name: 'Алчность', desc: '+10% к Золоту', x: 55, y: 185, cost: 2, req: ['util_1'], effectType: 'gold_mult', value: 10, icon: '💰' },
+    
+    // Диагонали (Можно расширять бесконечно!)
+    { id: 'luck_1', name: 'Удача', desc: '+5% к шансу редких вещей', x: 120, y: 120, cost: 2, req: ['str_1', 'util_1'], effectType: 'luck', value: 5, icon: '🍀' }
+];
+
+let learnedTalents = []; // Массив изученных узлов
     
 // Мобы
 const mobs = [
@@ -683,7 +704,7 @@ function saveGame() {
     localStorage.setItem('rpg_inv_v2', JSON.stringify(playerInventory));
     localStorage.setItem('rpg_equipped_v2', JSON.stringify(equippedItems));
     localStorage.setItem('rpg_completed', JSON.stringify(completedQuests));
-    localStorage.setItem('rpg_talents_state', JSON.stringify(talentsState));
+    localStorage.setItem('rpg_learned_talents', JSON.stringify(learnedTalents));
     
     // Сохранение мира
     localStorage.setItem('rpg_defeated_mobs', defeatedMobsCount);
@@ -725,7 +746,12 @@ function loadGame() {
     
     equippedItems = JSON.parse(localStorage.getItem('rpg_equipped_v2')) || {};
     completedQuests = JSON.parse(localStorage.getItem('rpg_completed')) || [];
-    talentsState = JSON.parse(localStorage.getItem('rpg_talents_state')) || {};
+    learnedTalents = JSON.parse(localStorage.getItem('rpg_learned_talents')) || [];
+    
+    // Если ты уже играл, но дерево пустое — вернем тебе очки за твои уровни!
+    if (learnedTalents.length === 0 && playerLevel > 0) {
+        talentPoints = playerLevel;
+    }
     
     defeatedMobsCount = parseInt(localStorage.getItem('rpg_defeated_mobs')) || 0;
     bossAvailable = localStorage.getItem('rpg_boss_available') === 'true';
@@ -1711,38 +1737,71 @@ function openInventory() {
         document.getElementById('gold').innerText = playerGold;
         document.getElementById('level').innerText = playerLevel;
 
-        // Функция пересчёта статов
-        function recalcStats() {
-            let newStats = {
-                "Сила": 10, "Ловкость": 10, "Выносливость": 10, "Интеллект": 10,
-                "Сила духа": 10, "Гибкость": 10, "Концентрация": 10, "Креативность": 10
-            };
-            // Бонусы от экипировки
-            for (let slotId in equippedItems) {
-                let item = equippedItems[slotId];
-                let baseItem = itemsDatabase[item.id];
-                if (baseItem) {
-                    let bonus = baseItem.baseBonus * statMultipliers[item.rarity];
-                    newStats[baseItem.stat] += bonus;
-                }
-            }
-
-            // Бонусы от талантов
-            talentsData.forEach(talent => {
-                if (talent.effectType === 'stat') {
-                    const level = getTalentLevel(talent.id);
-                    newStats[talent.stat] += level * talent.baseEffect;
-                }
-            });
-            playerStats = newStats;
-            localStorage.setItem('rpg_stats', JSON.stringify(playerStats));
-            for (let stat in playerStats) {
-                let el = document.getElementById('stat-' + stat);
-                if (el) el.innerText = playerStats[stat];
-                
-            }
-                updatePowerDisplay();          
+// Заменяем старую функцию recalcStats:
+function recalcStats() {
+    let newStats = {
+        "Сила": 10, "Ловкость": 10, "Выносливость": 10, "Интеллект": 10,
+        "Сила духа": 10, "Гибкость": 10, "Концентрация": 10, "Креативность": 10
+    };
+    
+    // Бонусы от экипировки
+    for (let slotId in equippedItems) {
+        let item = equippedItems[slotId];
+        let baseItem = itemsDatabase[item.id];
+        if (baseItem) {
+            let bonus = baseItem.baseBonus * statMultipliers[item.rarity];
+            newStats[baseItem.stat] += bonus;
         }
+    }
+
+    // Бонусы от ДЕРЕВА ТАЛАНТОВ
+    learnedTalents.forEach(nodeId => {
+        const node = talentTree.find(n => n.id === nodeId);
+        if (node) {
+            if (node.effectType === 'stat') {
+                newStats[node.stat] += node.value;
+            } else if (node.effectType === 'all_stats') {
+                for (let s in newStats) newStats[s] += node.value;
+            }
+        }
+    });
+
+    playerStats = newStats;
+    localStorage.setItem('rpg_stats', JSON.stringify(playerStats));
+    for (let stat in playerStats) {
+        let el = document.getElementById('stat-' + stat);
+        if (el) el.innerText = playerStats[stat];
+    }
+    updatePowerDisplay();          
+}
+
+// Заменяем старые функции множителей:
+function getXpMultiplier() {
+    let mult = 1.0;
+    learnedTalents.forEach(nodeId => {
+        const node = talentTree.find(n => n.id === nodeId);
+        if (node && node.effectType === 'xp_mult') mult += node.value / 100;
+    });
+    return mult;
+}
+
+function getGoldMultiplier() {
+    let mult = 1.0;
+    learnedTalents.forEach(nodeId => {
+        const node = talentTree.find(n => n.id === nodeId);
+        if (node && node.effectType === 'gold_mult') mult += node.value / 100;
+    });
+    return mult;
+}
+
+function getLuckBonus() {
+    let luck = 0;
+    learnedTalents.forEach(nodeId => {
+        const node = talentTree.find(n => n.id === nodeId);
+        if (node && node.effectType === 'luck') luck += node.value;
+    });
+    return luck;
+}
 
         function openSettings() {
     document.getElementById('modal-settings').style.display = 'flex';
@@ -1751,82 +1810,134 @@ function openInventory() {
     document.getElementById('modal-settings').style.display = 'none';
 }
         
-       
-
-
         function getTalentLevel(talentId) {
             return talentsState[talentId] || 0;
         }
 
-        function canUpgradeTalent(talent) {
-            if (talentPoints < talent.cost) return false;
-            const playerLevel = getTalentLevel(talent.id);
-            if (playerLevel >= talent.maxLevel) return false;
-            for (let depId of talent.dependencies) {
-                if (getTalentLevel(depId) < 1) return false;
+function openTalents() {
+    document.getElementById('modal-talents').style.display = 'flex';
+    document.getElementById('talent-points-display').innerText = talentPoints;
+    
+    // Сбрасываем окно инфы
+    document.getElementById('talent-info').innerHTML = `<div style="color: #aaa; font-size: 6px;">Нажми на узел, чтобы увидеть детали</div>`;
+    
+    renderTalentTree();
+    
+    // Центрируем скролл на Начале (x: 185, y: 185)
+    setTimeout(() => {
+        const container = document.getElementById('talent-tree-container');
+        container.scrollLeft = 85; 
+        container.scrollTop = 85;
+    }, 10);
+}
+
+function closeTalents() {
+    document.getElementById('modal-talents').style.display = 'none';
+}
+
+function renderTalentTree() {
+    const svg = document.getElementById('talent-lines');
+    const nodesContainer = document.getElementById('talent-nodes');
+    svg.innerHTML = '';
+    nodesContainer.innerHTML = '';
+
+    // 1. Рисуем линии связей (чтобы они были позади узлов)
+    talentTree.forEach(node => {
+        node.req.forEach(reqId => {
+            const parent = talentTree.find(n => n.id === reqId);
+            if (parent) {
+                const isLearned = learnedTalents.includes(node.id);
+                const isAvailable = learnedTalents.includes(reqId) && !isLearned;
+                
+                let color = '#333'; // Недоступно
+                if (isLearned) color = 'var(--accent-yellow)'; // Изучено
+                else if (isAvailable) color = 'var(--accent-green)'; // Можно изучить
+
+                const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                line.setAttribute('x1', parent.x + 15); // Центр кружка (30/2)
+                line.setAttribute('y1', parent.y + 15);
+                line.setAttribute('x2', node.x + 15);
+                line.setAttribute('y2', node.y + 15);
+                line.setAttribute('stroke', color);
+                line.setAttribute('stroke-width', isLearned ? '3' : '2');
+                svg.appendChild(line);
             }
-            return true;
-        }
+        });
+    });
 
-        function openTalents() {
-            document.getElementById('modal-talents').style.display = 'flex';
-            renderTalents();
-            document.getElementById('talent-points-display').innerText = talentPoints;
-        }
+    // 2. Рисуем сами кружочки-узлы
+    talentTree.forEach(node => {
+        const isLearned = learnedTalents.includes(node.id);
+        const canLearn = (node.req.length === 0 || node.req.some(r => learnedTalents.includes(r))) && !isLearned;
 
-        function closeTalents() {
-            document.getElementById('modal-talents').style.display = 'none';
-        }
+        const el = document.createElement('div');
+        el.style.position = 'absolute';
+        el.style.left = node.x + 'px';
+        el.style.top = node.y + 'px';
+        el.style.width = '30px';
+        el.style.height = '30px';
+        el.style.borderRadius = '50%';
+        
+        // Цвета рамки и фона
+        let borderColor = '#333';
+        let bgColor = '#111';
+        if (isLearned) { borderColor = 'var(--accent-yellow)'; bgColor = '#222'; }
+        else if (canLearn) { borderColor = 'var(--accent-green)'; }
 
-        function renderTalents() {
-            const container = document.getElementById('talents-container');
-            container.innerHTML = '';
-            talentsData.forEach(talent => {
-                const playerLevel = getTalentLevel(talent.id);
-                const canUp = canUpgradeTalent(talent);
-                const talentDiv = document.createElement('div');
-                talentDiv.style.background = '#111';
-                talentDiv.style.border = '1px solid var(--border-gray)';
-                talentDiv.style.borderRadius = '4px';
-                talentDiv.style.padding = '8px';
-                const header = document.createElement('div');
-                header.style.display = 'flex';
-                header.style.justifyContent = 'space-between';
-                header.style.marginBottom = '4px';
-                header.innerHTML = `<span style="color: var(--accent-yellow);">${talent.name}</span> <span>${playerLevel}/${talent.maxLevel}</span>`;
-                talentDiv.appendChild(header);
-                const desc = document.createElement('div');
-                desc.style.fontSize = '6px';
-                desc.style.marginBottom = '6px';
-                desc.innerText = talent.description;
-                talentDiv.appendChild(desc);
-                const bonus = document.createElement('div');
-                bonus.style.fontSize = '5px';
-                bonus.style.color = '#aaa';
-                bonus.style.marginBottom = '8px';
-                if (talent.effectType === 'stat') {
-                    bonus.innerText = `Текущий бонус: +${playerLevel * talent.baseEffect} ${talent.stat}`;
-                } else if (talent.effectType === 'xp_mult') {
-                    bonus.innerText = `Текущий бонус: +${playerLevel * talent.baseEffect}% к опыту`;
-                } else if (talent.effectType === 'gold_mult') {
-                    bonus.innerText = `Текущий бонус: +${playerLevel * talent.baseEffect}% к золоту`;
-                } else if (talent.effectType === 'luck') {
-                    bonus.innerText = `Текущий бонус: +${playerLevel * talent.baseEffect}% к удаче`;
-                }
-                talentDiv.appendChild(bonus);
-                const btn = document.createElement('button');
-                btn.className = 'btn-action';
-                btn.style.padding = '6px';
-                btn.style.width = '100%';
-                btn.style.fontSize = '6px';
-                btn.innerText = `Улучшить (${talent.cost} очков)`;
-                btn.disabled = !canUp;
-                btn.style.background = canUp ? 'var(--accent-green)' : '#333';
-                btn.onclick = () => upgradeTalent(talent.id);
-                talentDiv.appendChild(btn);
-                container.appendChild(talentDiv);
-            });
+        el.style.border = `2px solid ${borderColor}`;
+        el.style.background = bgColor;
+        el.style.display = 'flex';
+        el.style.justifyContent = 'center';
+        el.style.alignItems = 'center';
+        el.style.fontSize = '14px';
+        el.style.cursor = 'pointer';
+        el.style.boxShadow = isLearned ? '0 0 10px rgba(212, 175, 55, 0.5)' : 'none';
+        
+        el.innerText = node.icon;
+        el.onclick = () => selectTalentNode(node, canLearn, isLearned);
+
+        nodesContainer.appendChild(el);
+    });
+}
+
+function selectTalentNode(node, canLearn, isLearned) {
+    const info = document.getElementById('talent-info');
+    let btnHtml = '';
+    
+    if (isLearned) {
+        btnHtml = `<button disabled style="background: #333; color: var(--accent-yellow); border: 1px solid var(--accent-yellow); padding: 5px; font-size: 6px; border-radius: 3px;">ИЗУЧЕНО</button>`;
+    } else if (canLearn) {
+        if (talentPoints >= node.cost) {
+            btnHtml = `<button onclick="learnTalent('${node.id}')" class="btn-action" style="padding: 5px; font-size: 6px; width: 100%;">ИЗУЧИТЬ (${node.cost} очков)</button>`;
+        } else {
+            btnHtml = `<button disabled style="background: #8b0000; color: white; border: none; padding: 5px; font-size: 6px; border-radius: 3px;">НУЖНО ${node.cost} ОЧКОВ</button>`;
         }
+    } else {
+        btnHtml = `<div style="font-size: 6px; color: #888;">Сначала изучите предыдущий узел</div>`;
+    }
+
+    info.innerHTML = `
+        <div style="color: var(--accent-yellow); font-size: 8px; margin-bottom: 3px;">${node.icon} ${node.name}</div>
+        <div style="color: #ccc; font-size: 6px; margin-bottom: 6px;">${node.desc}</div>
+        ${btnHtml}
+    `;
+    SoundManager.playEffect('click');
+}
+
+function learnTalent(nodeId) {
+    const node = talentTree.find(n => n.id === nodeId);
+    if (!node || talentPoints < node.cost) return;
+
+    talentPoints -= node.cost;
+    learnedTalents.push(nodeId);
+
+    saveGame();
+    recalcStats();
+    renderTalentTree();
+    document.getElementById('talent-points-display').innerText = talentPoints;
+    selectTalentNode(node, false, true); // Обновляем окошко инфы
+    SoundManager.playEffect('levelup');
+}
 
         
 

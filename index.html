@@ -294,6 +294,7 @@ canvas {
     <div>ЗОЛОТО: <span id="gold">0</span></div>
     <div>СИЛА: <span id="player-power">0</span></div>
     <div style="display: flex; gap: 8px;">
+        <span style="font-size: 14px; cursor: pointer;" onclick="openAchievements()">🏆</span>
         <span style="font-size: 14px; cursor: pointer;" onclick="openMetrics()">📊</span>
         <span style="font-size: 14px; cursor: pointer;" onclick="openSettings()">⚙️</span>
     </div>
@@ -522,7 +523,7 @@ canvas {
                 <div id="forecast-container"></div>
             </div>
 
-            <div id="metrics-stats-tab" class="metrics-tab" style="display: none;">
+<div id="metrics-stats-tab" class="metrics-tab" style="display: none;">
     <div class="metric-card">
         <div class="metric-title">📅 Общая статистика</div>
         <div class="metric-value">Дней захода: <span id="stats-login-days">0</span></div>
@@ -530,9 +531,13 @@ canvas {
         <div class="metric-title" style="margin-top: 15px;">🏋️‍♂️ Выполненные упражнения</div>
         <div class="metric-value">Отжимания: <span id="stats-pushups">0</span></div>
         <div class="metric-value">Подтягивания: <span id="stats-pullups">0</span></div>
+        <div class="metric-value">Приседания: <span id="stats-squats">0</span></div>
         <div class="metric-value">Пресс: <span id="stats-abs">0</span></div>
-        <div class="metric-value">Планка: <span id="stats-plank">0</span></div>
-        <div class="metric-value">Растяжка: <span id="stats-stretch">0</span></div>
+        <div class="metric-value">Планка (мин): <span id="stats-plank">0</span></div>
+        <div class="metric-value">Растяжка (раз): <span id="stats-stretch">0</span></div>
+        <div class="metric-title" style="margin-top: 15px;">🏃‍♂️ Кардио</div>
+        <div class="metric-value">Пробежал (км): <span id="stats-run-km">0</span></div>
+        <div class="metric-value">Время бега (мин): <span id="stats-run-mins">0</span></div>
     </div>
 </div>
         </div>
@@ -657,8 +662,9 @@ let completedQuests, talentsState;
 let defeatedMobsCount, bossAvailable, currentEnemy = null;
 
 // Статистика тренировок
-let metricsHistory, totalLoginDays, totalCompletedQuests;
-let totalPushups, totalPullups, totalAbs, totalPlank, totalStretch;
+let totalPushups = 0, totalPullups = 0, totalAbs = 0, totalPlank = 0, totalStretch = 0;
+let totalSquats = 0, totalRunKm = 0, totalRunMins = 0; // Новые данные
+let claimedAchievements = []; // Список забранных наград
 
 // Настройки
 let soundEnabled, musicEnabled;
@@ -735,6 +741,11 @@ function loadGame() {
 
     soundEnabled = localStorage.getItem('rpg_sound_enabled') !== 'false';
     musicEnabled = localStorage.getItem('rpg_music_enabled') !== 'false';
+
+    totalSquats = parseInt(localStorage.getItem('stats_squats')) || 0;
+    totalRunKm = parseFloat(localStorage.getItem('stats_run_km')) || 0;
+    totalRunMins = parseInt(localStorage.getItem('stats_run_mins')) || 0;
+    claimedAchievements = JSON.parse(localStorage.getItem('rpg_achievements')) || [];
 }
 
     
@@ -1091,12 +1102,12 @@ function completeQuest(questId, xpReward, goldReward, statName) {
     completedQuests.push(questId);
     totalCompletedQuests++;
     
-    // --- УМНЫЙ СЧЕТЧИК И ВОПРОСЫ ---
+// --- УМНЫЙ СЧЕТЧИК И ВОПРОСЫ ---
     const title = questsDatabase.find(q => q.id === questId)?.title || '';
     
     if (title.toLowerCase().includes('отжимания')) {
         let count = parseInt(prompt("Сколько раз отжался?", "10"));
-        if (isNaN(count) || count <= 0) return; // Если нажал отмену, квест не засчитывается
+        if (isNaN(count) || count <= 0) return;
         totalPushups += count;
     }
     else if (title.toLowerCase().includes('подтягивания')) {
@@ -1104,32 +1115,36 @@ function completeQuest(questId, xpReward, goldReward, statName) {
         if (isNaN(count) || count <= 0) return;
         totalPullups += count;
     }
-    else if (title.toLowerCase().includes('сон')) {
-        let bedTime = parseInt(prompt("Во сколько лег спать? (введи часы, например 23 или 1)", "23"));
-        let wakeTime = parseInt(prompt("Во сколько проснулся? (введи часы, например 7)", "7"));
-        if (isNaN(bedTime) || isNaN(wakeTime)) return;
-
-        let hours = 0;
-        // Если лег до полуночи (например в 23), а проснулся в 7
-        if (wakeTime < bedTime) {
-            hours = (24 - bedTime) + wakeTime;
-        } else {
-            // Если лег после полуночи (например в 1 ночи) и проснулся в 9
-            hours = wakeTime - bedTime;
-        }
-        
-        // Даем 10 энергии за каждый час сна (максимум до 100)
-        playerEnergy = Math.min(maxEnergy, playerEnergy + (hours * 10));
-        alert(`Отличный сон! Ты проспал ${hours} ч. Энергия восстановлена!`);
+    else if (title.toLowerCase().includes('приседания')) {
+        let count = parseInt(prompt("Сколько раз присел?", "20"));
+        if (isNaN(count) || count <= 0) return;
+        totalSquats += count;
+    }
+    else if (title.toLowerCase().includes('пресс')) {
+        let count = parseInt(prompt("Сколько раз сделал пресс?", "20"));
+        if (isNaN(count) || count <= 0) return;
+        totalAbs += count;
+    }
+    else if (title.toLowerCase().includes('планка')) {
+        let mins = parseFloat(prompt("Сколько минут простоял в планке?", "1"));
+        if (isNaN(mins) || mins <= 0) return;
+        totalPlank += mins;
     }
     else if (title.toLowerCase().includes('бег')) {
         let km = parseFloat(prompt("Сколько километров пробежал?", "1"));
         let mins = parseInt(prompt("За сколько минут?", "10"));
-        if (isNaN(km) || isNaN(mins)) return;
-        // Тут потом добавим запись бега в статистику
+        if (isNaN(km) || isNaN(mins) || km <= 0) return;
+        totalRunKm += km;
+        totalRunMins += mins;
     }
-    else if (title.toLowerCase().includes('пресс')) totalAbs++; // Пока оставляем как было для остальных
-    else if (title.toLowerCase().includes('планка')) totalPlank++;
+    else if (title.toLowerCase().includes('сон')) {
+        let bedTime = parseInt(prompt("Во сколько лег спать? (введи часы, например 23 или 1)", "23"));
+        let wakeTime = parseInt(prompt("Во сколько проснулся? (введи часы, например 7)", "7"));
+        if (isNaN(bedTime) || isNaN(wakeTime)) return;
+        let hours = wakeTime < bedTime ? (24 - bedTime) + wakeTime : wakeTime - bedTime;
+        playerEnergy = Math.min(maxEnergy, playerEnergy + (hours * 10));
+        alert(`Отличный сон! Ты проспал ${hours} ч. Энергия восстановлена!`);
+    }
     else if (title.toLowerCase().includes('растяжка')) totalStretch++;
 
     // 4. Финализируем (Сохраняем всё разом, обновляем UI разом, проигрываем звук)
@@ -1279,15 +1294,18 @@ function restoreHp() {
 // 12. МЕТРИКИ 
 // ============================================================================
 
-        function renderStats() {
+function renderStats() {
     document.getElementById('stats-login-days').innerText = totalLoginDays;
     document.getElementById('stats-total-quests').innerText = totalCompletedQuests;
     document.getElementById('stats-pushups').innerText = totalPushups;
     document.getElementById('stats-pullups').innerText = totalPullups;
+    document.getElementById('stats-squats').innerText = totalSquats;
     document.getElementById('stats-abs').innerText = totalAbs;
     document.getElementById('stats-plank').innerText = totalPlank;
     document.getElementById('stats-stretch').innerText = totalStretch;
-} 
+    document.getElementById('stats-run-km').innerText = totalRunKm;
+    document.getElementById('stats-run-mins').innerText = totalRunMins;
+}
     
 // ============================================================================
 // 13. НАСТРОЙКИ И СБРОС
@@ -1372,6 +1390,10 @@ function restoreHp() {
                 localStorage.setItem('stats_abs', totalAbs);
                 localStorage.setItem('stats_plank', totalPlank);
                 localStorage.setItem('stats_stretch', totalStretch);
+                localStorage.setItem('stats_squats', totalSquats);
+                localStorage.setItem('stats_run_km', totalRunKm);
+                localStorage.setItem('stats_run_mins', totalRunMins);
+                localStorage.setItem('rpg_achievements', JSON.stringify(claimedAchievements));        
             }
 
 
@@ -1398,10 +1420,6 @@ if (lastLoginDate !== today) {
     saveStats();  
 }
             
-
-
-
-
 
         // Глобальные функции для вызова из HTML
 function toggleSfx() {
@@ -1942,7 +1960,6 @@ function showChestDetails(index) {
     // Отображаем анимацию
     showChestAnimation(chestRarity, newItems);
     closeInventory();
-    openInventory();
     // Отображаем анимацию
     showChestAnimation(chestRarity, newItems.slice(0, addedCount));
 
@@ -1978,6 +1995,7 @@ function showChestDetails(index) {
 
 function closeChestModal() {
     document.getElementById('modal-chest').style.display = 'none';
+    openInventory(); // Вот теперь инвентарь откроется ПОСЛЕ того, как мы закроем анимацию!
 }
                 
         function equipItem(invIndex) {
@@ -2205,6 +2223,97 @@ function buyItem(index) {
         } catch (e) {
             console.error("Ошибка при запуске игры:", e);
         }
+
+<script>
+    // База достижений (Легко менять названия, цели и награды)
+    const achievementsData = [
+        { id: "a1", title: "Новичок отжиманий", desc: "Сделать 50 отжиманий", metric: "pushups", target: 50, rewardXp: 100, rewardGold: 50 },
+        { id: "a2", title: "Машина", desc: "Сделать 1000 отжиманий", metric: "pushups", target: 1000, rewardXp: 500, rewardGold: 300 },
+        { id: "a3", title: "Легкоатлет", desc: "Пробежать 10 км суммарно", metric: "runKm", target: 10, rewardXp: 150, rewardGold: 80 },
+        { id: "a4", title: "Марафонец", desc: "Пробежать 42 км суммарно", metric: "runKm", target: 42, rewardXp: 1000, rewardGold: 500 },
+        { id: "a5", title: "Стальные ноги", desc: "Сделать 200 приседаний", metric: "squats", target: 200, rewardXp: 200, rewardGold: 100 },
+        { id: "a6", title: "Дисциплина", desc: "Выполнить 50 квестов", metric: "quests", target: 50, rewardXp: 300, rewardGold: 150 }
+    ];
+
+    // Добавляем окно в HTML
+    document.body.insertAdjacentHTML('beforeend', `
+        <div id="modal-achievements" class="modal-overlay">
+            <div class="modal-content">
+                <button class="close-btn" onclick="closeAchievements()">✖</button>
+                <h2>🏆 ДОСТИЖЕНИЯ</h2>
+                <div id="achievements-list" style="display: flex; flex-direction: column; gap: 8px;"></div>
+            </div>
+        </div>
+    `);
+
+    function getMetricValue(metric) {
+        switch(metric) {
+            case 'pushups': return totalPushups;
+            case 'pullups': return totalPullups;
+            case 'squats': return totalSquats;
+            case 'runKm': return totalRunKm;
+            case 'runMins': return totalRunMins;
+            case 'quests': return totalCompletedQuests;
+            case 'plank': return totalPlank;
+            case 'abs': return totalAbs;
+            default: return 0;
+        }
+    }
+
+    function openAchievements() {
+        const container = document.getElementById('achievements-list');
+        container.innerHTML = '';
+        
+        achievementsData.forEach(ach => {
+            const current = getMetricValue(ach.metric);
+            const isClaimed = claimedAchievements.includes(ach.id);
+            const isCompleted = current >= ach.target;
+            
+            let btnHtml = '';
+            if (isClaimed) {
+                btnHtml = `<button disabled style="background: #333; color: #777; border: none; padding: 5px; font-size: 6px; border-radius: 3px;">ПОЛУЧЕНО</button>`;
+            } else if (isCompleted) {
+                btnHtml = `<button onclick="claimAchievement('${ach.id}', ${ach.rewardXp}, ${ach.rewardGold})" class="btn-action" style="padding: 5px; font-size: 6px; background: #d4af37; color: black;">ЗАБРАТЬ</button>`;
+            } else {
+                btnHtml = `<div style="font-size: 6px; color: #aaa;">${current}/${ach.target}</div>`;
+            }
+
+            container.innerHTML += `
+                <div style="background: #111; border: 1px solid ${isClaimed ? '#1b5e20' : '#333'}; padding: 8px; border-radius: 4px; display: flex; justify-content: space-between; align-items: center;">
+                    <div style="width: 70%;">
+                        <div style="color: var(--accent-yellow); font-size: 7px; margin-bottom: 3px;">${ach.title}</div>
+                        <div style="font-size: 5px; color: #ccc;">${ach.desc}</div>
+                        <div style="font-size: 5px; color: #888; margin-top: 3px;">Награда: ${ach.rewardGold}💰 | ${ach.rewardXp} XP</div>
+                    </div>
+                    <div>${btnHtml}</div>
+                </div>
+            `;
+        });
+        document.getElementById('modal-achievements').style.display = 'flex';
+    }
+
+    function claimAchievement(id, xp, gold) {
+        claimedAchievements.push(id);
+        playerGold += gold;
+        playerXp += xp;
+        
+        while (playerXp >= maxXp) {
+            playerLevel++;
+            playerXp -= maxXp;
+            talentPoints++;
+        }
+        
+        saveGame();
+        saveStats();
+        updateUI();
+        openAchievements(); // Обновляем окошко наград
+        SoundManager.playEffect('victory');
+    }
+
+    function closeAchievements() {
+        document.getElementById('modal-achievements').style.display = 'none';
+    }
+</script>
     
     </script>
 </body>

@@ -284,6 +284,43 @@ canvas {
 .chest-item img {
     font-size: 30px;
 }
+
+    /* --- НОВЫЕ КРАСИВЫЕ ЭФФЕКТЫ --- */
+.box, .modal-content {
+    box-shadow: 0 8px 16px rgba(0,0,0,0.8), inset 0 0 10px rgba(255,255,255,0.05);
+}
+.btn-action, .btn-menu {
+    transition: transform 0.1s, filter 0.1s;
+}
+.btn-action:active, .btn-menu:active {
+    transform: scale(0.95);
+    filter: brightness(0.8);
+}
+
+@keyframes glow-epic { 0% { box-shadow: 0 0 2px #a335ee; } 50% { box-shadow: 0 0 12px #a335ee; } 100% { box-shadow: 0 0 2px #a335ee; } }
+@keyframes glow-leg { 0% { box-shadow: 0 0 2px #ff8000; } 50% { box-shadow: 0 0 15px #ff8000; } 100% { box-shadow: 0 0 2px #ff8000; } }
+.glow-3 { animation: glow-epic 2s infinite; }
+.glow-4 { animation: glow-leg 2s infinite; }
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px) rotate(-5deg); }
+    75% { transform: translateX(5px) rotate(5deg); }
+}
+.shake { animation: shake 0.3s ease-in-out; }
+
+@keyframes floatUp {
+    0% { opacity: 1; transform: translateY(0) scale(1); }
+    100% { opacity: 0; transform: translateY(-40px) scale(1.5); }
+}
+.floating-text {
+    position: fixed;
+    pointer-events: none;
+    animation: floatUp 1s ease-out forwards;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px black;
+    z-index: 9999;
+}
         
     </style>
 </head>
@@ -569,6 +606,8 @@ tg.expand();
 // 1. БАЗА ДАННЫХ
 // ==========================================
 
+
+    
 // Квесты
 const questsDatabase = [
     
@@ -605,24 +644,127 @@ const questsDatabase = [
     ];
     
 // Предметы 
+
 const itemsDatabase = {
-"sword": { name: "Меч", type: "Правая рука", slotId: "slot-right-hand", stat: "Сила", baseBonus: 1, img: "⚔️" },
-"shoes": { name: "Ботинки", type: "Обувь", slotId: "slot-shoes", stat: "Выносливость", baseBonus: 2, img: "👟" }
+  // старые предметы (сохраняем для совместимости)
+  "sword": { name: "Меч", type: "Правая рука", slotId: "slot-right-hand", stat: "Сила", baseBonus: 1, img: "⚔️" },
+  "shoes": { name: "Ботинки", type: "Обувь", slotId: "slot-shoes", stat: "Выносливость", baseBonus: 2, img: "👟" }
 };
+    
+const slots = [
+  { id: "slot-head", type: "Шлем" },
+  { id: "slot-amulet", type: "Амулет" },
+  { id: "slot-amulet-2", type: "Амулет" },
+  { id: "slot-cape", type: "Плащ" },
+  { id: "slot-shoulders", type: "Наплечники" },
+  { id: "slot-right-hand", type: "Правая рука" },
+  { id: "slot-bracelet-right", type: "Браслет" },
+  { id: "slot-ring-1", type: "Кольцо" },
+  { id: "slot-gloves", type: "Перчатки" },
+  { id: "slot-armor", type: "Нагрудник" },
+  { id: "slot-left-hand", type: "Левая рука" },
+  { id: "slot-bracer", type: "Наручи" },
+  { id: "slot-bracelet-left", type: "Браслет" },
+  { id: "slot-ring-2", type: "Кольцо" },
+  { id: "slot-belt", type: "Пояс" },
+  { id: "slot-legs", type: "Штаны" },
+  { id: "slot-knees", type: "Наколенники" },
+  { id: "slot-shoes", type: "Обувь" }
+];
+
+// Возможные характеристики (stat) и их эмодзи
+const stats = [
+  { name: "Сила", img: "💪" },
+  { name: "Ловкость", img: "🏹" },
+  { name: "Интеллект", img: "📚" },
+  { name: "Выносливость", img: "🛡️" },
+  { name: "Дух", img: "✨" }
+];
+// Варианты названий для каждого типа слота (по 5 штук)
+const nameVariants = {
+  "Шлем": ["Шлем воина", "Колдовская корона", "Капюшон теней", "Стальной шлем", "Кожаный капюшон"],
+  "Амулет": ["Амулет силы", "Оберег мудрости", "Кулон ловкости", "Талисман стойкости", "Амулет духов"],
+  "Плащ": ["Плащ неуловимости", "Мантия мага", "Накидка охотника", "Плащ стража", "Плащ теней"],
+  "Наплечники": ["Наплечники ярости", "Эполеты мудреца", "Наплечники ловкача", "Стальные наплечники", "Кожаные наплечники"],
+  "Правая рука": ["Двуручный меч", "Посох магии", "Кинжал теней", "Боевой топор", "Булава правосудия"],
+  "Браслет": ["Браслет силы", "Браслет ловкости", "Браслет интеллекта", "Браслет выносливости", "Браслет духа"],
+  "Кольцо": ["Кольцо воина", "Кольцо мага", "Кольцо разбойника", "Кольцо защитника", "Кольцо судьбы"],
+  "Перчатки": ["Рукавицы мощи", "Перчатки проворства", "Перчатки заклинателя", "Латные перчатки", "Кожаные перчатки"],
+  "Нагрудник": ["Кираса титана", "Роба архимага", "Кожаный доспех", "Латы защитника", "Доспех скитальца"],
+  "Левая рука": ["Щит стража", "Кинжал левой руки", "Гримуар заклинаний", "Факел света", "Эгида защиты"],
+  "Наручи": ["Наручи мощи", "Наручи ловкости", "Наручи интеллекта", "Наручи выносливости", "Наручи духа"],
+  "Пояс": ["Пояс силы", "Пояс ловкости", "Пояс интеллекта", "Пояс выносливости", "Пояс духа"],
+  "Штаны": ["Поножи титана", "Штаны мага", "Кожаные штаны", "Латные поножи", "Штаны следопыта"],
+  "Наколенники": ["Наколенники стража", "Наколенники проворства", "Наколенники мудрости", "Стальные наколенники", "Кожаные наколенники"],
+  "Обувь": ["Сапоги скорости", "Ботинки мага", "Кожаные сапоги", "Латные сапоги", "Сапоги следопыта"]
+};
+
+// Генерация предметов
+let itemId = 1000; // начальный id для новых предметов (чтобы не конфликтовать с существующими)
+
+slots.forEach(slot => {
+  const typeName = slot.type;
+  const variants = nameVariants[typeName];
+  if (!variants) return;
+
+  // Для каждого слота создаём 5 предметов с разными характеристиками
+  for (let i = 0; i < 5; i++) {
+    const statIndex = i % stats.length; // циклически выбираем стат
+    const statObj = stats[statIndex];
+    const baseBonus = Math.floor(Math.random() * 5) + 1; // бонус от 1 до 5 (можно задать иначе, но для разнообразия)
+    // Формируем уникальный ключ
+    const key = `${slot.id.replace('slot-', '')}_${i+1}`;
+    itemsDatabase[key] = {
+      name: variants[i],
+      type: typeName,
+      slotId: slot.id,
+      stat: statObj.name,
+      baseBonus: baseBonus,
+      img: statObj.img
+    };
+    itemId++;
+  }
+});
     
 // Редкость предметов 
 const rarities = ["Сломанный", "Обычный", "Редкий", "Эпический", "Легендарный"]; 
 const rarityColors = ["#777777", "#ffffff", "#0070dd", "#a335ee", "#ff8000"]; 
 const statMultipliers = [1, 2, 4, 8, 15]; 
     
-// Товары в магазине 
+// ------------------------------------------------------------------
+// 2. РАСШИРЕННЫЙ МАГАЗИН (shopItems)
+// ------------------------------------------------------------------
+// Добавляем все сгенерированные предметы в магазин с разумной ценой
 const shopItems = [
-    { id: "sword", name: "Меч тренировок", price: 100, type: "item" },
-    { id: "shoes", name: "Кроссовки", price: 150, type: "item" },
-    { name: "Сундук", price: 200, type: "chest" }
-    ];
+  // старые товары
+  { id: "sword", name: "Меч тренировок", price: 100, type: "item" },
+  { id: "shoes", name: "Кроссовки", price: 150, type: "item" },
+  { name: "Сундук", price: 200, type: "chest" }
+];
 
+// Добавляем все новые предметы
+for (let [id, item] of Object.entries(itemsDatabase)) {
+  // Пропускаем старые, чтобы не дублировать (sword и shoes уже добавлены)
+  if (id === "sword" || id === "shoes") continue;
+  // Цена = базовая 80 + бонус * 20
+  const price = 80 + item.baseBonus * 20;
+  shopItems.push({
+    id: id,
+    name: item.name,
+    price: price,
+    type: "item"
+  });
+}
 
+// ------------------------------------------------------------------
+// ПРОВЕРКА: количество предметов в каждом слоте (для отладки)
+// ------------------------------------------------------------------
+const countBySlot = {};
+Object.values(itemsDatabase).forEach(item => {
+  const slotId = item.slotId;
+  countBySlot[slotId] = (countBySlot[slotId] || 0) + 1;
+});
+console.log("Количество предметов по слотам:", countBySlot);
 // Типы сундуков
 const chestTypes = [
     { name: "Деревянный", rarity: 0, dropChance: 0.5, img: "🪵", color: "#8B5A2B" },
@@ -1100,7 +1242,7 @@ function closeInventory() {
                             <div class="task-title">${quest.title}</div>
                             <div class="task-reward">+1 ${quest.stat} | ${quest.gold}💰 | ${quest.xp} XP</div>
                         </div>
-                        <button class="btn-action" onclick="completeQuest('${quest.id}', ${quest.xp}, ${quest.gold}, '${quest.stat}')">СДЕЛАТЬ</button>
+                       <button id="btn-quest-${quest.id}" class="btn-action" onclick="completeQuest('${quest.id}', ${quest.xp}, ${quest.gold}, '${quest.stat}')">СДЕЛАТЬ</button>
                     `;
                     container.appendChild(taskDiv);
                 });
@@ -1184,6 +1326,12 @@ function completeQuest(questId, xpReward, goldReward, statName) {
         window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
     }
     SoundManager.playEffect('quest');
+    // 💥 Выпускаем цифры опыта из кнопки
+    const btn = document.getElementById(`btn-quest-${questId}`);
+    if (btn) {
+        showFloatingText(btn, `+${Math.floor(xpReward * getXpMultiplier())} XP`, 'var(--accent-green)');
+        showFloatingText(btn, `+${Math.floor(goldReward * getGoldMultiplier())} 💰`, 'gold');
+    }
     renderQuests(); // перерисовываем список квестов
 }
     
@@ -1214,6 +1362,9 @@ function closeBattle() {
 
 function startBattle() {
     const log = document.getElementById('battle-log');
+    const enemyDisplay = document.getElementById('enemy-name'); // Для анимации
+    const heroAvatar = document.getElementById('hero-sprite');  // Для анимации
+    
     if (!log) return;
     log.innerHTML = ''; 
 
@@ -1222,7 +1373,13 @@ function startBattle() {
         return;
     }
     
-    playerEnergy -= 10; // Тратим 10 энергии на один удар/бой
+    if (playerEnergy < 10) {
+        log.innerHTML += '<div style="color: cyan;">⚡ Нет энергии для боя! Нужно выполнить квест "Сон".</div>';
+        return;
+    }
+    
+    playerEnergy -= 10;
+    updateEnergyDisplay();
 
     const heroPower = getEffectiveHeroPower(currentEnemy);
     const enemyPower = currentEnemy.basePower;
@@ -1230,22 +1387,38 @@ function startBattle() {
     log.innerHTML += `<div>⚔️ Ваша сила: ${heroPower}</div>`;
     log.innerHTML += `<div>👾 Сила врага: ${enemyPower}</div>`;
 
+    // 💥 СОК: Анимация удара героя по врагу
+    if (enemyDisplay) {
+        showFloatingText(enemyDisplay, `-${heroPower}`, 'white');
+        enemyDisplay.classList.add('shake');
+        setTimeout(() => enemyDisplay.classList.remove('shake'), 300);
+    }
+
     if (heroPower >= enemyPower) {
         // --- ПОБЕДА ---
         log.innerHTML += `<div style="color: lightgreen;">✅ ПОБЕДА!</div>`;
         SoundManager.playEffect('victory');
 
-        playerXp += Math.floor(currentEnemy.expReward * getXpMultiplier());
-        playerGold += Math.floor(currentEnemy.goldReward * getGoldMultiplier());
+        const earnedXp = Math.floor(currentEnemy.expReward * getXpMultiplier());
+        const earnedGold = Math.floor(currentEnemy.goldReward * getGoldMultiplier());
+        
+        playerXp += earnedXp;
+        playerGold += earnedGold;
 
-        // Проверка уровня (левел-ап)
+        // 💥 СОК: Вылетающие награды над врагом
+        setTimeout(() => {
+            if (enemyDisplay) {
+                showFloatingText(enemyDisplay, `+${earnedXp} XP`, 'var(--accent-green)');
+                showFloatingText(enemyDisplay, `+${earnedGold} 💰`, 'gold');
+            }
+        }, 300);
+
         while (playerXp >= maxXp) {
             playerLevel++;
             playerXp -= maxXp;
             talentPoints++;
         }
 
-        // Сундук
         let chestRarity = 0;
         let random = Math.random();
         let cumulative = 0;
@@ -1256,7 +1429,6 @@ function startBattle() {
         addChest(chestRarity);
         log.innerHTML += `<div style="color: gold;">🎁 Получен ${chestTypes[chestRarity].img} сундук!</div>`;
 
-        // Прогресс босса
         if (currentEnemy.isBoss) {
             defeatedMobsCount = 0;
             bossAvailable = false;
@@ -1265,23 +1437,27 @@ function startBattle() {
             if (defeatedMobsCount >= 10) bossAvailable = true;
         }
 
-        updateCurrentEnemy(); // Смена врага
+        updateCurrentEnemy();
     } else {
         // --- ПОРАЖЕНИЕ ---
         log.innerHTML += `<div style="color: red;">💔 ПОРАЖЕНИЕ!</div>`;
         playerHp = Math.max(0, playerHp - 10);
         SoundManager.playEffect('defeat');
+        
+        // 💥 СОК: Анимация получения урона героем
+        if (heroAvatar) {
+            showFloatingText(heroAvatar, `-10 ❤️`, 'red');
+            heroAvatar.classList.add('shake');
+            setTimeout(() => heroAvatar.classList.remove('shake'), 300);
+        }
     }
 
-    // В ЛЮБОМ СЛУЧАЕ: Сохраняем и обновляем экран
     saveGame();
     updateUI();
     
-    // Обновляем текст в окне боя 
     document.getElementById('hero-hp-display').innerHTML = `❤️ HP: ${playerHp}/${maxHp}`;
     document.getElementById('enemy-name').innerHTML = currentEnemy.isBoss ? `👑 ${currentEnemy.name}` : `👾 ${currentEnemy.name}`;
     document.getElementById('enemy-power-display').innerText = `⚔️ Сила: ${currentEnemy.basePower}`;
-
     log.scrollTop = log.scrollHeight;
 }
 
@@ -1575,6 +1751,24 @@ function drawAvatar() {
     }
 }
 
+
+    // Функция создания вылетающих цифр
+function showFloatingText(element, text, color) {
+    if (!element) return;
+    const rect = element.getBoundingClientRect();
+    const floatEl = document.createElement('div');
+    floatEl.className = 'floating-text';
+    floatEl.style.color = color;
+    floatEl.innerText = text;
+    
+    // Чуть-чуть рандомим позицию, чтобы цифры не слипались
+    const offsetX = (Math.random() - 0.5) * 30;
+    floatEl.style.left = (rect.left + rect.width / 2 + offsetX) + 'px';
+    floatEl.style.top = rect.top + 'px';
+    
+    document.body.appendChild(floatEl);
+    setTimeout(() => floatEl.remove(), 1000);
+}
         
 
         // ============================================================================
@@ -1634,6 +1828,8 @@ function openInventory() {
         } else {
             const baseItem = itemsDatabase[item.id];
             if (baseItem) {
+                if (item.rarity === 3) slotDiv.classList.add('glow-3');
+                if (item.rarity === 4) slotDiv.classList.add('glow-4');
                 slotDiv.style.borderColor = rarityColors[item.rarity];
                 slotDiv.innerHTML = `<span style="font-size: 5px; color: ${rarityColors[item.rarity]};">${baseItem.img}</span>${countBadge}`;
                 slotDiv.onclick = () => showItemDetails(i);
@@ -2257,6 +2453,9 @@ function unequipItem(slotId) {
         const baseItem = itemsDatabase[itemData.id];
         const slotHtml = document.getElementById(slotId);
         if (slotHtml && baseItem) {
+            slotHtml.className = 'slot'; // Сбрасываем старые классы
+            if (itemData.rarity === 3) slotHtml.classList.add('glow-3');
+            if (itemData.rarity === 4) slotHtml.classList.add('glow-4');
             slotHtml.style.borderColor = rarityColors[itemData.rarity];
             slotHtml.innerHTML = `<span style="font-size: 5px; color: ${rarityColors[itemData.rarity]}">${baseItem.img}</span><div class="slot-name">${baseItem.type}</div>`;
             slotHtml.onclick = () => showEquippedItemDetails(slotId);

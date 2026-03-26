@@ -1900,72 +1900,53 @@ function showChestDetails(index) {
     document.getElementById('item-details').style.display = 'block';
 }
 
-                function openChest(invIndex) {
+function openChest(invIndex) {
     const chestItem = playerInventory[invIndex];
-    removeItemFromInventory(invIndex, 1);
     if (!chestItem || chestItem.type !== 'chest') return;
     const chestRarity = chestItem.chestRarity;
 
-    // Удаляем сундук из инвентаря
-    playerInventory.splice(invIndex, 1);
+    // 1. Забираем 1 сундук из инвентаря
+    removeItemFromInventory(invIndex, 1);
     saveGame();
 
-    // Определяем количество предметов (3-6 + бонус за редкость)
-    let itemCount = Math.floor(Math.random() * 4) + 3; // 3-6
-    // Чем выше редкость сундука, тем больше предметов
+    // 2. Определяем количество предметов (3-6 + бонус за редкость)
+    let itemCount = Math.floor(Math.random() * 4) + 3;
     itemCount += chestRarity;
 
-    // Генерируем предметы
+    // 3. Генерируем предметы
     const newItems = [];
     for (let i = 0; i < itemCount; i++) {
-        // Выбираем случайный предмет
         const itemIds = Object.keys(itemsDatabase);
         const randomId = itemIds[Math.floor(Math.random() * itemIds.length)];
-        // Определяем редкость предмета на основе редкости сундука
+        
         let itemRarity;
         const luck = getLuckBonus() / 100;
-        // Базовые шансы, модифицированные удачей и редкостью сундука
-        let baseChanceCommon = 0.5 - luck;
-        let baseChanceRare = 0.3 - luck;
-        let baseChanceEpic = 0.15 - luck;
-        let baseChanceLegendary = 0.05 - luck;
-        // Корректируем в зависимости от редкости сундука
-        baseChanceCommon -= chestRarity * 0.1;
-        baseChanceRare += chestRarity * 0.05;
-        baseChanceEpic += chestRarity * 0.03;
-        baseChanceLegendary += chestRarity * 0.02;
-        // Ограничиваем значения
-        baseChanceCommon = Math.max(0.1, Math.min(0.8, baseChanceCommon));
-        baseChanceRare = Math.max(0.1, Math.min(0.5, baseChanceRare));
-        baseChanceEpic = Math.max(0.05, Math.min(0.3, baseChanceEpic));
-        baseChanceLegendary = Math.max(0.01, Math.min(0.2, baseChanceLegendary));
-        // Нормализуем сумму
+        let baseChanceCommon = Math.max(0.1, Math.min(0.8, 0.5 - luck - (chestRarity * 0.1)));
+        let baseChanceRare = Math.max(0.1, Math.min(0.5, 0.3 - luck + (chestRarity * 0.05)));
+        let baseChanceEpic = Math.max(0.05, Math.min(0.3, 0.15 - luck + (chestRarity * 0.03)));
+        let baseChanceLegendary = Math.max(0.01, Math.min(0.2, 0.05 - luck + (chestRarity * 0.02)));
+        
         const total = baseChanceCommon + baseChanceRare + baseChanceEpic + baseChanceLegendary;
         const r = Math.random() * total;
+        
         if (r < baseChanceCommon) itemRarity = 0;
         else if (r < baseChanceCommon + baseChanceRare) itemRarity = 1;
         else if (r < baseChanceCommon + baseChanceRare + baseChanceEpic) itemRarity = 2;
         else if (r < baseChanceCommon + baseChanceRare + baseChanceEpic + baseChanceLegendary) itemRarity = 3;
         else itemRarity = 4;
+        
         newItems.push({ id: randomId, rarity: itemRarity });
     }
 
-    // Добавляем предметы в инвентарь (если есть место)
-    let addedCount = 0;
-    // Просто добавляем все выпавшие предметы
+    // 4. Просто добавляем все выпавшие предметы в умный инвентарь
     for (let item of newItems) {
         addItemToInventory(item);
     }
     saveGame();
-    // Отображаем анимацию
-    showChestAnimation(chestRarity, newItems);
-    closeInventory();
-    // Отображаем анимацию
-    showChestAnimation(chestRarity, newItems.slice(0, addedCount));
 
-    // Обновляем инвентарь
+    // 5. Закрываем инвентарь и показываем красивую анимацию
     closeInventory();
-    openInventory();
+    showChestAnimation(chestRarity, newItems);
 }
 
                 function showChestAnimation(chestRarity, items) {
@@ -2224,7 +2205,6 @@ function buyItem(index) {
             console.error("Ошибка при запуске игры:", e);
         }
 
-<script>
     // База достижений (Легко менять названия, цели и награды)
     const achievementsData = [
         { id: "a1", title: "Новичок отжиманий", desc: "Сделать 50 отжиманий", metric: "pushups", target: 50, rewardXp: 100, rewardGold: 50 },
@@ -2313,7 +2293,6 @@ function buyItem(index) {
     function closeAchievements() {
         document.getElementById('modal-achievements').style.display = 'none';
     }
-</script>
     
     </script>
 </body>

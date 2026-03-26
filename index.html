@@ -320,7 +320,9 @@ canvas {
             <div class="slot" id="slot-gloves"><div class="slot-name">Перчатки</div></div>
         </div>
 
-        <div class="character-sprite" id="hero-sprite">ГЕРОЙ</div>
+        <div class="character-sprite" id="hero-sprite" style="padding: 0; background: #111; overflow: hidden;">
+    <canvas id="avatar-canvas" width="70" height="70"></canvas>
+</div>
 
         <div class="slot-col-right">
             <div class="slot" id="slot-armor"><div class="slot-name">Нагрудник</div></div>
@@ -631,6 +633,7 @@ const chestTypes = [
 ];
     
 // Дерево Талантов (координаты x, y для отрисовки на холсте 400x400)
+    // Внести новую строчку в массив talentTree, укажи координаты (двигай по X и Y с шагом 65 для красоты) и укажи в req id родительского таланта
 const talentTree = [
     { id: 'start', name: 'Начало пути', desc: '+1 ко всем статам', x: 185, y: 185, cost: 1, req: [], effectType: 'all_stats', value: 1, icon: '🌟' },
     
@@ -1315,10 +1318,6 @@ function restoreHp() {
 }
 
 
-    
-// ============================================================================
-// 12. МЕТРИКИ 
-// ============================================================================
 
 function renderStats() {
     document.getElementById('stats-login-days').innerText = totalLoginDays;
@@ -1332,14 +1331,6 @@ function renderStats() {
     document.getElementById('stats-run-km').innerText = totalRunKm;
     document.getElementById('stats-run-mins').innerText = totalRunMins;
 }
-    
-// ============================================================================
-// 13. НАСТРОЙКИ И СБРОС
-// ============================================================================
-
-// ============================================================================
-// 14. ЗАПУСК ИГРЫ 
-// ============================================================================
     
     
              // Получить сегодняшнюю дату в формате YYYY-MM-DD
@@ -1481,7 +1472,108 @@ function updateMusicButton() {
         // ============================================================================
 
 
+// --- ОТРИСОВКА АВАТАРА ПЕРСОНАЖА ---
+function drawAvatar() {
+    const canvas = document.getElementById('avatar-canvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    
+    // Очищаем холст
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // Вспомогательная функция для получения цвета по редкости вещи
+    function getColor(slotId, defaultColor) {
+        const item = equippedItems[slotId];
+        if (item) return rarityColors[item.rarity];
+        return defaultColor;
+    }
 
+    // 1. Плащ (Рисуется на самом заднем фоне)
+    if (equippedItems['slot-cape']) {
+        ctx.fillStyle = getColor('slot-cape', '#8b0000');
+        ctx.fillRect(20, 25, 30, 40);
+    }
+
+    // 2. БАЗОВОЕ ТЕЛО (Кожа и "нижнее белье")
+    ctx.fillStyle = '#f1c27d'; // Цвет кожи
+    ctx.beginPath(); ctx.arc(35, 16, 8, 0, Math.PI * 2); ctx.fill(); // Голова
+    ctx.fillRect(33, 24, 4, 3); // Шея
+    
+    ctx.fillStyle = '#c89f65'; // Темный торс
+    ctx.fillRect(27, 27, 16, 18); // Торс
+    
+    ctx.fillStyle = '#f1c27d'; 
+    ctx.fillRect(20, 27, 5, 16); // Правая рука (слева на экране)
+    ctx.fillRect(45, 27, 5, 16); // Левая рука (справа на экране)
+    
+    ctx.fillStyle = '#c89f65'; 
+    ctx.fillRect(27, 45, 6, 18); // Правая нога
+    ctx.fillRect(37, 45, 6, 18); // Левая нога
+
+    // 3. ЭКИПИРОВКА (Слои поверх тела)
+
+    // Штаны
+    if (equippedItems['slot-legs']) {
+        ctx.fillStyle = getColor('slot-legs', '#444');
+        ctx.fillRect(26, 44, 18, 6); // Пояс штанов
+        ctx.fillRect(26, 50, 7, 12); // Левая штанина
+        ctx.fillRect(37, 50, 7, 12); // Правая штанина
+    }
+
+    // Обувь
+    if (equippedItems['slot-shoes']) {
+        ctx.fillStyle = getColor('slot-shoes', '#555');
+        ctx.fillRect(25, 62, 8, 6);
+        ctx.fillRect(37, 62, 8, 6);
+    }
+
+    // Нагрудник (Броня)
+    if (equippedItems['slot-armor']) {
+        ctx.fillStyle = getColor('slot-armor', '#aaa');
+        ctx.fillRect(25, 27, 20, 18);
+        ctx.fillStyle = 'rgba(0,0,0,0.2)'; // Тень для объема
+        ctx.fillRect(33, 27, 4, 18);
+    }
+
+    // Наплечники
+    if (equippedItems['slot-shoulders']) {
+        ctx.fillStyle = getColor('slot-shoulders', '#999');
+        ctx.fillRect(18, 25, 10, 6);
+        ctx.fillRect(42, 25, 10, 6);
+    }
+
+    // Перчатки
+    if (equippedItems['slot-gloves']) {
+        ctx.fillStyle = getColor('slot-gloves', '#555');
+        ctx.fillRect(19, 39, 7, 6);
+        ctx.fillRect(44, 39, 7, 6);
+    }
+
+    // Шлем
+    if (equippedItems['slot-head']) {
+        ctx.fillStyle = getColor('slot-head', '#aaa');
+        ctx.beginPath(); ctx.arc(35, 15, 9, Math.PI, 0); ctx.fill(); // Купол
+        ctx.fillRect(26, 15, 18, 6); // Забрало/Козырек
+    }
+
+    // Оружие в правой руке (слева на холсте)
+    if (equippedItems['slot-right-hand']) {
+        ctx.fillStyle = '#8B5A2B'; // Рукоять
+        ctx.fillRect(21, 35, 3, 12);
+        ctx.fillStyle = getColor('slot-right-hand', '#ddd'); // Лезвие
+        ctx.fillRect(21, 10, 3, 25);
+        ctx.fillStyle = '#555'; // Гарда
+        ctx.fillRect(18, 34, 9, 2);
+    }
+
+    // Щит в левой руке (справа на холсте)
+    if (equippedItems['slot-left-hand']) {
+        ctx.fillStyle = getColor('slot-left-hand', '#8B5A2B');
+        ctx.beginPath(); ctx.arc(47, 38, 8, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = 'rgba(255,255,255,0.3)';
+        ctx.beginPath(); ctx.arc(47, 38, 4, 0, Math.PI * 2); ctx.fill();
+    }
+}
 
         
 
@@ -2169,6 +2261,7 @@ function unequipItem(slotId) {
             slotHtml.innerHTML = `<span style="font-size: 5px; color: ${rarityColors[itemData.rarity]}">${baseItem.img}</span><div class="slot-name">${baseItem.type}</div>`;
             slotHtml.onclick = () => showEquippedItemDetails(slotId);
         }
+        drawAvatar();
     }
 }
 
@@ -2301,6 +2394,7 @@ function buyItem(index) {
             updateUI();      // СРАЗУ рисуем их на экране (Золото, ХП, Опыт)
             renderQuests();  // Загружаем квесты
             recalcStats();   // Считаем силу
+            renderEquipment();
             SoundManager.loadSettings();
             updateSfxButton();
             updateMusicButton();

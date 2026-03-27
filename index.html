@@ -318,6 +318,85 @@
         text-shadow: 1px 1px 2px black;
         z-index: 9999;
     }
+
+body { 
+    padding-bottom: 70px; 
+}
+
+.menu-buttons { 
+    position: fixed; 
+    bottom: 0; 
+    left: 0; 
+    width: 100%; 
+    background: var(--bg-dark); 
+    padding: 10px; 
+    margin: 0; 
+    border-top: 1px solid var(--border-gray); 
+    z-index: 100;
+    box-shadow: 0 -4px 10px rgba(0,0,0,0.8);
+}
+
+.bars-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+.bar-wrapper { display: flex; flex-direction: column; gap: 3px; }
+.bar-wrapper .bar-container { margin: 0; }
+
+.task { 
+    transition: all 0.3s ease-out;
+    overflow: hidden;
+}
+.task.completed {
+    opacity: 0;
+    transform: translateX(30px);
+    max-height: 0;
+    padding: 0;
+    border: none;
+    margin: 0;
+}
+
+.item-details-panel { 
+    position: absolute; 
+    bottom: 0; 
+    left: 0; 
+    width: 100%;
+    background: var(--bg-dark); 
+    border-top: 2px solid var(--accent-yellow);
+    border-radius: 12px 12px 0 0; 
+    padding: 20px 15px; 
+    margin-top: 0; 
+    text-align: center; 
+    z-index: 1010;
+    box-shadow: 0 -10px 20px rgba(0,0,0,0.9);
+    transition: transform 0.3s ease;
+    transform: translateY(100%); 
+    display: block !important; 
+}
+.item-details-panel.show {
+    transform: translateY(0);
+}
+
+.btn-action { 
+    padding: 12px 10px; 
+    font-size: 7px; 
+    min-width: 80px;
+}
+.close-btn { 
+    top: 15px; 
+    right: 15px; 
+    font-size: 20px; 
+    padding: 10px;
+    z-index: 10;
+}
+.inv-slot {
+    font-size: 24px; 
+}
+#chest-animation {
+    min-height: 120px; 
+}
         
     </style>
 </head>
@@ -370,14 +449,20 @@
 </div>
     </div>
 
-    <div style="font-size: 7px;">ЗДОРОВЬЕ: <span id="hp-current">100</span>/<span id="hp-max">100</span></div>
-    <div class="bar-container"><div class="hp-bar" id="hp-bar-fill"></div></div>
-
-    <div style="font-size: 7px;">ЭНЕРГИЯ: <span id="energy-current">100</span>/<span id="energy-max">100</span></div>
-    <div class="bar-container"><div class="xp-bar" id="energy-bar-fill" style="background: #00bcd4;"></div></div>
-
-    <div style="font-size: 7px;">ОПЫТ: <span id="xp-current">250</span>/<span id="xp-max">1000</span></div>
-    <div class="bar-container"><div class="xp-bar"></div></div>
+<div class="bars-grid">
+        <div class="bar-wrapper">
+            <div style="font-size: 6px;">❤️ <span id="hp-current">100</span>/<span id="hp-max">100</span></div>
+            <div class="bar-container"><div class="hp-bar" id="hp-bar-fill"></div></div>
+        </div>
+        <div class="bar-wrapper">
+            <div style="font-size: 6px;">⚡ <span id="energy-current">100</span>/<span id="energy-max">100</span></div>
+            <div class="bar-container"><div class="xp-bar" id="energy-bar-fill" style="background: #00bcd4;"></div></div>
+        </div>
+        <div class="bar-wrapper">
+            <div style="font-size: 6px;">✨ <span id="xp-current">250</span>/<span id="xp-max">1000</span></div>
+            <div class="bar-container"><div class="xp-bar"></div></div>
+        </div>
+    </div>
 
     <div class="box">
         <div class="stats-grid">
@@ -409,7 +494,7 @@
             <button class="close-btn" onclick="closeInventory()">✖</button>
             <h2 style="margin-top: 10px;">ИНВЕНТАРЬ</h2>
             <div id="inventory-grid" class="inventory-grid"></div>
-            <div id="item-details" class="item-details-panel" style="display: none;">
+            <div id="item-details" class="item-details-panel">
                 <button class="close-btn" style="top: 5px; right: 5px; font-size: 10px;" onclick="hideItemDetails()">✖</button>
                 <div id="detail-image" style="font-size: 40px; margin: 10px 0;"></div>
                 <div id="detail-name" style="font-size: 10px; margin-bottom: 5px;"></div>
@@ -1257,13 +1342,23 @@ function completeQuest(questId, xpReward, goldReward, statName) {
     if (window.Telegram && window.Telegram.WebApp) {
         window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
     }
-    SoundManager.playEffect('quest');
+SoundManager.playEffect('quest');
     const btn = document.getElementById(`btn-quest-${questId}`);
     if (btn) {
+        // Добавляем класс для красивого исчезновения
+        const taskDiv = btn.closest('.task');
+        taskDiv.classList.add('completed');
+        
         showFloatingText(btn, `+${Math.floor(xpReward * getXpMultiplier())} XP`, 'var(--accent-green)');
         showFloatingText(btn, `+${Math.floor(goldReward * getGoldMultiplier())} 💰`, 'gold');
+        
+        // Ждем 300 миллисекунд (пока идет анимация), и только потом убираем квест из списка
+        setTimeout(() => {
+            renderQuests();
+        }, 300);
+    } else {
+        renderQuests();
     }
-    renderQuests();
 }
     
         function openBattle() {
@@ -2074,11 +2169,9 @@ function learnTalent(nodeId) {
             if (luckTalent) return getTalentLevel('luck') * luckTalent.baseEffect;
             return 0;
         }
-
-        function hideItemDetails() {
-            document.getElementById('item-details').style.display = 'none';
-            document.getElementById('inventory-grid').style.display = 'grid';
-        }
+function hideItemDetails() {
+    document.getElementById('item-details').classList.remove('show');
+}
 
         function showItemDetails(index) {
             const itemData = playerInventory[index];
@@ -2103,7 +2196,7 @@ function learnTalent(nodeId) {
     } else {
         btnMerge.style.display = 'none';
     }
-    document.getElementById('item-details').style.display = 'block';
+    document.getElementById('item-details').classList.add('show');
 } 
 
 function showChestDetails(index) {
@@ -2118,7 +2211,7 @@ function showChestDetails(index) {
     btnEquip.onclick = () => openChest(index);
     const btnMerge = document.getElementById('btn-merge');
     btnMerge.style.display = 'none';
-    document.getElementById('item-details').style.display = 'block';
+    document.getElementById('item-details').classList.add('show');
 }
 
 function openChest(invIndex) {
@@ -2300,8 +2393,7 @@ function unequipItem(slotId) {
             btnEquip.onclick = () => unequipItem(slotId);
             document.getElementById('btn-merge').style.display = 'none';
             document.getElementById('modal-inventory').style.display = 'flex';
-            document.getElementById('inventory-grid').style.display = 'none';
-            document.getElementById('item-details').style.display = 'block';
+            document.getElementById('item-details').classList.add('show');
         }
 
         function unequipItem(slotId) {

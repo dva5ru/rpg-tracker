@@ -758,7 +758,7 @@ const nameVariants = {
 };
 
 const chestTypes = [
-    { name: "Деревянный", rarity: 0, dropChance: 0.5, img: "🪵", color: "#8B5A2B" },
+    { name: "Деревянный", rarity: 0, dropChance: 0.5, img: "wooden_chest.png", color: "#8B5A2B" },
     { name: "Бронзовый", rarity: 1, dropChance: 0.3, img: "🥉", color: "#CD7F32" },
     { name: "Серебряный", rarity: 2, dropChance: 0.15, img: "🥈", color: "#C0C0C0" },
     { name: "Золотой", rarity: 3, dropChance: 0.04, img: "🥇", color: "#FFD700" },
@@ -1789,14 +1789,19 @@ function openInventory() {
         slotDiv.className = 'inv-slot';
         slotDiv.style.position = 'relative'; 
         
-        // ИСПРАВЛЕНИЕ: Добавили подсчет count, чтобы код не ломался!
         const count = item.count || 1;
         const countBadge = count > 1 ? `<div style="position: absolute; bottom: 2px; right: 2px; font-size: 5px; background: rgba(0,0,0,0.8); color: white; padding: 2px; border-radius: 2px;">x${count}</div>` : '';
 
         if (item.type === 'chest') {
             const chest = chestTypes[item.chestRarity];
             slotDiv.style.borderColor = chest.color;
-            slotDiv.innerHTML = `<span style="font-size: 16px;">${chest.img}</span>${countBadge}`;
+            
+           
+            let imageHtml = chest.img.includes('.') 
+                ? `<img src="${wooden_chest.img}" style="width: 80%; height: 80%; object-fit: contain; pointer-events: none;">`
+                : `<span style="font-size: 16px;">${wooden_chest.img}</span>`;
+                
+            slotDiv.innerHTML = `${imageHtml}${countBadge}`;
             slotDiv.onclick = () => showChestDetails(i);
         } else {
             const baseItem = itemsDatabase[item.id];
@@ -1804,8 +1809,13 @@ function openInventory() {
                 if (item.rarity === 3) slotDiv.classList.add('glow-3');
                 if (item.rarity === 4) slotDiv.classList.add('glow-4');
                 slotDiv.style.borderColor = rarityColors[item.rarity];
-                // Увеличили размер иконок предметов до 16px
-                slotDiv.innerHTML = `<span style="font-size: 16px; color: ${rarityColors[item.rarity]};">${baseItem.img}</span>${countBadge}`;
+                
+                // УМНАЯ ПРОВЕРКА ДЛЯ ПРЕДМЕТА
+                let imageHtml = baseItem.img.includes('.') 
+                    ? `<img src="${baseItem.img}" style="width: 80%; height: 80%; object-fit: contain; pointer-events: none;">`
+                    : `<span style="font-size: 16px; color: ${rarityColors[item.rarity]};">${baseItem.img}</span>`;
+                    
+                slotDiv.innerHTML = `${imageHtml}${countBadge}`;
                 slotDiv.onclick = () => showItemDetails(i);
             }
         }
@@ -1821,7 +1831,6 @@ function openInventory() {
 
     modal.style.display = 'flex';
 }
-
         function upgradeTalent(talentId) {
             const talent = talentsData.find(t => t.id === talentId);
             if (!talent || !canUpgradeTalent(talent)) return;

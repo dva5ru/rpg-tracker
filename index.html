@@ -1224,23 +1224,35 @@ function calculatePower() {
     return power;
     }
 
-function getGoldMultiplier() {
-    let multiplier = 1.0;
-    if (talentsState && talentsState['gold_obsessed']) multiplier += 0.2;
-    return multiplier;
-}
-
 function getXpMultiplier() {
-    let multiplier = 1.0;
-    if (talentsState && talentsState['fast_learner']) multiplier += 0.2;
-    return multiplier;
-}
+            let mult = 1.0;
+            learnedTalents.forEach(nodeId => {
+                const node = talentTree.find(n => n.id === nodeId);
+                if (node && node.effectType === 'xp_mult') mult += node.value / 100;
+            });
+            return mult;
+        }
 
-function getLuckBonus() {
-    let luck = 0;
-    if (talentsState && talentsState['lucky_bastard']) luck += 5;
-    return luck;
-}
+        function getGoldMultiplier() {
+            let mult = 1.0;
+            learnedTalents.forEach(nodeId => {
+                const node = talentTree.find(n => n.id === nodeId);
+                if (node && node.effectType === 'gold_mult') mult += node.value / 100;
+            });
+            return mult;
+        }
+
+        function getLuckBonus() {
+            let luck = 0;
+            learnedTalents.forEach(nodeId => {
+                const node = talentTree.find(n => n.id === nodeId);
+                if (node && node.effectType === 'luck') luck += node.value;
+            });
+            return luck;
+        }
+
+
+
 
 function getToday() {
     return new Date().toISOString().split('T')[0];

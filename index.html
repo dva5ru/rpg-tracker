@@ -402,14 +402,15 @@ body {
 </head>
 <body>
 
-<div class="top-bar">
-    <div>УРОВЕНЬ: <span id="level">0</span></div>
-    <div>ЗОЛОТО: <span id="gold">0</span></div>
-    <div>СИЛА: <span id="player-power">0</span></div>
-    <div style="display: flex; gap: 8px;">
-        <span style="font-size: 14px; cursor: pointer;" onclick="openAchievements()">🏆</span>
-        <span style="font-size: 14px; cursor: pointer;" onclick="openMetrics()">📊</span>
-        <span style="font-size: 14px; cursor: pointer;" onclick="openSettings()">⚙️</span>
+<div class="top-bar" style="align-items: center; font-size: 7px;">
+    <div>LVL: <span id="level">0</span></div>
+    <div>💰 <span id="gold">0</span></div>
+    <div>⚔️ <span id="player-power">0</span></div>
+    <div id="msk-time" style="color: #00bcd4;">00:00</div>
+    <div style="display: flex; gap: 6px;">
+        <span style="font-size: 12px; cursor: pointer;" onclick="openAchievements()">🏆</span>
+        <span style="font-size: 12px; cursor: pointer;" onclick="openMetrics()">📊</span>
+        <span style="font-size: 12px; cursor: pointer;" onclick="openSettings()">⚙️</span>
     </div>
 </div>
 
@@ -1776,6 +1777,8 @@ function openInventory() {
         slotDiv.className = 'inv-slot';
         slotDiv.style.position = 'relative'; 
         
+        // ИСПРАВЛЕНИЕ: Добавили подсчет count, чтобы код не ломался!
+        const count = item.count || 1;
         const countBadge = count > 1 ? `<div style="position: absolute; bottom: 2px; right: 2px; font-size: 5px; background: rgba(0,0,0,0.8); color: white; padding: 2px; border-radius: 2px;">x${count}</div>` : '';
 
         if (item.type === 'chest') {
@@ -1789,7 +1792,8 @@ function openInventory() {
                 if (item.rarity === 3) slotDiv.classList.add('glow-3');
                 if (item.rarity === 4) slotDiv.classList.add('glow-4');
                 slotDiv.style.borderColor = rarityColors[item.rarity];
-                slotDiv.innerHTML = `<span style="font-size: 5px; color: ${rarityColors[item.rarity]};">${baseItem.img}</span>${countBadge}`;
+                // Увеличили размер иконок предметов до 16px
+                slotDiv.innerHTML = `<span style="font-size: 16px; color: ${rarityColors[item.rarity]};">${baseItem.img}</span>${countBadge}`;
                 slotDiv.onclick = () => showItemDetails(i);
             }
         }

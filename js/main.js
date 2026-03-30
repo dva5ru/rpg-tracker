@@ -8,7 +8,6 @@ const tg = window.Telegram.WebApp;
 tg.ready();
 tg.expand();   
 
-
 let playerGold, playerXp, playerLevel, maxXp = 1000;
 let playerHp, maxHp = 1000;
 let playerEnergy, maxEnergy = 100;
@@ -23,6 +22,7 @@ let claimedAchievements = []; // Список забранных наград
 let metricsHistory = [];
 let totalLoginDays = 0;
 let totalCompletedQuests = 0;
+let learnedTalents = [];
 
 // Настройки
 let soundEnabled, musicEnabled;

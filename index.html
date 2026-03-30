@@ -78,27 +78,71 @@ h2 {
     box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.8);
 }
 
-/* Экипировка */
-.equipment-grid-new { display: flex; flex-direction: column; gap: 12px; align-items: center; }
-.slot-top, .slot-bottom { display: flex; gap: 12px; justify-content: center; }
-.equipment-mid { display: flex; gap: 15px; align-items: center; justify-content: center; width: 100%;}
-.slot-col-left, .slot-col-right { display: flex; flex-direction: column; gap: 8px; }
-
-/* Слоты предметов */
-.slot, .inv-slot {
-    width: 44px; height: 44px; /* Увеличен размер для пальцев */
-    background: #2a2a35;
-    border: 2px solid #555;
-    display: flex; justify-content: center; align-items: center;
-    font-size: 20px;
-    position: relative;
-    /* Внутренняя тень создает эффект углубления */
-    box-shadow: inset 3px 3px 0px rgba(0,0,0,0.5), inset -2px -2px 0px rgba(255,255,255,0.1);
-    cursor: pointer;
+/* --- СЕТКА ЭКИПИРОВКИ (Стиль Diablo / WoW) --- */
+.equipment-grid-new { 
+    display: flex; 
+    flex-direction: column; 
+    gap: 35px; /* Увеличили отступ между рядами, чтобы текст не слипался */
+    align-items: center; 
+    margin-top: 10px;
+    padding-bottom: 10px;
 }
+
+.slot-top, .slot-bottom { 
+    display: flex; 
+    gap: 20px; /* Отступ между слотами по горизонтали */
+    justify-content: center; 
+    flex-wrap: wrap; /* Если экран узкий, слоты аккуратно перенесутся */
+    width: 100%;
+}
+
+.equipment-mid { 
+    display: flex; 
+    gap: 25px; /* Пространство между левой колонкой, героем и правой колонкой */
+    align-items: center; 
+    justify-content: center; 
+    width: 100%;
+}
+
+.slot-col-left, .slot-col-right { 
+    display: flex; 
+    flex-direction: column; 
+    gap: 28px; /* Большой вертикальный отступ, чтобы названия слотов помещались идеально */
+}
+
+/* Место под персонажа (высокий невидимый прямоугольник) */
+.character-sprite { 
+    width: 120px !important; 
+    height: 280px !important; /* Вытянули вертикально */
+    background: transparent !important; /* Убрали фон */
+    border: none !important; /* Убрали рамки */
+    box-shadow: none !important; 
+    overflow: visible !important; /* Чтобы увеличенный персонаж не обрезался */
+    display: flex; 
+    justify-content: center; 
+    align-items: center;
+}
+
+/* Увеличиваем самого пиксельного человечка */
+#avatar-canvas {
+    transform: scale(2.5); /* Делаем героя в 2.5 раза больше */
+    transform-origin: center center;
+    image-rendering: pixelated; /* Сохраняем идеальную резкость пикселей при увеличении */
+    filter: drop-shadow(4px 4px 0px rgba(0,0,0,0.8)); /* Крутая пиксельная тень за персонажем */
+}
+
+/* Названия слотов */
 .slot-name { 
-    position: absolute; bottom: -12px; font-size: 5px; color: #aaa; width: 200%; left: -50%; text-align: center; 
+    position: absolute; 
+    bottom: -16px; 
+    font-size: 6px; 
+    color: #aaa; 
+    width: 300%; /* Широкий контейнер, чтобы длинный текст влезал */
+    left: -100%; 
+    text-align: center; 
     text-shadow: 1px 1px 0px #000;
+    white-space: nowrap; /* Запрещаем тексту ломаться на две строки */
+    pointer-events: none; /* Чтобы текст не перехватывал клики по кнопкам ниже */
 }
 
 .character-sprite { 

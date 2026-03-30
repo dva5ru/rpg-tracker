@@ -1224,25 +1224,8 @@ function calculatePower() {
     return power;
     }
 
-function getXpMultiplier() {
-            let mult = 1.0;
-            const xpTalent = talentsData.find(t => t.id === 'xp_boost');
-            if (xpTalent) mult += (getTalentLevel('xp_boost') * xpTalent.baseEffect) / 100;
-            return mult;
-        }
 
-        function getGoldMultiplier() {
-            let mult = 1.0;
-            const goldTalent = talentsData.find(t => t.id === 'gold_boost');
-            if (goldTalent) mult += (getTalentLevel('gold_boost') * goldTalent.baseEffect) / 100;
-            return mult;
-        }
 
-        function getLuckBonus() {
-            const luckTalent = talentsData.find(t => t.id === 'luck');
-            if (luckTalent) return getTalentLevel('luck') * luckTalent.baseEffect;
-            return 0;
-        }
 
 
 
@@ -1824,19 +1807,7 @@ function openInventory() {
 
     modal.style.display = 'flex';
 }
-        function upgradeTalent(talentId) {
-            const talent = talentsData.find(t => t.id === talentId);
-            if (!talent || !canUpgradeTalent(talent)) return;
-            talentPoints -= talent.cost;
-            if (!talentsState[talentId]) talentsState[talentId] = 0;
-            talentsState[talentId] += 1;
-            localStorage.setItem('rpg_talent_points', talentPoints);
-            localStorage.setItem('rpg_talents_state', JSON.stringify(talentsState));
-            recalcStats();
-            document.getElementById('talent-points-display').innerText = talentPoints;
-            renderTalents();
-        }
-    
+
         function saveMetrics() {
             const today = getToday();
             const pushups = parseInt(document.getElementById('metric-pushups').value) || 0;
@@ -2168,25 +2139,7 @@ function learnTalent(nodeId) {
     SoundManager.playEffect('levelup');
 }
 
-        function getXpMultiplier() {
-            let mult = 1.0;
-            const xpTalent = talentsData.find(t => t.id === 'xp_boost');
-            if (xpTalent) mult += (getTalentLevel('xp_boost') * xpTalent.baseEffect) / 100;
-            return mult;
-        }
 
-        function getGoldMultiplier() {
-            let mult = 1.0;
-            const goldTalent = talentsData.find(t => t.id === 'gold_boost');
-            if (goldTalent) mult += (getTalentLevel('gold_boost') * goldTalent.baseEffect) / 100;
-            return mult;
-        }
-
-        function getLuckBonus() {
-            const luckTalent = talentsData.find(t => t.id === 'luck');
-            if (luckTalent) return getTalentLevel('luck') * luckTalent.baseEffect;
-            return 0;
-        }
 function hideItemDetails() {
     document.getElementById('item-details').classList.remove('show');
 }

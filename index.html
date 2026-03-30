@@ -91,10 +91,14 @@
             display: flex; justify-content: center; align-items: center;
             pointer-events: none; /* ЧТОБЫ ПРОЗРАЧНЫЙ БЛОК ГЕРОЯ НЕ ПЕРЕКРЫВАЛ КНОПКИ */
         }
-        #avatar-canvas {
-            transform: scale(2.5); transform-origin: center center;
-            image-rendering: pixelated; filter: drop-shadow(4px 4px 0px rgba(0,0,0,0.8));
-        }
+#avatar-image {
+    max-width: 100%; 
+    max-height: 100%;
+    object-fit: contain; /* Чтобы картинка не сплющивалась */
+
+    
+    filter: drop-shadow(4px 4px 0px rgba(0,0,0,0.8)); /* Оставляем крутую тень */
+}
 
         /* Индикаторы */
         .bars-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 15px; position: relative; z-index: 10;}
@@ -239,9 +243,10 @@
             <div class="slot" id="slot-ring-1"><div class="slot-name">Кольцо</div></div>
             <div class="slot" id="slot-gloves"><div class="slot-name">Перчатки</div></div>
         </div>
-        <div class="character-sprite" id="hero-sprite" style="padding: 0; background: #111; overflow: hidden;">
-    <canvas id="avatar-canvas" width="70" height="70"></canvas>
+<div class="character-sprite">
+    <img id="avatar-image" src="images/hero.png" alt="Hero">
 </div>
+        
         <div class="slot-col-right">
             <div class="slot" id="slot-armor"><div class="slot-name">Нагрудник</div></div>
             <div class="slot" id="slot-left-hand"><div class="slot-name">Левая рука</div></div>
@@ -1438,12 +1443,6 @@ function updateMusicButton() {
     }
 }
 
-function drawAvatar() {
-    const canvas = document.getElementById('avatar-canvas');
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
     
     function getColor(slotId, defaultColor) {
         const item = equippedItems[slotId];

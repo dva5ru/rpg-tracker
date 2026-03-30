@@ -20,6 +20,9 @@ let defeatedMobsCount, bossAvailable, currentEnemy = null;
 let totalPushups = 0, totalPullups = 0, totalAbs = 0, totalPlank = 0, totalStretch = 0;
 let totalSquats = 0, totalRunKm = 0, totalRunMins = 0; // Новые данные
 let claimedAchievements = []; // Список забранных наград
+let metricsHistory = [];
+let totalLoginDays = 0;
+let totalCompletedQuests = 0;
 
 // Настройки
 let soundEnabled, musicEnabled;
@@ -772,80 +775,7 @@ function updateMusicButton() {
         return defaultColor;
     }
 
-    if (equippedItems['slot-cape']) {
-        ctx.fillStyle = getColor('slot-cape', '#8b0000');
-        ctx.fillRect(20, 25, 30, 40);
-    }
-
-    ctx.fillStyle = '#f1c27d'; 
-    ctx.beginPath(); ctx.arc(35, 16, 8, 0, Math.PI * 2); ctx.fill();
-    ctx.fillRect(33, 24, 4, 3); 
-    
-    ctx.fillStyle = '#c89f65'; 
-    ctx.fillRect(27, 27, 16, 18); 
-    
-    ctx.fillStyle = '#f1c27d'; 
-    ctx.fillRect(20, 27, 5, 16); 
-    ctx.fillRect(45, 27, 5, 16); 
-    
-    ctx.fillStyle = '#c89f65'; 
-    ctx.fillRect(27, 45, 6, 18); 
-    ctx.fillRect(37, 45, 6, 18); 
-
-    if (equippedItems['slot-legs']) {
-        ctx.fillStyle = getColor('slot-legs', '#444');
-        ctx.fillRect(26, 44, 18, 6); 
-        ctx.fillRect(26, 50, 7, 12); 
-        ctx.fillRect(37, 50, 7, 12); 
-    }
-
-    if (equippedItems['slot-shoes']) {
-        ctx.fillStyle = getColor('slot-shoes', '#555');
-        ctx.fillRect(25, 62, 8, 6);
-        ctx.fillRect(37, 62, 8, 6);
-    }
-
-    if (equippedItems['slot-armor']) {
-        ctx.fillStyle = getColor('slot-armor', '#aaa');
-        ctx.fillRect(25, 27, 20, 18);
-        ctx.fillStyle = 'rgba(0,0,0,0.2)'; // Тень для объема
-        ctx.fillRect(33, 27, 4, 18);
-    }
-
-    if (equippedItems['slot-shoulders']) {
-        ctx.fillStyle = getColor('slot-shoulders', '#999');
-        ctx.fillRect(18, 25, 10, 6);
-        ctx.fillRect(42, 25, 10, 6);
-    }
-
-    if (equippedItems['slot-gloves']) {
-        ctx.fillStyle = getColor('slot-gloves', '#555');
-        ctx.fillRect(19, 39, 7, 6);
-        ctx.fillRect(44, 39, 7, 6);
-    }
-
-    if (equippedItems['slot-head']) {
-        ctx.fillStyle = getColor('slot-head', '#aaa');
-        ctx.beginPath(); ctx.arc(35, 15, 9, Math.PI, 0); ctx.fill(); // Купол
-        ctx.fillRect(26, 15, 18, 6); // Забрало/Козырек
-    }
-
-    if (equippedItems['slot-right-hand']) {
-        ctx.fillStyle = '#8B5A2B'; 
-        ctx.fillRect(21, 35, 3, 12);
-        ctx.fillStyle = getColor('slot-right-hand', '#ddd'); 
-        ctx.fillRect(21, 10, 3, 25);
-        ctx.fillStyle = '#555'; 
-        ctx.fillRect(18, 34, 9, 2);
-    }
-
-    if (equippedItems['slot-left-hand']) {
-        ctx.fillStyle = getColor('slot-left-hand', '#8B5A2B');
-        ctx.beginPath(); ctx.arc(47, 38, 8, 0, Math.PI * 2); ctx.fill();
-        ctx.fillStyle = 'rgba(255,255,255,0.3)';
-        ctx.beginPath(); ctx.arc(47, 38, 4, 0, Math.PI * 2); ctx.fill();
-    }
-}
+   
 
 function showFloatingText(element, text, color) {
     if (!element) return;
@@ -1468,7 +1398,6 @@ function unequipItem(slotId) {
             slotHtml.innerHTML = `<span style="font-size: 5px; color: ${rarityColors[itemData.rarity]}">${baseItem.img}</span><div class="slot-name">${baseItem.type}</div>`;
             slotHtml.onclick = () => showEquippedItemDetails(slotId);
         }
-        drawAvatar();
     }
 }
 

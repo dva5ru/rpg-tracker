@@ -1798,8 +1798,8 @@ function openInventory() {
             
            
             let imageHtml = chest.img.includes('.') 
-                ? `<img src="${wooden_chest.img}" style="width: 80%; height: 80%; object-fit: contain; pointer-events: none;">`
-                : `<span style="font-size: 16px;">${wooden_chest.img}</span>`;
+    ? `<img src="images/${chest.img}" style="width: 80%; height: 80%; object-fit: contain; pointer-events: none;">`
+    : `<span style="font-size: 16px;">${chest.img}</span>`;
                 
             slotDiv.innerHTML = `${imageHtml}${countBadge}`;
             slotDiv.onclick = () => showChestDetails(i);
@@ -2237,6 +2237,10 @@ function showChestDetails(index) {
     const btnMerge = document.getElementById('btn-merge');
     btnMerge.style.display = 'none';
     document.getElementById('item-details').classList.add('show');
+    let detailImgHtml = chest.img.includes('.') 
+    ? `<img src="images/${chest.img}" style="width: 60px; height: 60px; object-fit: contain;">` 
+    : `<span style="font-size: 30px;">${chest.img}</span>`;
+document.getElementById('detail-image').innerHTML = detailImgHtml;
 }
 
 function openChest(invIndex) {

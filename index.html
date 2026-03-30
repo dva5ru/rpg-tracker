@@ -268,6 +268,30 @@ input[type="number"]:focus { border-color: var(--accent-green); }
 #chest-animation { min-height: 120px; }
 .chest-item { background: #2a2a35; border: 2px solid var(--border-dark); border-radius: 0; padding: 10px; text-align: center; width: 70px; animation: pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; opacity: 0; box-shadow: 4px 4px 0px rgba(0,0,0,0.8); }
 .chest-item img { font-size: 30px; } 
+
+/* Возвращаем сетку инвентаря */
+.inventory-grid { 
+    display: grid; 
+    grid-template-columns: repeat(5, 1fr); 
+    gap: 8px; 
+    margin-top: 15px; 
+    justify-items: center; 
+}
+
+/* Расширяем слоты специально для магазина, чтобы влезала цена */
+#shop-items {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 15px;
+}
+
+#shop-items .inv-slot {
+    width: 100%;        /* Растягиваем прямоугольник на всю ширину колонки */
+    height: auto;       /* Высота подстраивается под контент */
+    min-height: 65px;   /* Делаем их повыше */
+    padding: 10px 5px;  /* Добавляем пространства внутри */
+    font-size: 24px !important; /* Увеличиваем иконку товара */
+}
+        
     </style>
 </head>
 <body>

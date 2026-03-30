@@ -1226,29 +1226,22 @@ function calculatePower() {
 
 function getXpMultiplier() {
             let mult = 1.0;
-            learnedTalents.forEach(nodeId => {
-                const node = talentTree.find(n => n.id === nodeId);
-                if (node && node.effectType === 'xp_mult') mult += node.value / 100;
-            });
+            const xpTalent = talentsData.find(t => t.id === 'xp_boost');
+            if (xpTalent) mult += (getTalentLevel('xp_boost') * xpTalent.baseEffect) / 100;
             return mult;
         }
 
         function getGoldMultiplier() {
             let mult = 1.0;
-            learnedTalents.forEach(nodeId => {
-                const node = talentTree.find(n => n.id === nodeId);
-                if (node && node.effectType === 'gold_mult') mult += node.value / 100;
-            });
+            const goldTalent = talentsData.find(t => t.id === 'gold_boost');
+            if (goldTalent) mult += (getTalentLevel('gold_boost') * goldTalent.baseEffect) / 100;
             return mult;
         }
 
         function getLuckBonus() {
-            let luck = 0;
-            learnedTalents.forEach(nodeId => {
-                const node = talentTree.find(n => n.id === nodeId);
-                if (node && node.effectType === 'luck') luck += node.value;
-            });
-            return luck;
+            const luckTalent = talentsData.find(t => t.id === 'luck');
+            if (luckTalent) return getTalentLevel('luck') * luckTalent.baseEffect;
+            return 0;
         }
 
 
@@ -2463,21 +2456,31 @@ function unequipItem(slotId) {
                 } else {
                     div.innerHTML = `📦<br><span style="font-size:6px;">${item.price}💰</span>`;
                 }
-                div.onclick = () => buyItem(index);
+                div.onclick = (e) => buyItem(index, e.currentTarget);
                 container.appendChild(div);
             });
         }
 
-function buyItem(index) {
+function buyItem(index, element) { // Обрати внимание: добавлен аргумент element
     const item = shopItems[index];
     const shopMsg = document.getElementById('shop-message');
 
     if (playerGold < item.price) {
         if (shopMsg) shopMsg.innerText = '❌ Недостаточно золота!';
+        if (element) {
+            element.classList.add('shake'); // Эффект тряски при нехватке денег
+            setTimeout(() => element.classList.remove('shake'), 300);
+        }
         return;
     }
 
     playerGold -= item.price;
+
+    if (element) {
+        showFloatingText(element, `-${item.price} 💰`, 'red'); // Всплывающий текст цены
+        element.style.transform = 'scale(0.9)'; // Эффект нажатия (уменьшение)
+        setTimeout(() => element.style.transform = 'scale(1)', 100); // Возврат размера
+    }
 
     if (item.type === 'item') {
         addItemToInventory({ id: item.id, rarity: 1 });

@@ -2,7 +2,7 @@
 
 export const questsDatabase = [
     // Ежедневные
-    { id: "d1", type: "daily", title: "Шаги (10к)", xp: 10, gold: 2, stat: "Выносливость", metricKey: null},
+    { id: "d1", type: "daily", title: "Шаги", xp: 10, gold: 2, stat: "Выносливость", metricKey: null},
     { id: "d2", type: "daily", title: "Вода", xp: 5, gold: 1, stat: "Выносливость" },
     { id: "d3", type: "daily", title: "Питание", xp: 10, gold: 2, stat: "Сила духа" },
     { id: "d4", type: "daily", title: "Дефицит", xp: 15, gold: 3, stat: "Концентрация" },
@@ -12,21 +12,21 @@ export const questsDatabase = [
     { id: "d8", type: "daily", title: "Зубы", xp: 5, gold: 1, stat: "Гибкость" },
     { id: "d9", type: "daily", title: "Умывание", xp: 5, gold: 1, stat: "Креативность" },
     { id: "d10", type: "daily", title: "Душ", xp: 10, gold: 2, stat: "Сила духа" },
-    { id: "d11", type: "daily", title: "Отжимания (50х)", xp: 15, gold: 3, stat: "Сила" },
-    { id: "d12", type: "daily", title: "Пресс (100х)", xp: 15, gold: 3, stat: "Сила" },
-    { id: "d13", type: "daily", title: "Планка (2 мин)", xp: 10, gold: 2, stat: "Сила духа" },
-    { id: "d14", type: "daily", title: "Сон (8ч)", xp: 15, gold: 3, stat: "Концентрация" },
-    { id: "d15", type: "daily", title: "Растяжка (5 мин)", xp: 10, gold: 2, stat: "Гибкость" },
+    { id: "d11", type: "daily", title: "Отжимания", xp: 15, gold: 3, stat: "Сила" },
+    { id: "d12", type: "daily", title: "Пресс", xp: 15, gold: 3, stat: "Сила" },
+    { id: "d13", type: "daily", title: "Планка", xp: 10, gold: 2, stat: "Сила духа" },
+    { id: "d14", type: "daily", title: "Сон", xp: 15, gold: 3, stat: "Концентрация" },
+    { id: "d15", type: "daily", title: "Растяжка", xp: 10, gold: 2, stat: "Гибкость" },
     { id: "d16", type: "daily", title: "Медитация", xp: 10, gold: 2, stat: "Сила духа" },      
     // Еженедельные
     { id: "w1", type: "weekly", title: "Взвешивание", xp: 20, gold: 5, stat: "Концентрация" },
     { id: "w2", type: "weekly", title: "Волейбол", xp: 50, gold: 15, stat: "Ловкость" },
     { id: "w3", type: "weekly", title: "Силовая тренировка", xp: 60, gold: 20, stat: "Сила" },
     { id: "w4", type: "weekly", title: "Бассейн", xp: 40, gold: 10, stat: "Выносливость" },
-    { id: "w5", type: "weekly", title: "Скакалка (15 мин)", xp: 30, gold: 10, stat: "Ловкость" },
-    { id: "w6", type: "weekly", title: "Бег (1 км)", xp: 40, gold: 15, stat: "Выносливость" },         
+    { id: "w5", type: "weekly", title: "Скакалка", xp: 30, gold: 10, stat: "Ловкость" },
+    { id: "w6", type: "weekly", title: "Бег", xp: 40, gold: 15, stat: "Выносливость" },         
     // Ежемесячные
-    { id: "m1", type: "monthly", title: "Бег (5 км)", xp: 100, gold: 30, stat: "Выносливость" },
+    { id: "m1", type: "monthly", title: "Бег", xp: 100, gold: 30, stat: "Выносливость" },
     { id: "m2", type: "monthly", title: "Замеры", xp: 50, gold: 15, stat: "Концентрация" },
     { id: "m3", type: "monthly", title: "Прыжок", xp: 80, gold: 25, stat: "Ловкость" },
 ];
@@ -156,7 +156,7 @@ export const itemsDatabase = {
     "shoes_2": { name: "Башмаки скорости", type: "Обувь", slotId: "slot-shoes", stat: "Ловкость", baseBonus: 2, img: "shoes_2.png" },
     "shoes_3": { name: "Тяжелые ботинки", type: "Обувь", slotId: "slot-shoes", stat: "Сила", baseBonus: 3, img: "shoes_3.png" },
     "shoes_4": { name: "Сапоги-скороходы", type: "Обувь", slotId: "slot-shoes", stat: "Концентрация", baseBonus: 4, img: "shoes_4.png" },
-    "shoes_5": { name: "Сапоги архимага", type: "Обувь", slotId: "slot-shoes", stat: "Интеллект", baseBonus: 5, img: "shoes_5.png" }
+    "shoes_5": { name: "Сапоги архимага", type: "Обувь", slotId: "slot-shoes", stat: "Интеллект", baseBonus: 5, img: "shoes_5.png" },
     "shoes_6": { name: "Дилдо", type: "Обувь", slotId: "slot-shoes", stat: "Интеллект", baseBonus: 5, img: "🍆" }
 };
 
@@ -217,7 +217,7 @@ export const shopItems = [
     { id: "rhand_1", type: "item", name: "Деревянная дубина", price: 50 },
     { id: "lhand_2", type: "item", name: "Деревянный щит", price: 50 },
     { id: "shoes_1", type: "item", name: "Старые лапти", price: 30 },
-    { type: "chest", price: 200 }
+    { type: "chest", price: 200 },
     { id: "shoes_6", type: "item", name: "Дилдо", price: 30 }
     
 ];

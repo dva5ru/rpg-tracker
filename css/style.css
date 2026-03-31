@@ -21,12 +21,11 @@
             background-size: 10px 10px;
             color: var(--text-main);
             margin: 0;
-            padding: 10px 10px 80px 10px; /* Отступ для нижнего меню */
+            padding: 10px 10px 80px 10px; 
             font-size: 8px;
             line-height: 1.4;
         }
 
-        /* Основные панели */
         .box {
             background: var(--panel-gray);
             border: 3px solid var(--border-dark);
@@ -45,7 +44,7 @@
             border: 3px solid var(--border-dark);
             box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.8);
             position: relative;
-            z-index: 50; /* Чтобы клики по верхней панели всегда работали */
+            z-index: 50; 
         }
 
         h2 {
@@ -54,7 +53,6 @@
             padding-bottom: 10px; text-shadow: 2px 2px 0px #000;
         }
 
-        /* --- СЕТКА ЭКИПИРОВКИ --- */
         .equipment-grid-new { display: flex; flex-direction: column; gap: 30px; align-items: center; margin-top: 10px; padding-bottom: 10px; }
         .slot-top, .slot-bottom { display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; width: 100%; }
         .equipment-mid { display: flex; gap: 20px; align-items: center; justify-content: center; width: 100%; }
@@ -77,18 +75,17 @@
             width: 120px !important; height: 280px !important;
             background: transparent !important; border: none !important; box-shadow: none !important;
             display: flex; justify-content: center; align-items: center;
-            pointer-events: none; /* ЧТОБЫ ПРОЗРАЧНЫЙ БЛОК ГЕРОЯ НЕ ПЕРЕКРЫВАЛ КНОПКИ */
+            pointer-events: none; 
         }
 #avatar-image {
     max-width: 100%; 
     max-height: 100%;
-    object-fit: contain; /* Чтобы картинка не сплющивалась */
+    object-fit: contain; 
 
     
-    filter: drop-shadow(4px 4px 0px rgba(0,0,0,0.8)); /* Оставляем крутую тень */
+    filter: drop-shadow(4px 4px 0px rgba(0,0,0,0.8)); 
 }
 
-        /* Индикаторы */
         .bars-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 15px; position: relative; z-index: 10;}
         .bar-wrapper { display: flex; flex-direction: column; gap: 4px; text-shadow: 1px 1px 0px #000; }
         .bar-container { background: #000; border: 2px solid #444; height: 14px; margin: 0; box-shadow: inset 0px 3px 0px rgba(0,0,0,0.5), 2px 2px 0px rgba(0,0,0,0.5); }
@@ -98,12 +95,10 @@
         .xp-bar { background: var(--accent-green); }
         #energy-bar-fill { background: var(--energy-blue); }
 
-        /* Статы */
         .stats-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
         .stat-item { background: #2a2a35; border: 2px solid #000; padding: 8px; font-size: 7px; display: flex; flex-direction: column; align-items: center; gap: 5px; box-shadow: inset 2px 2px 0px rgba(255,255,255,0.05); }
         .stat-value { color: var(--accent-yellow); text-shadow: 1px 1px 0px #000; font-size: 10px; }
 
-        /* Кнопки */
         .btn-menu, .btn-action, .danger-btn, .metrics-save-btn, .tab-btn, .toggle-btn {
             background: var(--panel-gray); color: var(--text-main); border: 2px solid #000;
             padding: 14px 10px; text-align: center; font-size: 8px; font-family: 'Press Start 2P', cursive;
@@ -123,20 +118,18 @@
             z-index: 9000 !important; display: flex; gap: 8px;
         }
 
-        /* Квесты */
         .task { border-bottom: 2px dotted #444; padding: 12px 0; display: flex; justify-content: space-between; align-items: center; transition: all 0.3s ease-out; overflow: hidden; }
         .task:last-child { border-bottom: none; }
         .task-title { font-size: 8px; margin-bottom: 6px; line-height: 1.4; text-shadow: 1px 1px 0px #000;}
         .task-reward { color: var(--accent-green); font-size: 6px; text-shadow: 1px 1px 0px #000; }
         .task.completed { opacity: 0; transform: translateX(30px) scale(0.9); max-height: 0; padding: 0; border: none; margin: 0; }
 
-        /* Модалки */
         .modal-overlay {
-            display: none; /* скрыто по умолчанию */
+            display: none; 
             position: fixed !important; top: 0 !important; left: 0 !important;
             width: 100vw !important; height: 100vh !important;
             background: rgba(0, 0, 0, 0.85); justify-content: center; align-items: center;
-            z-index: 9999 !important; /* всегда поверх всего */
+            z-index: 9999 !important; 
             animation: fadeIn 0.2s ease-out forwards;
         }
         .modal-content {
@@ -152,19 +145,16 @@
         }
         .close-btn:active { transform: translate(2px, 2px); box-shadow: none; }
 
-        /* Инвентарь и Магазин */
         .inventory-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-top: 15px; justify-items: center; }
         #shop-items { grid-template-columns: repeat(2, 1fr) !important; gap: 15px; }
         #shop-items .inv-slot { width: 100%; height: auto; min-height: 65px; padding: 10px 5px; font-size: 24px !important; }
 
-        /* Панель предмета внутри модалки */
         .item-details-panel {
             background: var(--bg-dark); border: 2px solid var(--accent-yellow); padding: 15px;
-            margin-top: 15px; text-align: center; display: none; /* скрыта по умолчанию */
+            margin-top: 15px; text-align: center; display: none; 
         }
         .item-details-panel.show { display: block; animation: fadeIn 0.2s ease; }
 
-        /* Вспомогательное */
         input[type="number"] { background: #000; border: 2px solid #555; color: var(--accent-yellow); padding: 10px; font-family: 'Press Start 2P', cursive; font-size: 8px; width: 100%; box-shadow: inset 2px 2px 0px rgba(0,0,0,0.8); outline: none; }
         input[type="number"]:focus { border-color: var(--accent-green); }
         .metrics-tabs { display: flex; gap: 4px; margin-bottom: 15px; }

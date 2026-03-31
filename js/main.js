@@ -7,6 +7,8 @@ import {
 import { state, loadGame, saveGame, getToday } from './state.js';
 import SoundManager from './audio.js';
 
+localStorage.clear();
+
 const tg = window?.Telegram?.WebApp;
 if (tg) {
     tg.ready();

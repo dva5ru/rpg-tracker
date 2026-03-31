@@ -34,7 +34,6 @@ export const questsDatabase = [
 export const itemsDatabase = {
   "sword": { name: "Меч", type: "Правая рука", slotId: "slot-right-hand", stat: "Сила", baseBonus: 1, img: "⚔️" },
   "shoes": { name: "Ботинки", type: "Обувь", slotId: "slot-shoes", stat: "Выносливость", baseBonus: 2, img: "👟" }
-    "dildo": { name: "Дилдо", type: "Штаны", slotId: "slot-legs", stat: "Выносливость", baseBonus: 2, img: "🍆" }
 };
 
 export const slots = [
@@ -76,30 +75,6 @@ export const chestTypes = [
     { name: "Золотой", rarity: 3, dropChance: 0.04, img: "🥇", color: "#FFD700" },
     { name: "Алмазный", rarity: 4, dropChance: 0.01, img: "💎", color: "#B9F2FF" }
 ];
-    
-// Генерация предметов
-let itemId = 1000; 
-slots.forEach(slot => {
-  const typeName = slot.type;
-  const variants = nameVariants[typeName];
-  if (!variants) return;
-
-  for (let i = 0; i < 5; i++) {
-    const statIndex = i % stats.length; 
-    const statObj = stats[statIndex];
-    const baseBonus = Math.floor(Math.random() * 5) + 1; 
-    const key = `${slot.id.replace('slot-', '')}_${i+1}`;
-    itemsDatabase[key] = {
-      name: variants[i],
-      type: typeName,
-      slotId: slot.id,
-      stat: statObj.name,
-      baseBonus: baseBonus,
-      img: statObj.img
-    };
-    itemId++;
-  }
-});
 
 export const rarities = ["Сломанный", "Обычный", "Редкий", "Эпический", "Легендарный"]; 
 export const rarityColors = ["#777777", "#ffffff", "#0070dd", "#a335ee", "#ff8000"]; 

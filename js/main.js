@@ -95,7 +95,7 @@ function completeQuest(questId, xpReward, goldReward, statName) {
         state.level++;
         state.xp -= state.maxXp;
         state.talentPoints++;
-        if (tg) tg.showPopup({ title: 'Уровень повышен!', message: `Теперь ты ${state.level} уровня.`, buttons: [{ type: 'ok' }] });
+        showToast('Уровень повышен!', `Теперь ты ${state.level} уровня.`, 'info');
         SoundManager.playEffect('levelup');
     }
     state.completedQuests.push(questId);
@@ -141,7 +141,7 @@ function completeQuest(questId, xpReward, goldReward, statName) {
         if (isNaN(bedTime) || isNaN(wakeTime)) return;
         let hours = wakeTime < bedTime ? (24 - bedTime) + wakeTime : wakeTime - bedTime;
         state.energy = Math.min(state.maxEnergy, state.energy + (hours * 10));
-        alert(`Отличный сон! Ты проспал ${hours} ч. Энергия восстановлена!`);
+        showToast('Отличный сон!', `Ты проспал ${hours} ч. Энергия восстановлена!`, 'info');
     }
     else if (title.toLowerCase().includes('растяжка')) state.totalStretch++;
 
@@ -161,6 +161,67 @@ function completeQuest(questId, xpReward, goldReward, statName) {
         setTimeout(() => { renderQuests(); }, 300);
     } else {
         renderQuests();
+    }
+}
+
+function mergeItem(invIndex) {
+    const itemData = state.inventory[invIndex];
+    if ((itemData.count || 1) >= 3) {
+        removeItemFromInventory(invIndex, 3); 
+        addItemToInventory({ id: itemData.id, rarity: itemData.rarity + 1 }); 
+        saveGame();
+        hideItemDetails();
+        openInventory(); 
+        showToast('Успех', '⚔️ УСПЕШНОЕ СЛИЯНИЕ! Предмет улучшен.', 'info');
+    }
+}
+
+function unequipItem(slotId) {
+    if (state.inventory.length >= 20) {
+        showToast('Внимание', 'Рюкзак полон! Продай или слей вещи.', 'warning');
+        return;
+    }
+    state.inventory.push(state.equippedItems[slotId]);
+    delete state.equippedItems[slotId];
+    saveGame();
+    recalcStats();
+    hideItemDetails();
+    openInventory();
+    renderEquipment();
+}
+
+function saveMetrics() {
+    const today = getToday();
+    const pushups = parseInt(document.getElementById('metric-pushups').value) || 0;
+    const pullups = parseInt(document.getElementById('metric-pullups').value) || 0;
+    const barbell = parseInt(document.getElementById('metric-barbell').value) || 0;
+    const bodyweight = parseInt(document.getElementById('metric-bodyweight').value) || 0;
+    const run1k = parseInt(document.getElementById('metric-run1k').value) || 0;
+    const run5k = parseInt(document.getElementById('metric-run5k').value) || 0;
+    const run21k = parseInt(document.getElementById('metric-run21k').value) || 0;
+
+    const existingIndex = state.metricsHistory.findIndex(entry => entry.date === today);
+    const newEntry = { date: today, pushups, pullups, barbell, bodyweight, run1k, run5k, run21k };
+
+    if (existingIndex !== -1) {
+        state.metricsHistory[existingIndex] = newEntry;
+    } else {
+        state.metricsHistory.push(newEntry);
+        state.metricsHistory.sort((a,b) => new Date(a.date) - new Date(b.date));
+    }
+    saveGame();
+    
+    showToast('Сохранено', 'Показатели сохранены!', 'info');
+    
+    document.getElementById('metric-pushups').value = '';
+    document.getElementById('metric-pullups').value = '';
+    document.getElementById('metric-barbell').value = '';
+    document.getElementById('metric-bodyweight').value = '';
+    document.getElementById('metric-run1k').value = '';
+    document.getElementById('metric-run5k').value = '';
+    document.getElementById('metric-run21k').value = '';
+    if (document.getElementById('metrics-graphs-tab').style.display !== 'none') {
+        renderGraphs();
     }
 }
     
@@ -496,38 +557,7 @@ function openInventory() {
     modal.style.display = 'flex';
 }
 
-function saveMetrics() {
-    const today = getToday();
-    const pushups = parseInt(document.getElementById('metric-pushups').value) || 0;
-    const pullups = parseInt(document.getElementById('metric-pullups').value) || 0;
-    const barbell = parseInt(document.getElementById('metric-barbell').value) || 0;
-    const bodyweight = parseInt(document.getElementById('metric-bodyweight').value) || 0;
-    const run1k = parseInt(document.getElementById('metric-run1k').value) || 0;
-    const run5k = parseInt(document.getElementById('metric-run5k').value) || 0;
-    const run21k = parseInt(document.getElementById('metric-run21k').value) || 0;
 
-    const existingIndex = state.metricsHistory.findIndex(entry => entry.date === today);
-    const newEntry = { date: today, pushups, pullups, barbell, bodyweight, run1k, run5k, run21k };
-
-    if (existingIndex !== -1) {
-        state.metricsHistory[existingIndex] = newEntry;
-    } else {
-        state.metricsHistory.push(newEntry);
-        state.metricsHistory.sort((a,b) => new Date(a.date) - new Date(b.date));
-    }
-    saveGame();
-    if(tg) tg.showPopup({ title: 'Сохранено', message: 'Показатели сохранены!', buttons: [{ type: 'ok' }] });
-    document.getElementById('metric-pushups').value = '';
-    document.getElementById('metric-pullups').value = '';
-    document.getElementById('metric-barbell').value = '';
-    document.getElementById('metric-bodyweight').value = '';
-    document.getElementById('metric-run1k').value = '';
-    document.getElementById('metric-run5k').value = '';
-    document.getElementById('metric-run21k').value = '';
-    if (document.getElementById('metrics-graphs-tab').style.display !== 'none') {
-        renderGraphs();
-    }
-}
 
 let metricsChart = null;
 function renderGraphs() {
@@ -947,17 +977,6 @@ function equipItem(invIndex) {
     renderEquipment();
 }
 
-function mergeItem(invIndex) {
-    const itemData = state.inventory[invIndex];
-    if ((itemData.count || 1) >= 3) {
-        removeItemFromInventory(invIndex, 3); 
-        addItemToInventory({ id: itemData.id, rarity: itemData.rarity + 1 }); 
-        saveGame();
-        hideItemDetails();
-        openInventory(); 
-        if(tg) tg.showPopup({ title: 'Успех', message: '⚔️ УСПЕШНОЕ СЛИЯНИЕ! Предмет улучшен.', buttons: [{ type: 'ok' }] });
-    }
-}
 
 function renderEquipment() {
     const slotMap = {
@@ -1012,19 +1031,7 @@ function showEquippedItemDetails(slotId) {
     document.getElementById('item-details').classList.add('show');
 }
 
-function unequipItem(slotId) {
-    if (state.inventory.length >= 20) {
-        alert("Рюкзак полон! Продай вещи.");
-        return;
-    }
-    state.inventory.push(state.equippedItems[slotId]);
-    delete state.equippedItems[slotId];
-    saveGame();
-    recalcStats();
-    hideItemDetails();
-    openInventory();
-    renderEquipment();
-}
+
 
 function openShop() { document.getElementById('modal-shop').style.display = 'flex'; renderShop(); }
 function closeShop() { document.getElementById('modal-shop').style.display = 'none'; }
@@ -1196,6 +1203,19 @@ try {
     console.error("Ошибка при запуске игры:", e);
 }
 
+document.body.insertAdjacentHTML('afterbegin', '<div id="toast-container"></div>');
+
+function showToast(title, message, type = 'info') {
+    const container = document.getElementById('toast-container');
+    if (!container) return;
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.innerHTML = `<div class="toast-title">${title}</div><div class="toast-message">${message}</div>`;
+    container.appendChild(toast);
+    setTimeout(() => { if (toast.parentNode) toast.remove(); }, 3000);
+}
+
+window.showToast = showToast;
 window.openInventory = openInventory;
 window.closeInventory = closeInventory;
 window.openShop = openShop;

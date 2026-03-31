@@ -103,13 +103,6 @@ function loadGame() {
     claimedAchievements = JSON.parse(localStorage.getItem('rpg_achievements')) || [];
 }
 
-// ==========================================
-// 3. ИНТРФЕЙС
-// ==========================================
-
-// ==========================================
-// 4. ЛОГИКА ИГРЫ 
-// ==========================================
 
 const SoundManager = (function() {
     let audioCtx = null;
@@ -650,9 +643,6 @@ function renderStats() {
     document.getElementById('stats-run-mins').innerText = totalRunMins;
 }
 
-            function getToday() {
-            return new Date().toISOString().split('T')[0];
-          }
 
             function renderForecast(name, values) {
                 const month = extrapolate(values, 30);

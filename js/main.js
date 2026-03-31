@@ -4,43 +4,27 @@ import {
     shopItems, talentTree, mobs, bosses
 } from './data.js';
 
+import { state, loadGame, saveGame, getToday } from './state.js';
+
 const tg = window?.Telegram?.WebApp;
 if (tg) {
     tg.ready();
     tg.expand();
 }
 
-let playerGold, playerXp, playerLevel, maxXp = 1000;
-let playerHp, maxHp = 1000;
-let playerEnergy, maxEnergy = 100;
-let talentPoints, playerStats, playerInventory, equippedItems;
-let completedQuests, talentsState;
-let defeatedMobsCount, bossAvailable, currentEnemy = null;
-
-// Статистика тренировок
-let totalPushups = 0, totalPullups = 0, totalAbs = 0, totalPlank = 0, totalStretch = 0;
-let totalSquats = 0, totalRunKm = 0, totalRunMins = 0; // Новые данные
-let claimedAchievements = []; // Список забранных наград
-let metricsHistory = [];
-let totalLoginDays = 0;
-let totalCompletedQuests = 0;
-let learnedTalents = [];
-
-// Настройки
-let soundEnabled, musicEnabled;
     
 function saveGame() {
-    localStorage.setItem('rpg_gold', playerGold);
-    localStorage.setItem('rpg_xp', playerXp);
-    localStorage.setItem('rpg_level', playerLevel);
-    localStorage.setItem('rpg_hp', playerHp);
-    localStorage.setItem('rpg_energy', playerEnergy);
+    localStorage.setItem('rpg_gold', state.gold);
+    localStorage.setItem('rpg_xp', state.xp);
+    localStorage.setItem('rpg_level', state.level);
+    localStorage.setItem('rpg_hp', state.hp);
+    localStorage.setItem('rpg_energy', state.energy);
     localStorage.setItem('rpg_talent_points', talentPoints);
-    localStorage.setItem('rpg_stats', JSON.stringify(playerStats));
-    localStorage.setItem('rpg_inv_v2', JSON.stringify(playerInventory));
-    localStorage.setItem('rpg_equipped_v2', JSON.stringify(equippedItems));
-    localStorage.setItem('rpg_completed', JSON.stringify(completedQuests));
-    localStorage.setItem('rpg_learned_talents', JSON.stringify(learnedTalents));
+    localStorage.setItem('rpg_stats', JSON.stringify(state.stats));
+    localStorage.setItem('rpg_inv_v2', JSON.stringify(state.inventory));
+    localStorage.setItem('rpg_equipped_v2', JSON.stringify(state.equippedItems));
+    localStorage.setItem('rpg_completed', JSON.stringify(state.completedQuests));
+    localStorage.setItem('rpg_learned_talents', JSON.stringify(state.learnedTalents));
     
     // Сохранение мира
     localStorage.setItem('rpg_defeated_mobs', defeatedMobsCount);
@@ -49,12 +33,12 @@ function saveGame() {
     // Сохранение метрик
     localStorage.setItem('metrics_history', JSON.stringify(metricsHistory));
     localStorage.setItem('stats_login_days', totalLoginDays);
-    localStorage.setItem('stats_total_quests', totalCompletedQuests);
-    localStorage.setItem('stats_pushups', totalPushups);
-    localStorage.setItem('stats_pullups', totalPullups);
-    localStorage.setItem('stats_abs', totalAbs);
-    localStorage.setItem('stats_plank', totalPlank);
-    localStorage.setItem('stats_stretch', totalStretch);
+    localStorage.setItem('stats_total_quests', totalstate.completedQuests);
+    localStorage.setItem('stats_pushups', state.totalPushups);
+    localStorage.setItem('stats_pullups', state.totalPullups);
+    localStorage.setItem('stats_abs', state.totalAbs);
+    localStorage.setItem('stats_plank', state.totalPlank);
+    localStorage.setItem('stats_stretch', state.totalStretch);
 
     // Сохранение настроек
     localStorage.setItem('rpg_sound_enabled', soundEnabled);
@@ -63,38 +47,38 @@ function saveGame() {
 }
 
 function loadGame() {
-    playerGold = parseInt(localStorage.getItem('rpg_gold')) || 10000;
-    playerXp = parseInt(localStorage.getItem('rpg_xp')) || 250;
-    playerLevel = parseInt(localStorage.getItem('rpg_level')) || 0;
-    playerHp = parseInt(localStorage.getItem('rpg_hp')) || 1000;
-    playerEnergy = parseInt(localStorage.getItem('rpg_energy')) || 100;
+    state.gold = parseInt(localStorage.getItem('rpg_gold')) || 10000;
+    state.xp = parseInt(localStorage.getItem('rpg_xp')) || 250;
+    state.level = parseInt(localStorage.getItem('rpg_level')) || 0;
+    state.hp = parseInt(localStorage.getItem('rpg_hp')) || 1000;
+    state.energy = parseInt(localStorage.getItem('rpg_energy')) || 100;
     talentPoints = parseInt(localStorage.getItem('rpg_talent_points')) || 0;
     
-    playerStats = JSON.parse(localStorage.getItem('rpg_stats')) || {
+    state.stats = JSON.parse(localStorage.getItem('rpg_stats')) || {
         "Сила": 10, "Ловкость": 10, "Выносливость": 10, "Интеллект": 10,
         "Сила духа": 10, "Гибкость": 10, "Концентрация": 10, "Креативность": 10
     };
     
-    playerInventory = JSON.parse(localStorage.getItem('rpg_inv_v2')) || [
+    state.inventory = JSON.parse(localStorage.getItem('rpg_inv_v2')) || [
         { id: "sword", rarity: 1 }, { id: "sword", rarity: 1 }, 
         { id: "sword", rarity: 1 }, { id: "shoes", rarity: 0 }
     ];
     
-    equippedItems = JSON.parse(localStorage.getItem('rpg_equipped_v2')) || {};
-    completedQuests = JSON.parse(localStorage.getItem('rpg_completed')) || [];
-    learnedTalents = JSON.parse(localStorage.getItem('rpg_learned_talents')) || [];
+    state.equippedItems = JSON.parse(localStorage.getItem('rpg_equipped_v2')) || {};
+    state.completedQuests = JSON.parse(localStorage.getItem('rpg_completed')) || [];
+    state.learnedTalents = JSON.parse(localStorage.getItem('rpg_learned_talents')) || [];
     
     defeatedMobsCount = parseInt(localStorage.getItem('rpg_defeated_mobs')) || 0;
     bossAvailable = localStorage.getItem('rpg_boss_available') === 'true';
     
     metricsHistory = JSON.parse(localStorage.getItem('metrics_history')) || [];
     totalLoginDays = parseInt(localStorage.getItem('stats_login_days')) || 0;
-    totalCompletedQuests = parseInt(localStorage.getItem('stats_total_quests')) || 0;
-    totalPushups = parseInt(localStorage.getItem('stats_pushups')) || 0;
-    totalPullups = parseInt(localStorage.getItem('stats_pullups')) || 0;
-    totalAbs = parseInt(localStorage.getItem('stats_abs')) || 0;
-    totalPlank = parseInt(localStorage.getItem('stats_plank')) || 0;
-    totalStretch = parseInt(localStorage.getItem('stats_stretch')) || 0;
+    totalstate.completedQuests = parseInt(localStorage.getItem('stats_total_quests')) || 0;
+    state.totalPushups = parseInt(localStorage.getItem('stats_pushups')) || 0;
+    state.totalPullups = parseInt(localStorage.getItem('stats_pullups')) || 0;
+    state.totalAbs = parseInt(localStorage.getItem('stats_abs')) || 0;
+    state.totalPlank = parseInt(localStorage.getItem('stats_plank')) || 0;
+    state.totalStretch = parseInt(localStorage.getItem('stats_stretch')) || 0;
 
     soundEnabled = localStorage.getItem('rpg_sound_enabled') !== 'false';
     musicEnabled = localStorage.getItem('rpg_music_enabled') !== 'false';
@@ -177,7 +161,7 @@ function loadGame() {
 })();
 
 function addItemToInventory(newItem, amount = 1) {
-    let found = playerInventory.find(item => 
+    let found = state.inventory.find(item => 
         (newItem.type === 'chest' && item.type === 'chest' && item.chestRarity === newItem.chestRarity) ||
         (newItem.type !== 'chest' && item.type !== 'chest' && item.id === newItem.id && item.rarity === newItem.rarity)
     );
@@ -186,24 +170,24 @@ function addItemToInventory(newItem, amount = 1) {
         found.count = (found.count || 1) + amount; 
     } else {
         newItem.count = amount; 
-        playerInventory.push(newItem);
+        state.inventory.push(newItem);
     }
 }
 
 function removeItemFromInventory(index, amount = 1) {
-    if ((playerInventory[index].count || 1) > amount) {
-        playerInventory[index].count -= amount; 
+    if ((state.inventory[index].count || 1) > amount) {
+        state.inventory[index].count -= amount; 
     } else {
-        playerInventory.splice(index, 1); 
+        state.inventory.splice(index, 1); 
     }
 }
 
 function updateUI() {
     const goldEl = document.getElementById('gold');
-    if (goldEl) goldEl.innerText = playerGold;
+    if (goldEl) goldEl.innerText = state.gold;
     
     const levelEl = document.getElementById('level');
-    if (levelEl) levelEl.innerText = playerLevel;
+    if (levelEl) levelEl.innerText = state.level;
     
     updatePowerDisplay();
     updateXPdisplay();
@@ -213,8 +197,8 @@ function updateUI() {
     
 function calculatePower() {
     let power = 0;
-        for (let stat in playerStats) {
-        power += playerStats[stat];
+        for (let stat in state.stats) {
+        power += state.stats[stat];
         }
     return power;
     }
@@ -238,7 +222,7 @@ function closeInventory() {
                 const container = document.getElementById('quests-container');
                 container.innerHTML = '';
                 questsDatabase.forEach(quest => {
-                    if (completedQuests.includes(quest.id)) return;
+                    if (state.completedQuests.includes(quest.id)) return;
                     const taskDiv = document.createElement('div');
                     taskDiv.className = 'task';
                     taskDiv.innerHTML = `
@@ -253,34 +237,34 @@ function closeInventory() {
             }
 
 function completeQuest(questId, xpReward, goldReward, statName) {
-    playerGold += Math.floor(goldReward * getGoldMultiplier());
-    playerXp += Math.floor(xpReward * getXpMultiplier());
-    if (playerStats[statName] !== undefined) {
-        playerStats[statName] += 1;
+    state.gold += Math.floor(goldReward * getGoldMultiplier());
+    state.xp += Math.floor(xpReward * getXpMultiplier());
+    if (state.stats[statName] !== undefined) {
+        state.stats[statName] += 1;
         const statEl = document.getElementById('stat-' + statName);
-        if (statEl) statEl.innerText = playerStats[statName];
+        if (statEl) statEl.innerText = state.stats[statName];
     }
-    while (playerXp >= maxXp) {
-        playerLevel++;
-        playerXp -= maxXp;
+    while (state.xp >= state.state.state.maxXp) {
+        state.level++;
+        state.xp -= state.state.state.maxXp;
         talentPoints++;
-        tg.showPopup({ title: 'Уровень повышен!', message: `Теперь ты ${playerLevel} уровня.`, buttons: [{ type: 'ok' }] });
+        tg.showPopup({ title: 'Уровень повышен!', message: `Теперь ты ${state.level} уровня.`, buttons: [{ type: 'ok' }] });
         SoundManager.playEffect('levelup');
     }
-    completedQuests.push(questId);
-    totalCompletedQuests++;
+    state.completedQuests.push(questId);
+    totalstate.completedQuests++;
 
     const title = questsDatabase.find(q => q.id === questId)?.title || '';
     
     if (title.toLowerCase().includes('отжимания')) {
         let count = parseInt(prompt("Сколько раз отжался?", "10"));
         if (isNaN(count) || count <= 0) return;
-        totalPushups += count;
+        state.totalPushups += count;
     }
     else if (title.toLowerCase().includes('подтягивания')) {
         let count = parseInt(prompt("Сколько раз подтянулся?", "5"));
         if (isNaN(count) || count <= 0) return;
-        totalPullups += count;
+        state.totalPullups += count;
     }
     else if (title.toLowerCase().includes('приседания')) {
         let count = parseInt(prompt("Сколько раз присел?", "20"));
@@ -290,12 +274,12 @@ function completeQuest(questId, xpReward, goldReward, statName) {
     else if (title.toLowerCase().includes('пресс')) {
         let count = parseInt(prompt("Сколько раз сделал пресс?", "20"));
         if (isNaN(count) || count <= 0) return;
-        totalAbs += count;
+        state.totalAbs += count;
     }
     else if (title.toLowerCase().includes('планка')) {
         let mins = parseFloat(prompt("Сколько минут простоял в планке?", "1"));
         if (isNaN(mins) || mins <= 0) return;
-        totalPlank += mins;
+        state.totalPlank += mins;
     }
     else if (title.toLowerCase().includes('бег')) {
         let km = parseFloat(prompt("Сколько километров пробежал?", "1"));
@@ -309,10 +293,10 @@ function completeQuest(questId, xpReward, goldReward, statName) {
         let wakeTime = parseInt(prompt("Во сколько проснулся? (введи часы, например 7)", "7"));
         if (isNaN(bedTime) || isNaN(wakeTime)) return;
         let hours = wakeTime < bedTime ? (24 - bedTime) + wakeTime : wakeTime - bedTime;
-        playerEnergy = Math.min(maxEnergy, playerEnergy + (hours * 10));
+        state.energy = Math.min(state.maxEnergy, state.energy + (hours * 10));
         alert(`Отличный сон! Ты проспал ${hours} ч. Энергия восстановлена!`);
     }
-    else if (title.toLowerCase().includes('растяжка')) totalStretch++;
+    else if (title.toLowerCase().includes('растяжка')) state.totalStretch++;
 
     saveGame();
     updateUI();
@@ -341,7 +325,7 @@ SoundManager.playEffect('quest');
     updateCurrentEnemy();
     
     document.getElementById('hero-power-display').innerText = `⚔️ Сила: ${getEffectiveHeroPower(currentEnemy)}`;
-    document.getElementById('hero-hp-display').innerHTML = `❤️ HP: ${playerHp}/${maxHp}`;
+    document.getElementById('hero-hp-display').innerHTML = `❤️ HP: ${state.hp}/${state.maxHp}`;
     document.getElementById('enemy-name').innerHTML = currentEnemy.isBoss ? `👑 ${currentEnemy.name}` : `👾 ${currentEnemy.name}`;
     document.getElementById('enemy-power-display').innerText = `⚔️ Сила: ${currentEnemy.basePower}`;
     document.getElementById('enemy-weakness').innerHTML = `Слабость: ${currentEnemy.weakness || 'нет'}`;
@@ -367,17 +351,17 @@ function startBattle() {
     if (!log) return;
     log.innerHTML = ''; 
 
-    if (playerHp <= 0) {
+    if (state.hp <= 0) {
         log.innerHTML = '<div style="color: red;">💀 Вы мертвы! Отдохните.</div>';
         return;
     }
     
-    if (playerEnergy < 10) {
+    if (state.energy < 10) {
         log.innerHTML += '<div style="color: cyan;">⚡ Нет энергии для боя! Нужно выполнить квест "Сон".</div>';
         return;
     }
     
-    playerEnergy -= 10;
+    state.energy -= 10;
     updateEnergyDisplay();
 
     const heroPower = getEffectiveHeroPower(currentEnemy);
@@ -399,8 +383,8 @@ function startBattle() {
         const earnedXp = Math.floor(currentEnemy.expReward * getXpMultiplier());
         const earnedGold = Math.floor(currentEnemy.goldReward * getGoldMultiplier());
         
-        playerXp += earnedXp;
-        playerGold += earnedGold;
+        state.xp += earnedXp;
+        state.gold += earnedGold;
 
         setTimeout(() => {
             if (enemyDisplay) {
@@ -409,9 +393,9 @@ function startBattle() {
             }
         }, 300);
 
-        while (playerXp >= maxXp) {
-            playerLevel++;
-            playerXp -= maxXp;
+        while (state.xp >= state.state.state.maxXp) {
+            state.level++;
+            state.xp -= state.state.state.maxXp;
             talentPoints++;
         }
 
@@ -437,7 +421,7 @@ function startBattle() {
     } else {
 
         log.innerHTML += `<div style="color: red;">💔 ПОРАЖЕНИЕ!</div>`;
-        playerHp = Math.max(0, playerHp - 10);
+        state.hp = Math.max(0, state.hp - 10);
         SoundManager.playEffect('defeat');
         
         if (heroAvatar) {
@@ -450,7 +434,7 @@ function startBattle() {
     saveGame();
     updateUI();
     
-    document.getElementById('hero-hp-display').innerHTML = `❤️ HP: ${playerHp}/${maxHp}`;
+    document.getElementById('hero-hp-display').innerHTML = `❤️ HP: ${state.hp}/${state.maxHp}`;
     document.getElementById('enemy-name').innerHTML = currentEnemy.isBoss ? `👑 ${currentEnemy.name}` : `👾 ${currentEnemy.name}`;
     document.getElementById('enemy-power-display').innerText = `⚔️ Сила: ${currentEnemy.basePower}`;
     log.scrollTop = log.scrollHeight;
@@ -462,17 +446,17 @@ function addChest(chestRarity) {
 }
 
 function restoreHp() {
-    if (playerGold >= 10 && playerHp < maxHp) {
-        playerGold -= 10;
-        playerHp = Math.min(maxHp, playerHp + 10);
-        localStorage.setItem('rpg_gold', playerGold);
-        localStorage.setItem('rpg_hp', playerHp);
-        document.getElementById('gold').innerText = playerGold;
+    if (state.gold >= 10 && state.hp < state.maxHp) {
+        state.gold -= 10;
+        state.hp = Math.min(state.maxHp, state.hp + 10);
+        localStorage.setItem('rpg_gold', state.gold);
+        localStorage.setItem('rpg_hp', state.hp);
+        document.getElementById('gold').innerText = state.gold;
         updateHpDisplay();
         SoundManager.playEffect('heal');
         const heroHpDiv = document.getElementById('hero-hp-display');
-        if (heroHpDiv) heroHpDiv.innerHTML = `❤️ HP: ${playerHp}/${maxHp}`;
-        if (playerHp > 0) {
+        if (heroHpDiv) heroHpDiv.innerHTML = `❤️ HP: ${state.hp}/${state.maxHp}`;
+        if (state.hp > 0) {
             const attackBtn = document.getElementById('attack-btn');
             if (attackBtn) {
                 attackBtn.disabled = false;
@@ -487,13 +471,13 @@ function restoreHp() {
 
 function renderStats() {
     document.getElementById('stats-login-days').innerText = totalLoginDays;
-    document.getElementById('stats-total-quests').innerText = totalCompletedQuests;
-    document.getElementById('stats-pushups').innerText = totalPushups;
-    document.getElementById('stats-pullups').innerText = totalPullups;
+    document.getElementById('stats-total-quests').innerText = totalstate.completedQuests;
+    document.getElementById('stats-pushups').innerText = state.totalPushups;
+    document.getElementById('stats-pullups').innerText = state.totalPullups;
     document.getElementById('stats-squats').innerText = totalSquats;
-    document.getElementById('stats-abs').innerText = totalAbs;
-    document.getElementById('stats-plank').innerText = totalPlank;
-    document.getElementById('stats-stretch').innerText = totalStretch;
+    document.getElementById('stats-abs').innerText = state.totalAbs;
+    document.getElementById('stats-plank').innerText = state.totalPlank;
+    document.getElementById('stats-stretch').innerText = state.totalStretch;
     document.getElementById('stats-run-km').innerText = totalRunKm;
     document.getElementById('stats-run-mins').innerText = totalRunMins;
 }
@@ -534,44 +518,29 @@ function renderStats() {
             }
 
             function updateXPdisplay() {
-                document.getElementById('xp-current').innerText = playerXp;
-                document.getElementById('xp-max').innerText = maxXp;
-                document.querySelector('.xp-bar').style.width = Math.min((playerXp / maxXp) * 100, 100) + '%';
+                document.getElementById('xp-current').innerText = state.xp;
+                document.getElementById('xp-max').innerText = state.state.state.maxXp;
+                document.querySelector('.xp-bar').style.width = Math.min((state.xp / state.state.state.maxXp) * 100, 100) + '%';
             }
 
             function updateHpDisplay() {
-                document.getElementById('hp-current').innerText = playerHp;
-                document.getElementById('hp-max').innerText = maxHp;
-                const percent = (playerHp / maxHp) * 100;
+                document.getElementById('hp-current').innerText = state.hp;
+                document.getElementById('hp-max').innerText = state.maxHp;
+                const percent = (state.hp / state.maxHp) * 100;
                 document.getElementById('hp-bar-fill').style.width = Math.max(0, percent) + '%';
             }
 
     function updateEnergyDisplay() {
     const energyCur = document.getElementById('energy-current');
-    if (energyCur) energyCur.innerText = playerEnergy;
+    if (energyCur) energyCur.innerText = state.energy;
     const energyMax = document.getElementById('energy-max');
-    if (energyMax) energyMax.innerText = maxEnergy;
+    if (energyMax) energyMax.innerText = state.maxEnergy;
     
-    const percent = (playerEnergy / maxEnergy) * 100;
+    const percent = (state.energy / state.maxEnergy) * 100;
     const bar = document.getElementById('energy-bar-fill');
     if (bar) bar.style.width = Math.max(0, percent) + '%';
 }
-
-                    function saveStats() {
-                localStorage.setItem('stats_login_days', totalLoginDays);
-                localStorage.setItem('stats_total_quests', totalCompletedQuests);
-                localStorage.setItem('stats_pushups', totalPushups);
-                localStorage.setItem('stats_pullups', totalPullups);
-                localStorage.setItem('stats_abs', totalAbs);
-                localStorage.setItem('stats_plank', totalPlank);
-                localStorage.setItem('stats_stretch', totalStretch);
-                localStorage.setItem('stats_squats', totalSquats);
-                localStorage.setItem('stats_run_km', totalRunKm);
-                localStorage.setItem('stats_run_mins', totalRunMins);
-                localStorage.setItem('rpg_achievements', JSON.stringify(claimedAchievements));        
-            }
-
-    
+   
             function formatTime(sec) {
                 if (!sec) return '—';
                 const mins = Math.floor(sec / 60);
@@ -582,20 +551,20 @@ function renderStats() {
 const today = new Date().toISOString().split('T')[0];
 let lastLoginDate = localStorage.getItem('rpg_last_login');
 if (lastLoginDate !== today) {
-    completedQuests = [];
+    state.completedQuests = [];
     localStorage.setItem('rpg_last_login', today);
-    localStorage.setItem('rpg_completed', JSON.stringify(completedQuests));
+    localStorage.setItem('rpg_completed', JSON.stringify(state.completedQuests));
     totalLoginDays++;
-    saveStats();  
+    saveGame();  
 }
             
-function toggleSfx() {
-    SoundManager.toggleSfx();
-}
+    function toggleSfx() {
+        SoundManager.toggleSfx();
+    }
 
-function toggleMusic() {
-    SoundManager.toggleMusic();
-}
+    function toggleMusic() {
+        SoundManager.toggleMusic();
+    }
     
         function updateSfxButton() {
     const btn = document.getElementById('sound-toggle');
@@ -615,7 +584,7 @@ function updateMusicButton() {
 
     
     function getColor(slotId, defaultColor) {
-        const item = equippedItems[slotId];
+        const item = state.equippedItems[slotId];
         if (item) return rarityColors[item.rarity];
         return defaultColor;
     }
@@ -651,8 +620,8 @@ function showFloatingText(element, text, color) {
 
 function getEffectiveHeroPower(enemy) {
     let basePower = calculatePower();
-    if (enemy.weakness && playerStats[enemy.weakness]) {
-        basePower += playerStats[enemy.weakness];
+    if (enemy.weakness && state.stats[enemy.weakness]) {
+        basePower += state.stats[enemy.weakness];
     }
     return basePower;
 }
@@ -663,8 +632,8 @@ function openInventory() {
     grid.innerHTML = '';
     hideItemDetails();
     
-    for (let i = 0; i < playerInventory.length; i++) {
-        const item = playerInventory[i];
+    for (let i = 0; i < state.inventory.length; i++) {
+        const item = state.inventory[i];
         
         const slotDiv = document.createElement('div');
         slotDiv.className = 'inv-slot';
@@ -703,7 +672,7 @@ function openInventory() {
         grid.appendChild(slotDiv);
     }
     
-    const emptySlots = Math.max(0, 20 - playerInventory.length);
+    const emptySlots = Math.max(0, 20 - state.inventory.length);
     for(let i = 0; i < emptySlots; i++){
         const slotDiv = document.createElement('div');
         slotDiv.className = 'inv-slot';
@@ -848,8 +817,8 @@ function openInventory() {
         });
 
         updateXPdisplay();
-        document.getElementById('gold').innerText = playerGold;
-        document.getElementById('level').innerText = playerLevel;
+        document.getElementById('gold').innerText = state.gold;
+        document.getElementById('level').innerText = state.level;
 
 function recalcStats() {
     let newStats = {
@@ -857,8 +826,8 @@ function recalcStats() {
         "Сила духа": 10, "Гибкость": 10, "Концентрация": 10, "Креативность": 10
     };
     
-    for (let slotId in equippedItems) {
-        let item = equippedItems[slotId];
+    for (let slotId in state.equippedItems) {
+        let item = state.equippedItems[slotId];
         let baseItem = itemsDatabase[item.id];
         if (baseItem) {
             let bonus = baseItem.baseBonus * statMultipliers[item.rarity];
@@ -866,7 +835,7 @@ function recalcStats() {
         }
     }
 
-    learnedTalents.forEach(nodeId => {
+    state.learnedTalents.forEach(nodeId => {
         const node = talentTree.find(n => n.id === nodeId);
         if (node) {
             if (node.effectType === 'stat') {
@@ -877,18 +846,18 @@ function recalcStats() {
         }
     });
 
-    playerStats = newStats;
-    localStorage.setItem('rpg_stats', JSON.stringify(playerStats));
-    for (let stat in playerStats) {
+    state.stats = newStats;
+    localStorage.setItem('rpg_stats', JSON.stringify(state.stats));
+    for (let stat in state.stats) {
         let el = document.getElementById('stat-' + stat);
-        if (el) el.innerText = playerStats[stat];
+        if (el) el.innerText = state.stats[stat];
     }
     updatePowerDisplay();          
 }
 
 function getXpMultiplier() {
     let mult = 1.0;
-    learnedTalents.forEach(nodeId => {
+    state.learnedTalents.forEach(nodeId => {
         const node = talentTree.find(n => n.id === nodeId);
         if (node && node.effectType === 'xp_mult') mult += node.value / 100;
     });
@@ -897,7 +866,7 @@ function getXpMultiplier() {
 
 function getGoldMultiplier() {
     let mult = 1.0;
-    learnedTalents.forEach(nodeId => {
+    state.learnedTalents.forEach(nodeId => {
         const node = talentTree.find(n => n.id === nodeId);
         if (node && node.effectType === 'gold_mult') mult += node.value / 100;
     });
@@ -906,7 +875,7 @@ function getGoldMultiplier() {
 
 function getLuckBonus() {
     let luck = 0;
-    learnedTalents.forEach(nodeId => {
+    state.learnedTalents.forEach(nodeId => {
         const node = talentTree.find(n => n.id === nodeId);
         if (node && node.effectType === 'luck') luck += node.value;
     });
@@ -953,8 +922,8 @@ function renderTalentTree() {
         node.req.forEach(reqId => {
             const parent = talentTree.find(n => n.id === reqId);
             if (parent) {
-                const isLearned = learnedTalents.includes(node.id);
-                const isAvailable = learnedTalents.includes(reqId) && !isLearned;
+                const isLearned = state.learnedTalents.includes(node.id);
+                const isAvailable = state.learnedTalents.includes(reqId) && !isLearned;
                 
                 let color = '#333'; 
                 if (isLearned) color = 'var(--accent-yellow)'; 
@@ -973,8 +942,8 @@ function renderTalentTree() {
     });
 
     talentTree.forEach(node => {
-        const isLearned = learnedTalents.includes(node.id);
-        const canLearn = (node.req.length === 0 || node.req.some(r => learnedTalents.includes(r))) && !isLearned;
+        const isLearned = state.learnedTalents.includes(node.id);
+        const canLearn = (node.req.length === 0 || node.req.some(r => state.learnedTalents.includes(r))) && !isLearned;
 
         const el = document.createElement('div');
         el.style.position = 'absolute';
@@ -1034,7 +1003,7 @@ function learnTalent(nodeId) {
     if (!node || talentPoints < node.cost) return;
 
     talentPoints -= node.cost;
-    learnedTalents.push(nodeId);
+    state.learnedTalents.push(nodeId);
 
     saveGame();
     recalcStats();
@@ -1050,7 +1019,7 @@ function hideItemDetails() {
 }
 
         function showItemDetails(index) {
-            const itemData = playerInventory[index];
+            const itemData = state.inventory[index];
             const baseItem = itemsDatabase[itemData.id];
             const totalBonus = baseItem.baseBonus * statMultipliers[itemData.rarity];
             const rColor = rarityColors[itemData.rarity];
@@ -1076,7 +1045,7 @@ function hideItemDetails() {
 } 
 
 function showChestDetails(index) {
-    const item = playerInventory[index];
+    const item = state.inventory[index];
     if (item.type !== 'chest') return;
     const chest = chestTypes[item.chestRarity];
     document.getElementById('detail-image').innerHTML = `<span style="font-size: 30px;">${chest.img}</span>`;
@@ -1095,7 +1064,7 @@ document.getElementById('detail-image').innerHTML = detailImgHtml;
 }
 
 function openChest(invIndex) {
-    const chestItem = playerInventory[invIndex];
+    const chestItem = state.inventory[invIndex];
     if (!chestItem || chestItem.type !== 'chest') return;
     const chestRarity = chestItem.chestRarity;
 
@@ -1168,19 +1137,19 @@ function closeChestModal() {
 }
                 
         function equipItem(invIndex) {
-    const itemData = playerInventory[invIndex];
+    const itemData = state.inventory[invIndex];
     const baseItem = itemsDatabase[itemData.id];
     
-    if (equippedItems[baseItem.slotId]) {
-        addItemToInventory(equippedItems[baseItem.slotId]);
+    if (state.equippedItems[baseItem.slotId]) {
+        addItemToInventory(state.equippedItems[baseItem.slotId]);
     }
     
-    equippedItems[baseItem.slotId] = { id: itemData.id, rarity: itemData.rarity };
+    state.equippedItems[baseItem.slotId] = { id: itemData.id, rarity: itemData.rarity };
     
     removeItemFromInventory(invIndex, 1);
     
-    localStorage.setItem('rpg_inv_v2', JSON.stringify(playerInventory));
-    localStorage.setItem('rpg_equipped_v2', JSON.stringify(equippedItems));
+    localStorage.setItem('rpg_inv_v2', JSON.stringify(state.inventory));
+    localStorage.setItem('rpg_equipped_v2', JSON.stringify(state.equippedItems));
     recalcStats();
     hideItemDetails();
     openInventory();
@@ -1188,7 +1157,7 @@ function closeChestModal() {
 }
 
        function mergeItem(invIndex) {
-    const itemData = playerInventory[invIndex];
+    const itemData = state.inventory[invIndex];
     if ((itemData.count || 1) >= 3) {
         removeItemFromInventory(invIndex, 3); 
         addItemToInventory({ id: itemData.id, rarity: itemData.rarity + 1 }); 
@@ -1200,7 +1169,7 @@ function closeChestModal() {
 }
 
         function showEquippedItemDetails(slotId) {
-            const itemData = equippedItems[slotId];
+            const itemData = state.equippedItems[slotId];
             if (!itemData) return;
             const baseItem = itemsDatabase[itemData.id];
             const totalBonus = baseItem.baseBonus * statMultipliers[itemData.rarity];
@@ -1217,14 +1186,14 @@ function closeChestModal() {
         }
 
         function unequipItem(slotId) {
-            if (playerInventory.length >= 20) {
+            if (state.inventory.length >= 20) {
                 alert("Рюкзак полон! Продай вещи.");
                 return;
             }
-            playerInventory.push(equippedItems[slotId]);
-            delete equippedItems[slotId];
-            localStorage.setItem('rpg_inv_v2', JSON.stringify(playerInventory));
-            localStorage.setItem('rpg_equipped_v2', JSON.stringify(equippedItems));
+            state.inventory.push(state.equippedItems[slotId]);
+            delete state.equippedItems[slotId];
+            localStorage.setItem('rpg_inv_v2', JSON.stringify(state.inventory));
+            localStorage.setItem('rpg_equipped_v2', JSON.stringify(state.equippedItems));
             recalcStats();
             hideItemDetails();
             openInventory();
@@ -1263,7 +1232,7 @@ function buyItem(index, element) { // Обрати внимание: добав�
     const item = shopItems[index];
     const shopMsg = document.getElementById('shop-message');
 
-    if (playerGold < item.price) {
+    if (state.gold < item.price) {
         if (shopMsg) shopMsg.innerText = '❌ Недостаточно золота!';
         if (element) {
             element.classList.add('shake'); // Эффект тряски при нехватке денег
@@ -1272,7 +1241,7 @@ function buyItem(index, element) { // Обрати внимание: добав�
         return;
     }
 
-    playerGold -= item.price;
+    state.gold -= item.price;
 
     if (element) {
         showFloatingText(element, `-${item.price} 💰`, 'red'); // Всплывающий текст цены
@@ -1346,14 +1315,14 @@ function buyItem(index, element) { // Обрати внимание: добав�
 
     function getMetricValue(metric) {
         switch(metric) {
-            case 'pushups': return totalPushups;
-            case 'pullups': return totalPullups;
+            case 'pushups': return state.totalPushups;
+            case 'pullups': return state.totalPullups;
             case 'squats': return totalSquats;
             case 'runKm': return totalRunKm;
             case 'runMins': return totalRunMins;
-            case 'quests': return totalCompletedQuests;
-            case 'plank': return totalPlank;
-            case 'abs': return totalAbs;
+            case 'quests': return totalstate.completedQuests;
+            case 'plank': return state.totalPlank;
+            case 'abs': return state.totalAbs;
             default: return 0;
         }
     }
@@ -1392,17 +1361,16 @@ function buyItem(index, element) { // Обрати внимание: добав�
 
     function claimAchievement(id, xp, gold) {
         claimedAchievements.push(id);
-        playerGold += gold;
-        playerXp += xp;
+        state.gold += gold;
+        state.xp += xp;
         
-        while (playerXp >= maxXp) {
-            playerLevel++;
-            playerXp -= maxXp;
+        while (state.xp >= state.state.state.maxXp) {
+            state.level++;
+            state.xp -= state.state.state.maxXp;
             talentPoints++;
         }
         
         saveGame();
-        saveStats();
         updateUI();
         openAchievements(); 
         SoundManager.playEffect('victory');

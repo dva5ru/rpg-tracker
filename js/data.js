@@ -34,6 +34,7 @@ export const questsDatabase = [
 export const itemsDatabase = {
   "sword": { name: "Меч", type: "Правая рука", slotId: "slot-right-hand", stat: "Сила", baseBonus: 1, img: "⚔️" },
   "shoes": { name: "Ботинки", type: "Обувь", slotId: "slot-shoes", stat: "Выносливость", baseBonus: 2, img: "👟" }
+    "dildo": { name: "Дилдо", type: "Штаны", slotId: "slot-legs", stat: "Выносливость", baseBonus: 2, img: "🍆" }
 };
 
 export const slots = [

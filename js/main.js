@@ -1332,65 +1332,6 @@ function closeChestModal() {
     renderEquipment();
 }
 
-function unequipItem(slotId) {
-
-    addItemToInventory(equippedItems[slotId]);
-    delete equippedItems[slotId];
-    
-    localStorage.setItem('rpg_inv_v2', JSON.stringify(playerInventory));
-    localStorage.setItem('rpg_equipped_v2', JSON.stringify(equippedItems));
-    recalcStats();
-    hideItemDetails();
-    openInventory();
-    renderEquipment();
-}
-
-        function renderEquipment() {
-    const slotMap = {
-        "slot-head": "Голова",
-        "slot-amulet": "Амулет",
-        "slot-amulet-2": "Амулет",
-        "slot-cape": "Плащ",
-        "slot-shoulders": "Наплечники",
-        "slot-right-hand": "Правая рука",
-        "slot-bracelet-right": "Браслет",
-        "slot-ring-1": "Кольцо",
-        "slot-gloves": "Перчатки",
-        "slot-armor": "Нагрудник",
-        "slot-left-hand": "Левая рука",
-        "slot-bracer": "Наручи",
-        "slot-bracelet-left": "Браслет",
-        "slot-ring-2": "Кольцо",
-        "slot-belt": "Пояс",
-        "slot-legs": "Штаны",
-        "slot-knees": "Наколенники",
-        "slot-shoes": "Обувь"
-    };
-
-    for (let slotId in slotMap) {
-        const slotHtml = document.getElementById(slotId);
-        if (slotHtml) {
-            slotHtml.style.borderColor = "var(--border-gray)";
-            slotHtml.innerHTML = `<div class="slot-name">${slotMap[slotId]}</div>`;
-            slotHtml.onclick = null;
-        }
-    }
-
-    for (let slotId in equippedItems) {
-        const itemData = equippedItems[slotId];
-        const baseItem = itemsDatabase[itemData.id];
-        const slotHtml = document.getElementById(slotId);
-        if (slotHtml && baseItem) {
-            slotHtml.className = 'slot'; 
-            if (itemData.rarity === 3) slotHtml.classList.add('glow-3');
-            if (itemData.rarity === 4) slotHtml.classList.add('glow-4');
-            slotHtml.style.borderColor = rarityColors[itemData.rarity];
-            slotHtml.innerHTML = `<span style="font-size: 5px; color: ${rarityColors[itemData.rarity]}">${baseItem.img}</span><div class="slot-name">${baseItem.type}</div>`;
-            slotHtml.onclick = () => showEquippedItemDetails(slotId);
-        }
-    }
-}
-
        function mergeItem(invIndex) {
     const itemData = playerInventory[invIndex];
     if ((itemData.count || 1) >= 3) {

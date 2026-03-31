@@ -94,11 +94,30 @@
         </div>
     </div>
 
-    <div class="menu-buttons">
-        <div class="btn-menu" onclick="openInventory()">ИНВЕНТАРЬ</div>
-        <div class="btn-menu" onclick="openShop()">МАГАЗИН</div>
-        <div class="btn-menu" onclick="openTalents()">ТАЛАНТЫ</div>
-        <div class="btn-menu" onclick="openBattle()">БОЙ</div>
+<div class="bottom-nav-bar">
+        <div class="nav-group">
+            <button class="nav-btn" onclick="openInventory()"><span>🎒</span>Инв.</button>
+            <button class="nav-btn" onclick="openShop()"><span>🛒</span>Магаз</button>
+        </div>
+        <div class="nav-center">
+            <button class="battle-btn-circle" onclick="openBattle()">⚔️</button>
+        </div>
+        <div class="nav-group">
+            <button class="nav-btn" onclick="openTalents()"><span>✨</span>Таланты</button>
+            <button class="nav-btn" onclick="openMap()"><span>🗺️</span>Карта</button>
+        </div>
+    </div>
+
+    <div id="modal-quest-input" class="modal-overlay" style="display: none;">
+        <div class="modal-content" style="max-width: 320px;">
+            <h3 id="quest-input-title" style="margin-top: 0; color: var(--accent-yellow);">Ввод данных</h3>
+            <div id="quest-input-fields" style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px;">
+                </div>
+            <div style="display: flex; gap: 10px;">
+                <button class="btn-action" style="flex: 1; background: #444;" onclick="closeQuestInput()">ОТМЕНА</button>
+                <button class="btn-action" style="flex: 1;" onclick="submitQuestInput()">ГОТОВО</button>
+            </div>
+        </div>
     </div>
 
     <div class="box" style="padding: 10px 5px;">

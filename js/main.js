@@ -5,160 +5,13 @@ import {
 } from './data.js';
 
 import { state, loadGame, saveGame, getToday } from './state.js';
+import SoundManager from './audio.js';
 
 const tg = window?.Telegram?.WebApp;
 if (tg) {
     tg.ready();
     tg.expand();
 }
-
-    
-function saveGame() {
-    localStorage.setItem('rpg_gold', state.gold);
-    localStorage.setItem('rpg_xp', state.xp);
-    localStorage.setItem('rpg_level', state.level);
-    localStorage.setItem('rpg_hp', state.hp);
-    localStorage.setItem('rpg_energy', state.energy);
-    localStorage.setItem('rpg_talent_points', talentPoints);
-    localStorage.setItem('rpg_stats', JSON.stringify(state.stats));
-    localStorage.setItem('rpg_inv_v2', JSON.stringify(state.inventory));
-    localStorage.setItem('rpg_equipped_v2', JSON.stringify(state.equippedItems));
-    localStorage.setItem('rpg_completed', JSON.stringify(state.completedQuests));
-    localStorage.setItem('rpg_learned_talents', JSON.stringify(state.learnedTalents));
-    
-    // Сохранение мира
-    localStorage.setItem('rpg_defeated_mobs', defeatedMobsCount);
-    localStorage.setItem('rpg_boss_available', bossAvailable);
-    
-    // Сохранение метрик
-    localStorage.setItem('metrics_history', JSON.stringify(metricsHistory));
-    localStorage.setItem('stats_login_days', totalLoginDays);
-    localStorage.setItem('stats_total_quests', totalstate.completedQuests);
-    localStorage.setItem('stats_pushups', state.totalPushups);
-    localStorage.setItem('stats_pullups', state.totalPullups);
-    localStorage.setItem('stats_abs', state.totalAbs);
-    localStorage.setItem('stats_plank', state.totalPlank);
-    localStorage.setItem('stats_stretch', state.totalStretch);
-
-    // Сохранение настроек
-    localStorage.setItem('rpg_sound_enabled', soundEnabled);
-    localStorage.setItem('rpg_music_enabled', musicEnabled);
-    localStorage.setItem('rpg_last_login', getToday());
-}
-
-function loadGame() {
-    state.gold = parseInt(localStorage.getItem('rpg_gold')) || 10000;
-    state.xp = parseInt(localStorage.getItem('rpg_xp')) || 250;
-    state.level = parseInt(localStorage.getItem('rpg_level')) || 0;
-    state.hp = parseInt(localStorage.getItem('rpg_hp')) || 1000;
-    state.energy = parseInt(localStorage.getItem('rpg_energy')) || 100;
-    talentPoints = parseInt(localStorage.getItem('rpg_talent_points')) || 0;
-    
-    state.stats = JSON.parse(localStorage.getItem('rpg_stats')) || {
-        "Сила": 10, "Ловкость": 10, "Выносливость": 10, "Интеллект": 10,
-        "Сила духа": 10, "Гибкость": 10, "Концентрация": 10, "Креативность": 10
-    };
-    
-    state.inventory = JSON.parse(localStorage.getItem('rpg_inv_v2')) || [
-        { id: "sword", rarity: 1 }, { id: "sword", rarity: 1 }, 
-        { id: "sword", rarity: 1 }, { id: "shoes", rarity: 0 }
-    ];
-    
-    state.equippedItems = JSON.parse(localStorage.getItem('rpg_equipped_v2')) || {};
-    state.completedQuests = JSON.parse(localStorage.getItem('rpg_completed')) || [];
-    state.learnedTalents = JSON.parse(localStorage.getItem('rpg_learned_talents')) || [];
-    
-    defeatedMobsCount = parseInt(localStorage.getItem('rpg_defeated_mobs')) || 0;
-    bossAvailable = localStorage.getItem('rpg_boss_available') === 'true';
-    
-    metricsHistory = JSON.parse(localStorage.getItem('metrics_history')) || [];
-    totalLoginDays = parseInt(localStorage.getItem('stats_login_days')) || 0;
-    totalstate.completedQuests = parseInt(localStorage.getItem('stats_total_quests')) || 0;
-    state.totalPushups = parseInt(localStorage.getItem('stats_pushups')) || 0;
-    state.totalPullups = parseInt(localStorage.getItem('stats_pullups')) || 0;
-    state.totalAbs = parseInt(localStorage.getItem('stats_abs')) || 0;
-    state.totalPlank = parseInt(localStorage.getItem('stats_plank')) || 0;
-    state.totalStretch = parseInt(localStorage.getItem('stats_stretch')) || 0;
-
-    soundEnabled = localStorage.getItem('rpg_sound_enabled') !== 'false';
-    musicEnabled = localStorage.getItem('rpg_music_enabled') !== 'false';
-
-    totalSquats = parseInt(localStorage.getItem('stats_squats')) || 0;
-    totalRunKm = parseFloat(localStorage.getItem('stats_run_km')) || 0;
-    totalRunMins = parseInt(localStorage.getItem('stats_run_mins')) || 0;
-    claimedAchievements = JSON.parse(localStorage.getItem('rpg_achievements')) || [];
-}
-
-
-    function loadSettings() {
-        const sfx = localStorage.getItem('rpg_sfx_enabled');
-        if (sfx !== null) sfxEnabled = sfx === 'true';
-        const music = localStorage.getItem('rpg_music_enabled');
-        if (music !== null) musicEnabled = music === 'true';
-        if (musicEnabled) {
-            const activateMusic = () => {
-                initAudio();
-                startMusic('menu');
-                document.removeEventListener('click', activateMusic);
-                document.removeEventListener('touchstart', activateMusic);
-            };
-            document.addEventListener('click', activateMusic);
-            document.addEventListener('touchstart', activateMusic);
-        }
-    }
-    
-    return {
-        init: initAudio,
-        playEffect: function(effect) {
-            if (!sfxEnabled) return;
-            switch(effect) {
-                case 'click': click(); break;
-                case 'victory': victory(); break;
-                case 'defeat': defeat(); break;
-                case 'chest': chest(); break;
-                case 'levelup': levelUp(); break;
-                case 'quest': questComplete(); break;
-                case 'buy': buy(); break;
-                case 'merge': merge(); break;
-                case 'equip': equip(); break;
-                case 'heal': heal(); break;
-                case 'modal': modal(); break;
-                default: click();
-            }
-        },
-        setSfxEnabled: setSfxEnabled,
-        setMusicEnabled: setMusicEnabled,
-        getSfxEnabled: () => sfxEnabled,
-        getMusicEnabled: () => musicEnabled,
-        startMusic: startMusic,
-        stopMusic: stopMusic,
-        loadSettings: loadSettings,
-        toggleSfx: function() {
-            const newState = !sfxEnabled;
-            this.setSfxEnabled(newState);
-            const btn = document.getElementById('sound-toggle');
-            if (btn) {
-                btn.innerText = newState ? 'ВКЛ' : 'ВЫКЛ';
-                btn.classList.toggle('on', newState);
-            }
-            this.playEffect('click');
-        },
-        toggleMusic: function() {
-            const newState = !musicEnabled;
-            this.setMusicEnabled(newState);
-            const btn = document.getElementById('music-toggle');
-            if (btn) {
-                btn.innerText = newState ? 'ВКЛ' : 'ВЫКЛ';
-                btn.classList.toggle('on', newState);
-            }
-            if (newState) {
-                this.startMusic('menu');
-            } else {
-                this.stopMusic();
-            }
-        }
-    };
-})();
 
 function addItemToInventory(newItem, amount = 1) {
     let found = state.inventory.find(item => 
@@ -197,44 +50,38 @@ function updateUI() {
     
 function calculatePower() {
     let power = 0;
-        for (let stat in state.stats) {
+    for (let stat in state.stats) {
         power += state.stats[stat];
-        }
-    return power;
     }
-
-function getToday() {
-    return new Date().toISOString().split('T')[0];
+    return power;
 }
 
 function updatePowerDisplay() {
-const powerSpan = document.getElementById('player-power');
-if (powerSpan) {
-powerSpan.innerText = calculatePower();
-}
+    const powerSpan = document.getElementById('player-power');
+    if (powerSpan) powerSpan.innerText = calculatePower();
 }
 
 function closeInventory() {
     document.getElementById('modal-inventory').style.display = 'none';
 }
     
-            function renderQuests() {
-                const container = document.getElementById('quests-container');
-                container.innerHTML = '';
-                questsDatabase.forEach(quest => {
-                    if (state.completedQuests.includes(quest.id)) return;
-                    const taskDiv = document.createElement('div');
-                    taskDiv.className = 'task';
-                    taskDiv.innerHTML = `
-                        <div class="task-info">
-                            <div class="task-title">${quest.title}</div>
-                            <div class="task-reward">+1 ${quest.stat} | ${quest.gold}💰 | ${quest.xp} XP</div>
-                        </div>
-                       <button id="btn-quest-${quest.id}" class="btn-action" onclick="completeQuest('${quest.id}', ${quest.xp}, ${quest.gold}, '${quest.stat}')">СДЕЛАТЬ</button>
-                    `;
-                    container.appendChild(taskDiv);
-                });
-            }
+function renderQuests() {
+    const container = document.getElementById('quests-container');
+    container.innerHTML = '';
+    questsDatabase.forEach(quest => {
+        if (state.completedQuests.includes(quest.id)) return;
+        const taskDiv = document.createElement('div');
+        taskDiv.className = 'task';
+        taskDiv.innerHTML = `
+            <div class="task-info">
+                <div class="task-title">${quest.title}</div>
+                <div class="task-reward">+1 ${quest.stat} | ${quest.gold}💰 | ${quest.xp} XP</div>
+            </div>
+           <button id="btn-quest-${quest.id}" class="btn-action" onclick="completeQuest('${quest.id}', ${quest.xp}, ${quest.gold}, '${quest.stat}')">СДЕЛАТЬ</button>
+        `;
+        container.appendChild(taskDiv);
+    });
+}
 
 function completeQuest(questId, xpReward, goldReward, statName) {
     state.gold += Math.floor(goldReward * getGoldMultiplier());
@@ -244,15 +91,15 @@ function completeQuest(questId, xpReward, goldReward, statName) {
         const statEl = document.getElementById('stat-' + statName);
         if (statEl) statEl.innerText = state.stats[statName];
     }
-    while (state.xp >= state.state.state.maxXp) {
+    while (state.xp >= state.maxXp) {
         state.level++;
-        state.xp -= state.state.state.maxXp;
-        talentPoints++;
-        tg.showPopup({ title: 'Уровень повышен!', message: `Теперь ты ${state.level} уровня.`, buttons: [{ type: 'ok' }] });
+        state.xp -= state.maxXp;
+        state.talentPoints++;
+        if (tg) tg.showPopup({ title: 'Уровень повышен!', message: `Теперь ты ${state.level} уровня.`, buttons: [{ type: 'ok' }] });
         SoundManager.playEffect('levelup');
     }
     state.completedQuests.push(questId);
-    totalstate.completedQuests++;
+    state.totalCompletedQuests++;
 
     const title = questsDatabase.find(q => q.id === questId)?.title || '';
     
@@ -269,7 +116,7 @@ function completeQuest(questId, xpReward, goldReward, statName) {
     else if (title.toLowerCase().includes('приседания')) {
         let count = parseInt(prompt("Сколько раз присел?", "20"));
         if (isNaN(count) || count <= 0) return;
-        totalSquats += count;
+        state.totalSquats += count;
     }
     else if (title.toLowerCase().includes('пресс')) {
         let count = parseInt(prompt("Сколько раз сделал пресс?", "20"));
@@ -285,8 +132,8 @@ function completeQuest(questId, xpReward, goldReward, statName) {
         let km = parseFloat(prompt("Сколько километров пробежал?", "1"));
         let mins = parseInt(prompt("За сколько минут?", "10"));
         if (isNaN(km) || isNaN(mins) || km <= 0) return;
-        totalRunKm += km;
-        totalRunMins += mins;
+        state.totalRunKm += km;
+        state.totalRunMins += mins;
     }
     else if (title.toLowerCase().includes('сон')) {
         let bedTime = parseInt(prompt("Во сколько лег спать? (введи часы, например 23 или 1)", "23"));
@@ -301,10 +148,8 @@ function completeQuest(questId, xpReward, goldReward, statName) {
     saveGame();
     updateUI();
     
-    if (window.Telegram && window.Telegram.WebApp) {
-        window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
-    }
-SoundManager.playEffect('quest');
+    if (tg) tg.HapticFeedback.impactOccurred('light');
+    SoundManager.playEffect('quest');
     const btn = document.getElementById(`btn-quest-${questId}`);
     if (btn) {
         const taskDiv = btn.closest('.task');
@@ -313,22 +158,20 @@ SoundManager.playEffect('quest');
         showFloatingText(btn, `+${Math.floor(xpReward * getXpMultiplier())} XP`, 'var(--accent-green)');
         showFloatingText(btn, `+${Math.floor(goldReward * getGoldMultiplier())} 💰`, 'gold');
         
-        setTimeout(() => {
-            renderQuests();
-        }, 300);
+        setTimeout(() => { renderQuests(); }, 300);
     } else {
         renderQuests();
     }
 }
     
-        function openBattle() {
+function openBattle() {
     updateCurrentEnemy();
     
-    document.getElementById('hero-power-display').innerText = `⚔️ Сила: ${getEffectiveHeroPower(currentEnemy)}`;
+    document.getElementById('hero-power-display').innerText = `⚔️ Сила: ${getEffectiveHeroPower(state.currentEnemy)}`;
     document.getElementById('hero-hp-display').innerHTML = `❤️ HP: ${state.hp}/${state.maxHp}`;
-    document.getElementById('enemy-name').innerHTML = currentEnemy.isBoss ? `👑 ${currentEnemy.name}` : `👾 ${currentEnemy.name}`;
-    document.getElementById('enemy-power-display').innerText = `⚔️ Сила: ${currentEnemy.basePower}`;
-    document.getElementById('enemy-weakness').innerHTML = `Слабость: ${currentEnemy.weakness || 'нет'}`;
+    document.getElementById('enemy-name').innerHTML = state.currentEnemy.isBoss ? `👑 ${state.currentEnemy.name}` : `👾 ${state.currentEnemy.name}`;
+    document.getElementById('enemy-power-display').innerText = `⚔️ Сила: ${state.currentEnemy.basePower}`;
+    document.getElementById('enemy-weakness').innerHTML = `Слабость: ${state.currentEnemy.weakness || 'нет'}`;
     document.getElementById('battle-log').innerHTML = '';
     document.getElementById('modal-battle').style.display = 'flex';
     SoundManager.startMusic('battle');
@@ -341,7 +184,6 @@ function closeBattle() {
     document.getElementById('modal-battle').style.display = 'none';
     SoundManager.startMusic('menu');
 }
-
 
 function startBattle() {
     const log = document.getElementById('battle-log');
@@ -364,8 +206,8 @@ function startBattle() {
     state.energy -= 10;
     updateEnergyDisplay();
 
-    const heroPower = getEffectiveHeroPower(currentEnemy);
-    const enemyPower = currentEnemy.basePower;
+    const heroPower = getEffectiveHeroPower(state.currentEnemy);
+    const enemyPower = state.currentEnemy.basePower;
 
     log.innerHTML += `<div>⚔️ Ваша сила: ${heroPower}</div>`;
     log.innerHTML += `<div>👾 Сила врага: ${enemyPower}</div>`;
@@ -380,8 +222,8 @@ function startBattle() {
         log.innerHTML += `<div style="color: lightgreen;">✅ ПОБЕДА!</div>`;
         SoundManager.playEffect('victory');
 
-        const earnedXp = Math.floor(currentEnemy.expReward * getXpMultiplier());
-        const earnedGold = Math.floor(currentEnemy.goldReward * getGoldMultiplier());
+        const earnedXp = Math.floor(state.currentEnemy.expReward * getXpMultiplier());
+        const earnedGold = Math.floor(state.currentEnemy.goldReward * getGoldMultiplier());
         
         state.xp += earnedXp;
         state.gold += earnedGold;
@@ -393,10 +235,10 @@ function startBattle() {
             }
         }, 300);
 
-        while (state.xp >= state.state.state.maxXp) {
+        while (state.xp >= state.maxXp) {
             state.level++;
-            state.xp -= state.state.state.maxXp;
-            talentPoints++;
+            state.xp -= state.maxXp;
+            state.talentPoints++;
         }
 
         let chestRarity = 0;
@@ -409,17 +251,16 @@ function startBattle() {
         addChest(chestRarity);
         log.innerHTML += `<div style="color: gold;">🎁 Получен ${chestTypes[chestRarity].img} сундук!</div>`;
 
-        if (currentEnemy.isBoss) {
-            defeatedMobsCount = 0;
-            bossAvailable = false;
+        if (state.currentEnemy.isBoss) {
+            state.defeatedMobsCount = 0;
+            state.bossAvailable = false;
         } else {
-            defeatedMobsCount++;
-            if (defeatedMobsCount >= 10) bossAvailable = true;
+            state.defeatedMobsCount++;
+            if (state.defeatedMobsCount >= 10) state.bossAvailable = true;
         }
 
         updateCurrentEnemy();
     } else {
-
         log.innerHTML += `<div style="color: red;">💔 ПОРАЖЕНИЕ!</div>`;
         state.hp = Math.max(0, state.hp - 10);
         SoundManager.playEffect('defeat');
@@ -435,8 +276,8 @@ function startBattle() {
     updateUI();
     
     document.getElementById('hero-hp-display').innerHTML = `❤️ HP: ${state.hp}/${state.maxHp}`;
-    document.getElementById('enemy-name').innerHTML = currentEnemy.isBoss ? `👑 ${currentEnemy.name}` : `👾 ${currentEnemy.name}`;
-    document.getElementById('enemy-power-display').innerText = `⚔️ Сила: ${currentEnemy.basePower}`;
+    document.getElementById('enemy-name').innerHTML = state.currentEnemy.isBoss ? `👑 ${state.currentEnemy.name}` : `👾 ${state.currentEnemy.name}`;
+    document.getElementById('enemy-power-display').innerText = `⚔️ Сила: ${state.currentEnemy.basePower}`;
     log.scrollTop = log.scrollHeight;
 }
 
@@ -449,8 +290,7 @@ function restoreHp() {
     if (state.gold >= 10 && state.hp < state.maxHp) {
         state.gold -= 10;
         state.hp = Math.min(state.maxHp, state.hp + 10);
-        localStorage.setItem('rpg_gold', state.gold);
-        localStorage.setItem('rpg_hp', state.hp);
+        saveGame();
         document.getElementById('gold').innerText = state.gold;
         updateHpDisplay();
         SoundManager.playEffect('heal');
@@ -470,67 +310,66 @@ function restoreHp() {
 }
 
 function renderStats() {
-    document.getElementById('stats-login-days').innerText = totalLoginDays;
-    document.getElementById('stats-total-quests').innerText = totalstate.completedQuests;
+    document.getElementById('stats-login-days').innerText = state.totalLoginDays;
+    document.getElementById('stats-total-quests').innerText = state.totalCompletedQuests;
     document.getElementById('stats-pushups').innerText = state.totalPushups;
     document.getElementById('stats-pullups').innerText = state.totalPullups;
-    document.getElementById('stats-squats').innerText = totalSquats;
+    document.getElementById('stats-squats').innerText = state.totalSquats;
     document.getElementById('stats-abs').innerText = state.totalAbs;
     document.getElementById('stats-plank').innerText = state.totalPlank;
     document.getElementById('stats-stretch').innerText = state.totalStretch;
-    document.getElementById('stats-run-km').innerText = totalRunKm;
-    document.getElementById('stats-run-mins').innerText = totalRunMins;
+    document.getElementById('stats-run-km').innerText = state.totalRunKm;
+    document.getElementById('stats-run-mins').innerText = state.totalRunMins;
 }
 
+function renderForecast(name, values) {
+    const month = extrapolate(values, 30);
+    const halfYear = extrapolate(values, 180);
+    const year = extrapolate(values, 365);
+    if (month === null) return `<div class="forecast">${name}: недостаточно данных для прогноза</div>`;
+    return `<div class="forecast">${name}: через месяц → ${month}, через полгода → ${halfYear}, через год → ${year}</div>`;
+}
 
-            function renderForecast(name, values) {
-                const month = extrapolate(values, 30);
-                const halfYear = extrapolate(values, 180);
-                const year = extrapolate(values, 365);
-                if (month === null) return `<div class="forecast">${name}: недостаточно данных для прогноза</div>`;
-                return `<div class="forecast">${name}: через месяц → ${month}, через полгода → ${halfYear}, через год → ${year}</div>`;
-            }
+function renderForecastTime(name, values) {
+    const month = extrapolate(values, 30);
+    const halfYear = extrapolate(values, 180);
+    const year = extrapolate(values, 365);
+    if (month === null) return `<div class="forecast">${name}: недостаточно данных для прогноза</div>`;
+    return `<div class="forecast">${name}: через месяц → ${formatTime(month)}, через полгода → ${formatTime(halfYear)}, через год → ${formatTime(year)}</div>`;
+}
 
-            function renderForecastTime(name, values) {
-                const month = extrapolate(values, 30);
-                const halfYear = extrapolate(values, 180);
-                const year = extrapolate(values, 365);
-                if (month === null) return `<div class="forecast">${name}: недостаточно данных для прогноза</div>`;
-                return `<div class="forecast">${name}: через месяц → ${formatTime(month)}, через полгода → ${formatTime(halfYear)}, через год → ${formatTime(year)}</div>`;
-            }
-        
-            function extrapolate(values, daysForward) {
-                if (values.length < 2) return null;
-                const recent = values.slice(-7);
-                if (recent.length < 2) return null;
-                const indices = recent.map((_, i) => i);
-                const sumX = indices.reduce((a,b)=>a+b,0);
-                const sumY = recent.reduce((a,b)=>a+b,0);
-                const sumXY = indices.reduce((a,b,i)=>a+b*recent[i],0);
-                const sumX2 = indices.reduce((a,b)=>a+b*b,0);
-                const n = recent.length;
-                const slope = (n*sumXY - sumX*sumY) / (n*sumX2 - sumX*sumX);
-                const intercept = (sumY - slope*sumX)/n;
-                const lastIndex = indices[indices.length-1];
-                const lastValue = recent[lastIndex];
-                const predicted = lastValue + slope * daysForward;
-                return Math.round(predicted);
-            }
+function extrapolate(values, daysForward) {
+    if (values.length < 2) return null;
+    const recent = values.slice(-7);
+    if (recent.length < 2) return null;
+    const indices = recent.map((_, i) => i);
+    const sumX = indices.reduce((a,b)=>a+b,0);
+    const sumY = recent.reduce((a,b)=>a+b,0);
+    const sumXY = indices.reduce((a,b,i)=>a+b*recent[i],0);
+    const sumX2 = indices.reduce((a,b)=>a+b*b,0);
+    const n = recent.length;
+    const slope = (n*sumXY - sumX*sumY) / (n*sumX2 - sumX*sumX);
+    const intercept = (sumY - slope*sumX)/n;
+    const lastIndex = indices[indices.length-1];
+    const lastValue = recent[lastIndex];
+    const predicted = lastValue + slope * daysForward;
+    return Math.round(predicted);
+}
 
-            function updateXPdisplay() {
-                document.getElementById('xp-current').innerText = state.xp;
-                document.getElementById('xp-max').innerText = state.state.state.maxXp;
-                document.querySelector('.xp-bar').style.width = Math.min((state.xp / state.state.state.maxXp) * 100, 100) + '%';
-            }
+function updateXPdisplay() {
+    document.getElementById('xp-current').innerText = state.xp;
+    document.getElementById('xp-max').innerText = state.maxXp;
+    document.querySelector('.xp-bar').style.width = Math.min((state.xp / state.maxXp) * 100, 100) + '%';
+}
 
-            function updateHpDisplay() {
-                document.getElementById('hp-current').innerText = state.hp;
-                document.getElementById('hp-max').innerText = state.maxHp;
-                const percent = (state.hp / state.maxHp) * 100;
-                document.getElementById('hp-bar-fill').style.width = Math.max(0, percent) + '%';
-            }
+function updateHpDisplay() {
+    document.getElementById('hp-current').innerText = state.hp;
+    document.getElementById('hp-max').innerText = state.maxHp;
+    const percent = (state.hp / state.maxHp) * 100;
+    document.getElementById('hp-bar-fill').style.width = Math.max(0, percent) + '%';
+}
 
-    function updateEnergyDisplay() {
+function updateEnergyDisplay() {
     const energyCur = document.getElementById('energy-current');
     if (energyCur) energyCur.innerText = state.energy;
     const energyMax = document.getElementById('energy-max');
@@ -540,33 +379,18 @@ function renderStats() {
     const bar = document.getElementById('energy-bar-fill');
     if (bar) bar.style.width = Math.max(0, percent) + '%';
 }
-   
-            function formatTime(sec) {
-                if (!sec) return '—';
-                const mins = Math.floor(sec / 60);
-                const seconds = sec % 60;
-                return `${mins}:${seconds.toString().padStart(2,'0')}`;
-            }
 
-const today = new Date().toISOString().split('T')[0];
-let lastLoginDate = localStorage.getItem('rpg_last_login');
-if (lastLoginDate !== today) {
-    state.completedQuests = [];
-    localStorage.setItem('rpg_last_login', today);
-    localStorage.setItem('rpg_completed', JSON.stringify(state.completedQuests));
-    totalLoginDays++;
-    saveGame();  
+function formatTime(sec) {
+    if (!sec) return '—';
+    const mins = Math.floor(sec / 60);
+    const seconds = sec % 60;
+    return `${mins}:${seconds.toString().padStart(2,'0')}`;
 }
-            
-    function toggleSfx() {
-        SoundManager.toggleSfx();
-    }
 
-    function toggleMusic() {
-        SoundManager.toggleMusic();
-    }
-    
-        function updateSfxButton() {
+function toggleSfx() { SoundManager.toggleSfx(); }
+function toggleMusic() { SoundManager.toggleMusic(); }
+
+function updateSfxButton() {
     const btn = document.getElementById('sound-toggle');
     if (btn) {
         btn.innerText = SoundManager.getSfxEnabled() ? 'ВКЛ' : 'ВЫКЛ';
@@ -582,14 +406,11 @@ function updateMusicButton() {
     }
 }
 
-    
-    function getColor(slotId, defaultColor) {
-        const item = state.equippedItems[slotId];
-        if (item) return rarityColors[item.rarity];
-        return defaultColor;
-    }
-
-   
+function getColor(slotId, defaultColor) {
+    const item = state.equippedItems[slotId];
+    if (item) return rarityColors[item.rarity];
+    return defaultColor;
+}
 
 function showFloatingText(element, text, color) {
     if (!element) return;
@@ -606,21 +427,20 @@ function showFloatingText(element, text, color) {
     document.body.appendChild(floatEl);
     setTimeout(() => floatEl.remove(), 1000);
 }
-        
 
-                function updateCurrentEnemy() {
-                    if (bossAvailable && bosses.length > 0) {
-                        const randomIndex = Math.floor(Math.random() * bosses.length);
-                        currentEnemy = { ...bosses[randomIndex], isBoss: true };
-                    } else {
-                        const randomIndex = Math.floor(Math.random() * mobs.length);
-                        currentEnemy = { ...mobs[randomIndex], isBoss: false };
-                    }
-                }
+function updateCurrentEnemy() {
+    if (state.bossAvailable && bosses.length > 0) {
+        const randomIndex = Math.floor(Math.random() * bosses.length);
+        state.currentEnemy = { ...bosses[randomIndex], isBoss: true };
+    } else {
+        const randomIndex = Math.floor(Math.random() * mobs.length);
+        state.currentEnemy = { ...mobs[randomIndex], isBoss: false };
+    }
+}
 
 function getEffectiveHeroPower(enemy) {
     let basePower = calculatePower();
-    if (enemy.weakness && state.stats[enemy.weakness]) {
+    if (enemy && enemy.weakness && state.stats[enemy.weakness]) {
         basePower += state.stats[enemy.weakness];
     }
     return basePower;
@@ -634,7 +454,6 @@ function openInventory() {
     
     for (let i = 0; i < state.inventory.length; i++) {
         const item = state.inventory[i];
-        
         const slotDiv = document.createElement('div');
         slotDiv.className = 'inv-slot';
         slotDiv.style.position = 'relative'; 
@@ -645,12 +464,9 @@ function openInventory() {
         if (item.type === 'chest') {
             const chest = chestTypes[item.chestRarity];
             slotDiv.style.borderColor = chest.color;
-            
-           
             let imageHtml = chest.img.includes('.') 
-    ? `<img src="images/${chest.img}" style="width: 80%; height: 80%; object-fit: contain; pointer-events: none;">`
-    : `<span style="font-size: 16px;">${chest.img}</span>`;
-                
+                ? `<img src="images/${chest.img}" style="width: 80%; height: 80%; object-fit: contain; pointer-events: none;">`
+                : `<span style="font-size: 16px;">${chest.img}</span>`;
             slotDiv.innerHTML = `${imageHtml}${countBadge}`;
             slotDiv.onclick = () => showChestDetails(i);
         } else {
@@ -660,7 +476,6 @@ function openInventory() {
                 if (item.rarity === 4) slotDiv.classList.add('glow-4');
                 slotDiv.style.borderColor = rarityColors[item.rarity];
                 
-                // УМНАЯ ПРОВЕРКА ДЛЯ ПРЕДМЕТА
                 let imageHtml = baseItem.img.includes('.') 
                     ? `<img src="${baseItem.img}" style="width: 80%; height: 80%; object-fit: contain; pointer-events: none;">`
                     : `<span style="font-size: 16px; color: ${rarityColors[item.rarity]};">${baseItem.img}</span>`;
@@ -678,147 +493,142 @@ function openInventory() {
         slotDiv.className = 'inv-slot';
         grid.appendChild(slotDiv);
     }
-
     modal.style.display = 'flex';
 }
 
-        function saveMetrics() {
-            const today = getToday();
-            const pushups = parseInt(document.getElementById('metric-pushups').value) || 0;
-            const pullups = parseInt(document.getElementById('metric-pullups').value) || 0;
-            const barbell = parseInt(document.getElementById('metric-barbell').value) || 0;
-            const bodyweight = parseInt(document.getElementById('metric-bodyweight').value) || 0;
-            const run1k = parseInt(document.getElementById('metric-run1k').value) || 0;
-            const run5k = parseInt(document.getElementById('metric-run5k').value) || 0;
-            const run21k = parseInt(document.getElementById('metric-run21k').value) || 0;
+function saveMetrics() {
+    const today = getToday();
+    const pushups = parseInt(document.getElementById('metric-pushups').value) || 0;
+    const pullups = parseInt(document.getElementById('metric-pullups').value) || 0;
+    const barbell = parseInt(document.getElementById('metric-barbell').value) || 0;
+    const bodyweight = parseInt(document.getElementById('metric-bodyweight').value) || 0;
+    const run1k = parseInt(document.getElementById('metric-run1k').value) || 0;
+    const run5k = parseInt(document.getElementById('metric-run5k').value) || 0;
+    const run21k = parseInt(document.getElementById('metric-run21k').value) || 0;
 
-            const existingIndex = metricsHistory.findIndex(entry => entry.date === today);
-            const newEntry = { date: today, pushups, pullups, barbell, bodyweight, run1k, run5k, run21k };
+    const existingIndex = state.metricsHistory.findIndex(entry => entry.date === today);
+    const newEntry = { date: today, pushups, pullups, barbell, bodyweight, run1k, run5k, run21k };
 
-            if (existingIndex !== -1) {
-                metricsHistory[existingIndex] = newEntry;
-            } else {
-                metricsHistory.push(newEntry);
-                metricsHistory.sort((a,b) => new Date(a.date) - new Date(b.date));
-            }
-            localStorage.setItem('metrics_history', JSON.stringify(metricsHistory));
-            tg.showPopup({ title: 'Сохранено', message: 'Показатели сохранены!', buttons: [{ type: 'ok' }] });
-            document.getElementById('metric-pushups').value = '';
-            document.getElementById('metric-pullups').value = '';
-            document.getElementById('metric-barbell').value = '';
-            document.getElementById('metric-bodyweight').value = '';
-            document.getElementById('metric-run1k').value = '';
-            document.getElementById('metric-run5k').value = '';
-            document.getElementById('metric-run21k').value = '';
-            if (document.getElementById('metrics-graphs-tab').style.display !== 'none') {
-                renderGraphs();
-            }
+    if (existingIndex !== -1) {
+        state.metricsHistory[existingIndex] = newEntry;
+    } else {
+        state.metricsHistory.push(newEntry);
+        state.metricsHistory.sort((a,b) => new Date(a.date) - new Date(b.date));
+    }
+    saveGame();
+    if(tg) tg.showPopup({ title: 'Сохранено', message: 'Показатели сохранены!', buttons: [{ type: 'ok' }] });
+    document.getElementById('metric-pushups').value = '';
+    document.getElementById('metric-pullups').value = '';
+    document.getElementById('metric-barbell').value = '';
+    document.getElementById('metric-bodyweight').value = '';
+    document.getElementById('metric-run1k').value = '';
+    document.getElementById('metric-run5k').value = '';
+    document.getElementById('metric-run21k').value = '';
+    if (document.getElementById('metrics-graphs-tab').style.display !== 'none') {
+        renderGraphs();
+    }
+}
+
+let metricsChart = null;
+function renderGraphs() {
+    if (state.metricsHistory.length === 0) {
+        document.getElementById('metrics-dashboard').innerHTML = '<div style="text-align:center; padding:20px;">Нет данных. Введите показатели в разделе "Ввод данных".</div>';
+        document.getElementById('forecast-container').innerHTML = '';
+        if (metricsChart) metricsChart.destroy();
+        return;
+    }
+
+    const dates = state.metricsHistory.map(e => e.date);
+    const pushups = state.metricsHistory.map(e => e.pushups);
+    const pullups = state.metricsHistory.map(e => e.pullups);
+    const barbell = state.metricsHistory.map(e => e.barbell);
+    const bodyweight = state.metricsHistory.map(e => e.bodyweight);
+    const run1k = state.metricsHistory.map(e => e.run1k);
+    const run5k = state.metricsHistory.map(e => e.run5k);
+    const run21k = state.metricsHistory.map(e => e.run21k);
+
+    const last = state.metricsHistory[state.metricsHistory.length-1];
+    const prev = state.metricsHistory.length>1 ? state.metricsHistory[state.metricsHistory.length-2] : null;
+    const dashboardHtml = `
+        <div class="metric-card">
+            <div class="metric-title">📊 Текущие показатели (${last.date})</div>
+            <div class="metric-value">Отжимания: ${last.pushups || 0}</div>
+            <div class="metric-change">${prev ? (last.pushups - prev.pushups > 0 ? '▲' : (last.pushups - prev.pushups < 0 ? '▼' : '●')) + ' ' + Math.abs(last.pushups - prev.pushups) : ''}</div>
+            <div class="metric-value">Подтягивания: ${last.pullups || 0}</div>
+            <div class="metric-change">${prev ? (last.pullups - prev.pullups > 0 ? '▲' : (last.pullups - prev.pullups < 0 ? '▼' : '●')) + ' ' + Math.abs(last.pullups - prev.pullups) : ''}</div>
+            <div class="metric-value">Вес штанги: ${last.barbell || 0} кг</div>
+            <div class="metric-change">${prev ? (last.barbell - prev.barbell > 0 ? '▲' : (last.barbell - prev.barbell < 0 ? '▼' : '●')) + ' ' + Math.abs(last.barbell - prev.barbell) : ''}</div>
+            <div class="metric-value">Вес тела: ${last.bodyweight || 0} кг</div>
+            <div class="metric-change">${prev ? (last.bodyweight - prev.bodyweight > 0 ? '▲' : (last.bodyweight - prev.bodyweight < 0 ? '▼' : '●')) + ' ' + Math.abs(last.bodyweight - prev.bodyweight) : ''}</div>
+            <div class="metric-value">Бег 1 км: ${formatTime(last.run1k)}</div>
+            <div class="metric-change">${prev && last.run1k && prev.run1k ? (last.run1k - prev.run1k < 0 ? '▼' : (last.run1k - prev.run1k > 0 ? '▲' : '●')) + ' ' + Math.abs(last.run1k - prev.run1k) + ' сек' : ''}</div>
+            <div class="metric-value">Бег 5 км: ${formatTime(last.run5k)}</div>
+            <div class="metric-change">${prev && last.run5k && prev.run5k ? (last.run5k - prev.run5k < 0 ? '▼' : (last.run5k - prev.run5k > 0 ? '▲' : '●')) + ' ' + Math.abs(last.run5k - prev.run5k) + ' сек' : ''}</div>
+            <div class="metric-value">Бег 21 км: ${formatTime(last.run21k)}</div>
+            <div class="metric-change">${prev && last.run21k && prev.run21k ? (last.run21k - prev.run21k < 0 ? '▼' : (last.run21k - prev.run21k > 0 ? '▲' : '●')) + ' ' + Math.abs(last.run21k - prev.run21k) + ' сек' : ''}</div>
+        </div>
+    `;
+    document.getElementById('metrics-dashboard').innerHTML = dashboardHtml;
+
+    if (metricsChart) metricsChart.destroy();
+    const ctx = document.getElementById('metrics-chart').getContext('2d');
+    metricsChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: dates,
+            datasets: [
+                { label: 'Отжимания', data: pushups, borderColor: '#ff6384', fill: false, tension: 0.1 },
+                { label: 'Подтягивания', data: pullups, borderColor: '#36a2eb', fill: false, tension: 0.1 },
+                { label: 'Вес штанги (кг)', data: barbell, borderColor: '#ffce56', fill: false, tension: 0.1 },
+                { label: 'Вес тела (кг)', data: bodyweight, borderColor: '#4bc0c0', fill: false, tension: 0.1 }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: { legend: { position: 'top', labels: { font: { size: 8 } } } },
+            scales: { x: { ticks: { font: { size: 6 } } }, y: { ticks: { font: { size: 6 } } } }
         }
+    });
 
-        let metricsChart = null;
-        function renderGraphs() {
-            if (metricsHistory.length === 0) {
-                document.getElementById('metrics-dashboard').innerHTML = '<div style="text-align:center; padding:20px;">Нет данных. Введите показатели в разделе "Ввод данных".</div>';
-                document.getElementById('forecast-container').innerHTML = '';
-                if (metricsChart) metricsChart.destroy();
-                return;
-            }
+    const forecastHtml = `
+        <div class="metric-card">
+            <div class="metric-title">📈 Прогноз (при сохранении темпа)</div>
+            ${renderForecast('Отжимания', pushups)}
+            ${renderForecast('Подтягивания', pullups)}
+            ${renderForecast('Вес штанги', barbell)}
+            ${renderForecast('Вес тела', bodyweight)}
+            ${renderForecastTime('Бег 1 км', run1k)}
+            ${renderForecastTime('Бег 5 км', run5k)}
+            ${renderForecastTime('Бег 21 км', run21k)}
+        </div>
+    `;
+    document.getElementById('forecast-container').innerHTML = forecastHtml;
+}
 
-            const dates = metricsHistory.map(e => e.date);
-            const pushups = metricsHistory.map(e => e.pushups);
-            const pullups = metricsHistory.map(e => e.pullups);
-            const barbell = metricsHistory.map(e => e.barbell);
-            const bodyweight = metricsHistory.map(e => e.bodyweight);
-            const run1k = metricsHistory.map(e => e.run1k);
-            const run5k = metricsHistory.map(e => e.run5k);
-            const run21k = metricsHistory.map(e => e.run21k);
+function openMetrics() {
+    document.getElementById('modal-metrics').style.display = 'flex';
+    document.querySelector('.tab-btn[data-tab="input"]').click();
+    renderGraphs();
+    renderStats();
+}
+function closeMetrics() {
+    document.getElementById('modal-metrics').style.display = 'none';
+}
 
-            const last = metricsHistory[metricsHistory.length-1];
-            const prev = metricsHistory.length>1 ? metricsHistory[metricsHistory.length-2] : null;
-            const dashboardHtml = `
-                <div class="metric-card">
-                    <div class="metric-title">📊 Текущие показатели (${last.date})</div>
-                    <div class="metric-value">Отжимания: ${last.pushups || 0}</div>
-                    <div class="metric-change">${prev ? (last.pushups - prev.pushups > 0 ? '▲' : (last.pushups - prev.pushups < 0 ? '▼' : '●')) + ' ' + Math.abs(last.pushups - prev.pushups) : ''}</div>
-                    <div class="metric-value">Подтягивания: ${last.pullups || 0}</div>
-                    <div class="metric-change">${prev ? (last.pullups - prev.pullups > 0 ? '▲' : (last.pullups - prev.pullups < 0 ? '▼' : '●')) + ' ' + Math.abs(last.pullups - prev.pullups) : ''}</div>
-                    <div class="metric-value">Вес штанги: ${last.barbell || 0} кг</div>
-                    <div class="metric-change">${prev ? (last.barbell - prev.barbell > 0 ? '▲' : (last.barbell - prev.barbell < 0 ? '▼' : '●')) + ' ' + Math.abs(last.barbell - prev.barbell) : ''}</div>
-                    <div class="metric-value">Вес тела: ${last.bodyweight || 0} кг</div>
-                    <div class="metric-change">${prev ? (last.bodyweight - prev.bodyweight > 0 ? '▲' : (last.bodyweight - prev.bodyweight < 0 ? '▼' : '●')) + ' ' + Math.abs(last.bodyweight - prev.bodyweight) : ''}</div>
-                    <div class="metric-value">Бег 1 км: ${formatTime(last.run1k)}</div>
-                    <div class="metric-change">${prev && last.run1k && prev.run1k ? (last.run1k - prev.run1k < 0 ? '▼' : (last.run1k - prev.run1k > 0 ? '▲' : '●')) + ' ' + Math.abs(last.run1k - prev.run1k) + ' сек' : ''}</div>
-                    <div class="metric-value">Бег 5 км: ${formatTime(last.run5k)}</div>
-                    <div class="metric-change">${prev && last.run5k && prev.run5k ? (last.run5k - prev.run5k < 0 ? '▼' : (last.run5k - prev.run5k > 0 ? '▲' : '●')) + ' ' + Math.abs(last.run5k - prev.run5k) + ' сек' : ''}</div>
-                    <div class="metric-value">Бег 21 км: ${formatTime(last.run21k)}</div>
-                    <div class="metric-change">${prev && last.run21k && prev.run21k ? (last.run21k - prev.run21k < 0 ? '▼' : (last.run21k - prev.run21k > 0 ? '▲' : '●')) + ' ' + Math.abs(last.run21k - prev.run21k) + ' сек' : ''}</div>
-                </div>
-            `;
-            document.getElementById('metrics-dashboard').innerHTML = dashboardHtml;
-
-            if (metricsChart) metricsChart.destroy();
-            const ctx = document.getElementById('metrics-chart').getContext('2d');
-            metricsChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: dates,
-                    datasets: [
-                        { label: 'Отжимания', data: pushups, borderColor: '#ff6384', fill: false, tension: 0.1 },
-                        { label: 'Подтягивания', data: pullups, borderColor: '#36a2eb', fill: false, tension: 0.1 },
-                        { label: 'Вес штанги (кг)', data: barbell, borderColor: '#ffce56', fill: false, tension: 0.1 },
-                        { label: 'Вес тела (кг)', data: bodyweight, borderColor: '#4bc0c0', fill: false, tension: 0.1 }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: true,
-                    plugins: { legend: { position: 'top', labels: { font: { size: 8 } } } },
-                    scales: { x: { ticks: { font: { size: 6 } } }, y: { ticks: { font: { size: 6 } } } }
-                }
-            });
-
-            const forecastHtml = `
-                <div class="metric-card">
-                    <div class="metric-title">📈 Прогноз (при сохранении темпа)</div>
-                    ${renderForecast('Отжимания', pushups)}
-                    ${renderForecast('Подтягивания', pullups)}
-                    ${renderForecast('Вес штанги', barbell)}
-                    ${renderForecast('Вес тела', bodyweight)}
-                    ${renderForecastTime('Бег 1 км', run1k)}
-                    ${renderForecastTime('Бег 5 км', run5k)}
-                    ${renderForecastTime('Бег 21 км', run21k)}
-                </div>
-            `;
-            document.getElementById('forecast-container').innerHTML = forecastHtml;
-        }
-
-        function openMetrics() {
-            document.getElementById('modal-metrics').style.display = 'flex';
-            document.querySelector('.tab-btn[data-tab="input"]').click();
-            renderGraphs();
-            renderStats();
-        }
-        function closeMetrics() {
-            document.getElementById('modal-metrics').style.display = 'none';
-        }
-
-        document.querySelectorAll('.tab-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const tab = this.dataset.tab;
-                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-                document.getElementById('metrics-input-tab').style.display = tab === 'input' ? 'block' : 'none';
-                document.getElementById('metrics-graphs-tab').style.display = tab === 'graphs' ? 'block' : 'none';
-                const statsTab = document.getElementById('metrics-stats-tab');
-                if (statsTab) statsTab.style.display = tab === 'stats' ? 'block' : 'none';
-                if (tab === 'graphs') renderGraphs();
-                if (tab === 'stats') renderStats();
-            });
-        });
-
-        updateXPdisplay();
-        document.getElementById('gold').innerText = state.gold;
-        document.getElementById('level').innerText = state.level;
+document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const tab = this.dataset.tab;
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        document.getElementById('metrics-input-tab').style.display = tab === 'input' ? 'block' : 'none';
+        document.getElementById('metrics-graphs-tab').style.display = tab === 'graphs' ? 'block' : 'none';
+        const statsTab = document.getElementById('metrics-stats-tab');
+        if (statsTab) statsTab.style.display = tab === 'stats' ? 'block' : 'none';
+        if (tab === 'graphs') renderGraphs();
+        if (tab === 'stats') renderStats();
+    });
+});
 
 function recalcStats() {
     let newStats = {
@@ -882,23 +692,13 @@ function getLuckBonus() {
     return luck;
 }
 
-        function openSettings() {
-    document.getElementById('modal-settings').style.display = 'flex';
-}
-        function closeSettings() {
-    document.getElementById('modal-settings').style.display = 'none';
-}
-        
-        function getTalentLevel(talentId) {
-            return talentsState[talentId] || 0;
-        }
+function openSettings() { document.getElementById('modal-settings').style.display = 'flex'; }
+function closeSettings() { document.getElementById('modal-settings').style.display = 'none'; }
 
 function openTalents() {
     document.getElementById('modal-talents').style.display = 'flex';
-    document.getElementById('talent-points-display').innerText = talentPoints;
-    
+    document.getElementById('talent-points-display').innerText = state.talentPoints;
     document.getElementById('talent-info').innerHTML = `<div style="color: #aaa; font-size: 6px;">Нажми на узел, чтобы увидеть детали</div>`;
-    
     renderTalentTree();
     
     setTimeout(() => {
@@ -908,9 +708,7 @@ function openTalents() {
     }, 10);
 }
 
-function closeTalents() {
-    document.getElementById('modal-talents').style.display = 'none';
-}
+function closeTalents() { document.getElementById('modal-talents').style.display = 'none'; }
 
 function renderTalentTree() {
     const svg = document.getElementById('talent-lines');
@@ -981,7 +779,7 @@ function selectTalentNode(node, canLearn, isLearned) {
     if (isLearned) {
         btnHtml = `<button disabled style="background: #333; color: var(--accent-yellow); border: 1px solid var(--accent-yellow); padding: 5px; font-size: 6px; border-radius: 3px;">ИЗУЧЕНО</button>`;
     } else if (canLearn) {
-        if (talentPoints >= node.cost) {
+        if (state.talentPoints >= node.cost) {
             btnHtml = `<button onclick="learnTalent('${node.id}')" class="btn-action" style="padding: 5px; font-size: 6px; width: 100%;">ИЗУЧИТЬ (${node.cost} очков)</button>`;
         } else {
             btnHtml = `<button disabled style="background: #8b0000; color: white; border: none; padding: 5px; font-size: 6px; border-radius: 3px;">НУЖНО ${node.cost} ОЧКОВ</button>`;
@@ -1000,35 +798,34 @@ function selectTalentNode(node, canLearn, isLearned) {
 
 function learnTalent(nodeId) {
     const node = talentTree.find(n => n.id === nodeId);
-    if (!node || talentPoints < node.cost) return;
+    if (!node || state.talentPoints < node.cost) return;
 
-    talentPoints -= node.cost;
+    state.talentPoints -= node.cost;
     state.learnedTalents.push(nodeId);
 
     saveGame();
     recalcStats();
     renderTalentTree();
-    document.getElementById('talent-points-display').innerText = talentPoints;
+    document.getElementById('talent-points-display').innerText = state.talentPoints;
     selectTalentNode(node, false, true); 
     SoundManager.playEffect('levelup');
 }
 
+function hideItemDetails() { document.getElementById('item-details').classList.remove('show'); }
 
-function hideItemDetails() {
-    document.getElementById('item-details').classList.remove('show');
-}
-
-        function showItemDetails(index) {
-            const itemData = state.inventory[index];
-            const baseItem = itemsDatabase[itemData.id];
-            const totalBonus = baseItem.baseBonus * statMultipliers[itemData.rarity];
-            const rColor = rarityColors[itemData.rarity];
-            document.getElementById('detail-image').innerHTML = `<span style="font-size: 10px; color: ${rColor};">${baseItem.img}</span>`;
-            document.getElementById('detail-name').innerHTML = `<span style="color: ${rColor};">${rarities[itemData.rarity]} ${baseItem.name}</span>`;
-            document.getElementById('detail-stats').innerText = `Слот: ${baseItem.type} | +${totalBonus} ${baseItem.stat}`;
-            const btnEquip = document.getElementById('btn-equip');
-            btnEquip.innerText = "НАДЕТЬ";
-            btnEquip.onclick = () => equipItem(index);
+function showItemDetails(index) {
+    const itemData = state.inventory[index];
+    const baseItem = itemsDatabase[itemData.id];
+    const totalBonus = baseItem.baseBonus * statMultipliers[itemData.rarity];
+    const rColor = rarityColors[itemData.rarity];
+    document.getElementById('detail-image').innerHTML = `<span style="font-size: 10px; color: ${rColor};">${baseItem.img}</span>`;
+    document.getElementById('detail-name').innerHTML = `<span style="color: ${rColor};">${rarities[itemData.rarity]} ${baseItem.name}</span>`;
+    document.getElementById('detail-stats').innerText = `Слот: ${baseItem.type} | +${totalBonus} ${baseItem.stat}`;
+    
+    const btnEquip = document.getElementById('btn-equip');
+    btnEquip.innerText = "НАДЕТЬ";
+    btnEquip.onclick = () => equipItem(index);
+    
     const btnMerge = document.getElementById('btn-merge');
     const count = itemData.count || 1;
     
@@ -1048,19 +845,22 @@ function showChestDetails(index) {
     const item = state.inventory[index];
     if (item.type !== 'chest') return;
     const chest = chestTypes[item.chestRarity];
+    
     document.getElementById('detail-image').innerHTML = `<span style="font-size: 30px;">${chest.img}</span>`;
     document.getElementById('detail-name').innerHTML = `<span style="color: ${chest.color};">${chest.name} сундук</span>`;
     document.getElementById('detail-stats').innerText = `Откройте, чтобы получить 3-6 предметов!`;
+    
     const btnEquip = document.getElementById('btn-equip');
     btnEquip.innerText = "ОТКРЫТЬ";
     btnEquip.onclick = () => openChest(index);
-    const btnMerge = document.getElementById('btn-merge');
-    btnMerge.style.display = 'none';
+    
+    document.getElementById('btn-merge').style.display = 'none';
     document.getElementById('item-details').classList.add('show');
+    
     let detailImgHtml = chest.img.includes('.') 
-    ? `<img src="images/${chest.img}" style="width: 60px; height: 60px; object-fit: contain;">` 
-    : `<span style="font-size: 30px;">${chest.img}</span>`;
-document.getElementById('detail-image').innerHTML = detailImgHtml;
+        ? `<img src="images/${chest.img}" style="width: 60px; height: 60px; object-fit: contain;">` 
+        : `<span style="font-size: 30px;">${chest.img}</span>`;
+    document.getElementById('detail-image').innerHTML = detailImgHtml;
 }
 
 function openChest(invIndex) {
@@ -1098,16 +898,13 @@ function openChest(invIndex) {
         newItems.push({ id: randomId, rarity: itemRarity });
     }
 
-    for (let item of newItems) {
-        addItemToInventory(item);
-    }
+    for (let item of newItems) { addItemToInventory(item); }
     saveGame();
-
     closeInventory();
     showChestAnimation(chestRarity, newItems);
 }
 
-                function showChestAnimation(chestRarity, items) {
+function showChestAnimation(chestRarity, items) {
     const modal = document.getElementById('modal-chest');
     const animationDiv = document.getElementById('chest-animation');
     animationDiv.innerHTML = '';
@@ -1127,16 +924,12 @@ function openChest(invIndex) {
         `;
         animationDiv.appendChild(div);
     });
-
     modal.style.display = 'flex';
 }
 
-function closeChestModal() {
-    document.getElementById('modal-chest').style.display = 'none';
-    openInventory(); 
-}
+function closeChestModal() { document.getElementById('modal-chest').style.display = 'none'; openInventory(); }
                 
-        function equipItem(invIndex) {
+function equipItem(invIndex) {
     const itemData = state.inventory[invIndex];
     const baseItem = itemsDatabase[itemData.id];
     
@@ -1145,18 +938,16 @@ function closeChestModal() {
     }
     
     state.equippedItems[baseItem.slotId] = { id: itemData.id, rarity: itemData.rarity };
-    
     removeItemFromInventory(invIndex, 1);
     
-    localStorage.setItem('rpg_inv_v2', JSON.stringify(state.inventory));
-    localStorage.setItem('rpg_equipped_v2', JSON.stringify(state.equippedItems));
+    saveGame();
     recalcStats();
     hideItemDetails();
     openInventory();
     renderEquipment();
 }
 
-       function mergeItem(invIndex) {
+function mergeItem(invIndex) {
     const itemData = state.inventory[invIndex];
     if ((itemData.count || 1) >= 3) {
         removeItemFromInventory(invIndex, 3); 
@@ -1164,78 +955,107 @@ function closeChestModal() {
         saveGame();
         hideItemDetails();
         openInventory(); 
-        tg.showPopup({ title: 'Успех', message: '⚔️ УСПЕШНОЕ СЛИЯНИЕ! Предмет улучшен.', buttons: [{ type: 'ok' }] });
+        if(tg) tg.showPopup({ title: 'Успех', message: '⚔️ УСПЕШНОЕ СЛИЯНИЕ! Предмет улучшен.', buttons: [{ type: 'ok' }] });
     }
 }
 
-        function showEquippedItemDetails(slotId) {
-            const itemData = state.equippedItems[slotId];
-            if (!itemData) return;
-            const baseItem = itemsDatabase[itemData.id];
-            const totalBonus = baseItem.baseBonus * statMultipliers[itemData.rarity];
-            const rColor = rarityColors[itemData.rarity];
-            document.getElementById('detail-image').innerHTML = `<span style="font-size: 10px; color: ${rColor};">${baseItem.img}</span>`;
-            document.getElementById('detail-name').innerHTML = `<span style="color: ${rColor};">${rarities[itemData.rarity]} ${baseItem.name}</span>`;
-            document.getElementById('detail-stats').innerText = `Слот: ${baseItem.type} | +${totalBonus} ${baseItem.stat}`;
-            const btnEquip = document.getElementById('btn-equip');
-            btnEquip.innerText = "СНЯТЬ";
-            btnEquip.onclick = () => unequipItem(slotId);
-            document.getElementById('btn-merge').style.display = 'none';
-            document.getElementById('modal-inventory').style.display = 'flex';
-            document.getElementById('item-details').classList.add('show');
-        }
+function renderEquipment() {
+    const slotMap = {
+        "slot-head": "Голова", "slot-amulet": "Амулет", "slot-amulet-2": "Амулет",
+        "slot-cape": "Плащ", "slot-shoulders": "Наплечники", "slot-right-hand": "Правая рука",
+        "slot-bracelet-right": "Браслет", "slot-ring-1": "Кольцо", "slot-gloves": "Перчатки",
+        "slot-armor": "Нагрудник", "slot-left-hand": "Левая рука", "slot-bracer": "Наручи",
+        "slot-bracelet-left": "Браслет", "slot-ring-2": "Кольцо", "slot-belt": "Пояс",
+        "slot-legs": "Штаны", "slot-knees": "Наколенники", "slot-shoes": "Обувь"
+    };
 
-        function unequipItem(slotId) {
-            if (state.inventory.length >= 20) {
-                alert("Рюкзак полон! Продай вещи.");
-                return;
-            }
-            state.inventory.push(state.equippedItems[slotId]);
-            delete state.equippedItems[slotId];
-            localStorage.setItem('rpg_inv_v2', JSON.stringify(state.inventory));
-            localStorage.setItem('rpg_equipped_v2', JSON.stringify(state.equippedItems));
-            recalcStats();
-            hideItemDetails();
-            openInventory();
-            renderEquipment();
+    for (let slotId in slotMap) {
+        const slotHtml = document.getElementById(slotId);
+        if (slotHtml) {
+            slotHtml.style.borderColor = "var(--border-gray)";
+            slotHtml.innerHTML = `<div class="slot-name">${slotMap[slotId]}</div>`;
+            slotHtml.onclick = null;
         }
+    }
 
-        function openShop() {
-            document.getElementById('modal-shop').style.display = 'flex';
-            renderShop();
+    for (let slotId in state.equippedItems) {
+        const itemData = state.equippedItems[slotId];
+        const baseItem = itemsDatabase[itemData.id];
+        const slotHtml = document.getElementById(slotId);
+        if (slotHtml && baseItem) {
+            slotHtml.className = 'slot'; 
+            if (itemData.rarity === 3) slotHtml.classList.add('glow-3');
+            if (itemData.rarity === 4) slotHtml.classList.add('glow-4');
+            slotHtml.style.borderColor = rarityColors[itemData.rarity];
+            slotHtml.innerHTML = `<span style="font-size: 5px; color: ${rarityColors[itemData.rarity]}">${baseItem.img}</span><div class="slot-name">${baseItem.type}</div>`;
+            slotHtml.onclick = () => showEquippedItemDetails(slotId);
         }
+    }
+}
 
-        function closeShop() {
-            document.getElementById('modal-shop').style.display = 'none';
+function showEquippedItemDetails(slotId) {
+    const itemData = state.equippedItems[slotId];
+    if (!itemData) return;
+    const baseItem = itemsDatabase[itemData.id];
+    const totalBonus = baseItem.baseBonus * statMultipliers[itemData.rarity];
+    const rColor = rarityColors[itemData.rarity];
+    document.getElementById('detail-image').innerHTML = `<span style="font-size: 10px; color: ${rColor};">${baseItem.img}</span>`;
+    document.getElementById('detail-name').innerHTML = `<span style="color: ${rColor};">${rarities[itemData.rarity]} ${baseItem.name}</span>`;
+    document.getElementById('detail-stats').innerText = `Слот: ${baseItem.type} | +${totalBonus} ${baseItem.stat}`;
+    
+    const btnEquip = document.getElementById('btn-equip');
+    btnEquip.innerText = "СНЯТЬ";
+    btnEquip.onclick = () => unequipItem(slotId);
+    
+    document.getElementById('btn-merge').style.display = 'none';
+    document.getElementById('modal-inventory').style.display = 'flex';
+    document.getElementById('item-details').classList.add('show');
+}
+
+function unequipItem(slotId) {
+    if (state.inventory.length >= 20) {
+        alert("Рюкзак полон! Продай вещи.");
+        return;
+    }
+    state.inventory.push(state.equippedItems[slotId]);
+    delete state.equippedItems[slotId];
+    saveGame();
+    recalcStats();
+    hideItemDetails();
+    openInventory();
+    renderEquipment();
+}
+
+function openShop() { document.getElementById('modal-shop').style.display = 'flex'; renderShop(); }
+function closeShop() { document.getElementById('modal-shop').style.display = 'none'; }
+
+function renderShop() {
+    const container = document.getElementById('shop-items');
+    container.innerHTML = '';
+    shopItems.forEach((item, index) => {
+        const div = document.createElement('div');
+        div.className = 'inv-slot';
+        div.style.flexDirection = 'column';
+        div.style.fontSize = '10px';
+        if (item.type === 'item') {
+            const base = itemsDatabase[item.id];
+            div.innerHTML = `${base.img}<br><span style="font-size:6px;">${item.price}💰</span>`;
+        } else {
+            div.innerHTML = `📦<br><span style="font-size:6px;">${item.price}💰</span>`;
         }
+        div.onclick = (e) => buyItem(index, e.currentTarget);
+        container.appendChild(div);
+    });
+}
 
-        function renderShop() {
-            const container = document.getElementById('shop-items');
-            container.innerHTML = '';
-            shopItems.forEach((item, index) => {
-                const div = document.createElement('div');
-                div.className = 'inv-slot';
-                div.style.flexDirection = 'column';
-                div.style.fontSize = '10px';
-                if (item.type === 'item') {
-                    const base = itemsDatabase[item.id];
-                    div.innerHTML = `${base.img}<br><span style="font-size:6px;">${item.price}💰</span>`;
-                } else {
-                    div.innerHTML = `📦<br><span style="font-size:6px;">${item.price}💰</span>`;
-                }
-                div.onclick = (e) => buyItem(index, e.currentTarget);
-                container.appendChild(div);
-            });
-        }
-
-function buyItem(index, element) { // Обрати внимание: добавлен аргумент element
+function buyItem(index, element) {
     const item = shopItems[index];
     const shopMsg = document.getElementById('shop-message');
 
     if (state.gold < item.price) {
         if (shopMsg) shopMsg.innerText = '❌ Недостаточно золота!';
         if (element) {
-            element.classList.add('shake'); // Эффект тряски при нехватке денег
+            element.classList.add('shake');
             setTimeout(() => element.classList.remove('shake'), 300);
         }
         return;
@@ -1244,9 +1064,9 @@ function buyItem(index, element) { // Обрати внимание: добав�
     state.gold -= item.price;
 
     if (element) {
-        showFloatingText(element, `-${item.price} 💰`, 'red'); // Всплывающий текст цены
-        element.style.transform = 'scale(0.9)'; // Эффект нажатия (уменьшение)
-        setTimeout(() => element.style.transform = 'scale(1)', 100); // Возврат размера
+        showFloatingText(element, `-${item.price} 💰`, 'red'); 
+        element.style.transform = 'scale(0.9)'; 
+        setTimeout(() => element.style.transform = 'scale(1)', 100); 
     }
 
     if (item.type === 'item') {
@@ -1261,7 +1081,6 @@ function buyItem(index, element) { // Обрати внимание: добав�
             cumulative += chestTypes[i].dropChance;
             if (random < cumulative) { chestRarity = chestTypes[i].rarity; break; }
         }
-        
         addItemToInventory({ type: 'chest', chestRarity: chestRarity });
         if (shopMsg) shopMsg.innerText = `📦 Сундук добавлен в инвентарь!`;
     }
@@ -1272,113 +1091,110 @@ function buyItem(index, element) { // Обрати внимание: добав�
     setTimeout(() => { if (shopMsg) shopMsg.innerText = ''; }, 3000);
 }
 
-            function resetProgress() {
-                if (confirm('Вы уверены? Весь прогресс (уровень, золото, предметы, таланты, метрики) будет удалён без возможности восстановления.')) {
-                    const sfx = SoundManager.getSfxEnabled();
-                    const music = SoundManager.getMusicEnabled();
-                    localStorage.clear();
-                    SoundManager.setSfxEnabled(sfx);
-                    SoundManager.setMusicEnabled(music);
-                    location.reload();
-                }
-            }
+function resetProgress() {
+    if (confirm('Вы уверены? Весь прогресс будет удалён без возможности восстановления.')) {
+        const sfx = SoundManager.getSfxEnabled();
+        const music = SoundManager.getMusicEnabled();
+        localStorage.clear();
+        SoundManager.setSfxEnabled(sfx);
+        SoundManager.setMusicEnabled(music);
+        location.reload();
+    }
+}
 
-        try {
-            loadGame();     
-            updateUI();      
-            renderQuests();  
-            recalcStats();   
-            renderEquipment();
-            SoundManager.loadSettings();
-            updateSfxButton();
-            updateMusicButton();
-            
-            document.body.addEventListener('click', function once() {
-                SoundManager.init();
-                document.body.removeEventListener('click', once);
-            });
-            
-            console.log("Игра успешно инициализирована");
-        } catch (e) {
-            console.error("Ошибка при запуске игры:", e);
-        }
-
-    document.body.insertAdjacentHTML('beforeend', `
-        <div id="modal-achievements" class="modal-overlay">
-            <div class="modal-content">
-                <button class="close-btn" onclick="closeAchievements()">✖</button>
-                <h2>🏆 ДОСТИЖЕНИЯ</h2>
-                <div id="achievements-list" style="display: flex; flex-direction: column; gap: 8px;"></div>
-            </div>
+document.body.insertAdjacentHTML('beforeend', `
+    <div id="modal-achievements" class="modal-overlay">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeAchievements()">✖</button>
+            <h2>🏆 ДОСТИЖЕНИЯ</h2>
+            <div id="achievements-list" style="display: flex; flex-direction: column; gap: 8px;"></div>
         </div>
-    `);
+    </div>
+`);
 
-    function getMetricValue(metric) {
-        switch(metric) {
-            case 'pushups': return state.totalPushups;
-            case 'pullups': return state.totalPullups;
-            case 'squats': return totalSquats;
-            case 'runKm': return totalRunKm;
-            case 'runMins': return totalRunMins;
-            case 'quests': return totalstate.completedQuests;
-            case 'plank': return state.totalPlank;
-            case 'abs': return state.totalAbs;
-            default: return 0;
-        }
+function getMetricValue(metric) {
+    switch(metric) {
+        case 'pushups': return state.totalPushups;
+        case 'pullups': return state.totalPullups;
+        case 'squats': return state.totalSquats;
+        case 'runKm': return state.totalRunKm;
+        case 'runMins': return state.totalRunMins;
+        case 'quests': return state.totalCompletedQuests;
+        case 'plank': return state.totalPlank;
+        case 'abs': return state.totalAbs;
+        default: return 0;
     }
+}
 
-    function openAchievements() {
-        const container = document.getElementById('achievements-list');
-        container.innerHTML = '';
+function openAchievements() {
+    const container = document.getElementById('achievements-list');
+    container.innerHTML = '';
+    
+    achievementsData.forEach(ach => {
+        const current = getMetricValue(ach.metric);
+        const isClaimed = state.claimedAchievements.includes(ach.id);
+        const isCompleted = current >= ach.target;
         
-        achievementsData.forEach(ach => {
-            const current = getMetricValue(ach.metric);
-            const isClaimed = claimedAchievements.includes(ach.id);
-            const isCompleted = current >= ach.target;
-            
-            let btnHtml = '';
-            if (isClaimed) {
-                btnHtml = `<button disabled style="background: #333; color: #777; border: none; padding: 5px; font-size: 6px; border-radius: 3px;">ПОЛУЧЕНО</button>`;
-            } else if (isCompleted) {
-                btnHtml = `<button onclick="claimAchievement('${ach.id}', ${ach.rewardXp}, ${ach.rewardGold})" class="btn-action" style="padding: 5px; font-size: 6px; background: #d4af37; color: black;">ЗАБРАТЬ</button>`;
-            } else {
-                btnHtml = `<div style="font-size: 6px; color: #aaa;">${current}/${ach.target}</div>`;
-            }
+        let btnHtml = '';
+        if (isClaimed) {
+            btnHtml = `<button disabled style="background: #333; color: #777; border: none; padding: 5px; font-size: 6px; border-radius: 3px;">ПОЛУЧЕНО</button>`;
+        } else if (isCompleted) {
+            btnHtml = `<button onclick="claimAchievement('${ach.id}', ${ach.rewardXp}, ${ach.rewardGold})" class="btn-action" style="padding: 5px; font-size: 6px; background: #d4af37; color: black;">ЗАБРАТЬ</button>`;
+        } else {
+            btnHtml = `<div style="font-size: 6px; color: #aaa;">${current}/${ach.target}</div>`;
+        }
 
-            container.innerHTML += `
-                <div style="background: #111; border: 1px solid ${isClaimed ? '#1b5e20' : '#333'}; padding: 8px; border-radius: 4px; display: flex; justify-content: space-between; align-items: center;">
-                    <div style="width: 70%;">
-                        <div style="color: var(--accent-yellow); font-size: 7px; margin-bottom: 3px;">${ach.title}</div>
-                        <div style="font-size: 5px; color: #ccc;">${ach.desc}</div>
-                        <div style="font-size: 5px; color: #888; margin-top: 3px;">Награда: ${ach.rewardGold}💰 | ${ach.rewardXp} XP</div>
-                    </div>
-                    <div>${btnHtml}</div>
+        container.innerHTML += `
+            <div style="background: #111; border: 1px solid ${isClaimed ? '#1b5e20' : '#333'}; padding: 8px; border-radius: 4px; display: flex; justify-content: space-between; align-items: center;">
+                <div style="width: 70%;">
+                    <div style="color: var(--accent-yellow); font-size: 7px; margin-bottom: 3px;">${ach.title}</div>
+                    <div style="font-size: 5px; color: #ccc;">${ach.desc}</div>
+                    <div style="font-size: 5px; color: #888; margin-top: 3px;">Награда: ${ach.rewardGold}💰 | ${ach.rewardXp} XP</div>
                 </div>
-            `;
-        });
-        document.getElementById('modal-achievements').style.display = 'flex';
-    }
+                <div>${btnHtml}</div>
+            </div>
+        `;
+    });
+    document.getElementById('modal-achievements').style.display = 'flex';
+}
 
-    function claimAchievement(id, xp, gold) {
-        claimedAchievements.push(id);
-        state.gold += gold;
-        state.xp += xp;
-        
-        while (state.xp >= state.state.state.maxXp) {
-            state.level++;
-            state.xp -= state.state.state.maxXp;
-            talentPoints++;
-        }
-        
-        saveGame();
-        updateUI();
-        openAchievements(); 
-        SoundManager.playEffect('victory');
+function claimAchievement(id, xp, gold) {
+    state.claimedAchievements.push(id);
+    state.gold += gold;
+    state.xp += xp;
+    
+    while (state.xp >= state.maxXp) {
+        state.level++;
+        state.xp -= state.maxXp;
+        state.talentPoints++;
     }
+    
+    saveGame();
+    updateUI();
+    openAchievements(); 
+    SoundManager.playEffect('victory');
+}
 
-    function closeAchievements() {
-        document.getElementById('modal-achievements').style.display = 'none';
-    }
+function closeAchievements() { document.getElementById('modal-achievements').style.display = 'none'; }
+
+try {
+    loadGame();     
+    updateUI();      
+    renderQuests();  
+    recalcStats();   
+    renderEquipment();
+    SoundManager.loadSettings();
+    updateSfxButton();
+    updateMusicButton();
+    
+    document.body.addEventListener('click', function once() {
+        SoundManager.init();
+        document.body.removeEventListener('click', once);
+    });
+    console.log("Игра успешно инициализирована");
+} catch (e) {
+    console.error("Ошибка при запуске игры:", e);
+}
 
 window.openInventory = openInventory;
 window.closeInventory = closeInventory;

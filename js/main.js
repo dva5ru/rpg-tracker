@@ -60,10 +60,6 @@ function updatePowerDisplay() {
     const powerSpan = document.getElementById('player-power');
     if (powerSpan) powerSpan.innerText = calculatePower();
 }
-
-function closeInventory() {
-    document.getElementById('modal-inventory').style.display = 'none';
-}
     
 function renderQuests() {
     const container = document.getElementById('quests-container');
@@ -83,86 +79,6 @@ function renderQuests() {
     });
 }
 
-function completeQuest(questId, xpReward, goldReward, statName) {
-    state.gold += Math.floor(goldReward * getGoldMultiplier());
-    state.xp += Math.floor(xpReward * getXpMultiplier());
-    if (state.stats[statName] !== undefined) {
-        state.stats[statName] += 1;
-        const statEl = document.getElementById('stat-' + statName);
-        if (statEl) statEl.innerText = state.stats[statName];
-    }
-    while (state.xp >= state.maxXp) {
-        state.level++;
-        state.xp -= state.maxXp;
-        state.talentPoints++;
-        showToast('Уровень повышен!', `Теперь ты ${state.level} уровня.`, 'info');
-        SoundManager.playEffect('levelup');
-    }
-    state.completedQuests.push(questId);
-    state.totalCompletedQuests++;
-
-    const title = questsDatabase.find(q => q.id === questId)?.title || '';
-    
-    if (title.toLowerCase().includes('отжимания')) {
-        let count = parseInt(prompt("Сколько раз отжался?", "10"));
-        if (isNaN(count) || count <= 0) return;
-        state.totalPushups += count;
-    }
-    else if (title.toLowerCase().includes('подтягивания')) {
-        let count = parseInt(prompt("Сколько раз подтянулся?", "5"));
-        if (isNaN(count) || count <= 0) return;
-        state.totalPullups += count;
-    }
-    else if (title.toLowerCase().includes('приседания')) {
-        let count = parseInt(prompt("Сколько раз присел?", "20"));
-        if (isNaN(count) || count <= 0) return;
-        state.totalSquats += count;
-    }
-    else if (title.toLowerCase().includes('пресс')) {
-        let count = parseInt(prompt("Сколько раз сделал пресс?", "20"));
-        if (isNaN(count) || count <= 0) return;
-        state.totalAbs += count;
-    }
-    else if (title.toLowerCase().includes('планка')) {
-        let mins = parseFloat(prompt("Сколько минут простоял в планке?", "1"));
-        if (isNaN(mins) || mins <= 0) return;
-        state.totalPlank += mins;
-    }
-    else if (title.toLowerCase().includes('бег')) {
-        let km = parseFloat(prompt("Сколько километров пробежал?", "1"));
-        let mins = parseInt(prompt("За сколько минут?", "10"));
-        if (isNaN(km) || isNaN(mins) || km <= 0) return;
-        state.totalRunKm += km;
-        state.totalRunMins += mins;
-    }
-    else if (title.toLowerCase().includes('сон')) {
-        let bedTime = parseInt(prompt("Во сколько лег спать? (введи часы, например 23 или 1)", "23"));
-        let wakeTime = parseInt(prompt("Во сколько проснулся? (введи часы, например 7)", "7"));
-        if (isNaN(bedTime) || isNaN(wakeTime)) return;
-        let hours = wakeTime < bedTime ? (24 - bedTime) + wakeTime : wakeTime - bedTime;
-        state.energy = Math.min(state.maxEnergy, state.energy + (hours * 10));
-        showToast('Отличный сон!', `Ты проспал ${hours} ч. Энергия восстановлена!`, 'info');
-    }
-    else if (title.toLowerCase().includes('растяжка')) state.totalStretch++;
-
-    saveGame();
-    updateUI();
-    
-    if (tg) tg.HapticFeedback.impactOccurred('light');
-    SoundManager.playEffect('quest');
-    const btn = document.getElementById(`btn-quest-${questId}`);
-    if (btn) {
-        const taskDiv = btn.closest('.task');
-        taskDiv.classList.add('completed');
-        
-        showFloatingText(btn, `+${Math.floor(xpReward * getXpMultiplier())} XP`, 'var(--accent-green)');
-        showFloatingText(btn, `+${Math.floor(goldReward * getGoldMultiplier())} 💰`, 'gold');
-        
-        setTimeout(() => { renderQuests(); }, 300);
-    } else {
-        renderQuests();
-    }
-}
 
 function mergeItem(invIndex) {
     const itemData = state.inventory[invIndex];
@@ -239,11 +155,6 @@ function openBattle() {
 
     const attackBtn = document.getElementById('attack-btn');
     attackBtn.onclick = startBattle;
-}
-
-function closeBattle() {
-    document.getElementById('modal-battle').style.display = 'none';
-    SoundManager.startMusic('menu');
 }
 
 function startBattle() {
@@ -507,6 +418,130 @@ function getEffectiveHeroPower(enemy) {
     return basePower;
 }
 
+// --- ПЛАВНОЕ ЗАКРЫТИЕ ОКОН ---
+function smoothClose(modalId) {
+    const modal = document.getElementById(modalId);
+    if (!modal) return;
+    modal.classList.add('closing');
+    setTimeout(() => {
+        modal.style.display = 'none';
+        modal.classList.remove('closing');
+    }, 200);
+}
+
+function closeInventory() { smoothClose('modal-inventory'); }
+function closeShop() { smoothClose('modal-shop'); }
+function closeBattle() { smoothClose('modal-battle'); SoundManager.startMusic('menu'); }
+function closeTalents() { smoothClose('modal-talents'); }
+function closeMetrics() { smoothClose('modal-metrics'); }
+function closeAchievements() { smoothClose('modal-achievements'); }
+function closeSettings() { smoothClose('modal-settings'); }
+function closeChestModal() { smoothClose('modal-chest'); openInventory(); }
+window.openMap = function() { showToast('Карта', 'Эта функция еще в разработке!', 'warning'); }
+
+
+// --- ВНУТРИИГРОВОЙ ВВОД ДЛЯ КВЕСТОВ ---
+let pendingQuest = null;
+
+function completeQuest(questId, xpReward, goldReward, statName) {
+    const title = questsDatabase.find(q => q.id === questId)?.title || '';
+    let isInputRequired = false;
+    let inputsHtml = '';
+    const t = title.toLowerCase();
+
+    if (t.includes('отжимания')) {
+        isInputRequired = true; inputsHtml = `<input type="number" id="q-val-1" class="metric-input" placeholder="Сколько раз?" value="10">`;
+    } else if (t.includes('подтягивания')) {
+        isInputRequired = true; inputsHtml = `<input type="number" id="q-val-1" class="metric-input" placeholder="Сколько раз?" value="5">`;
+    } else if (t.includes('приседания')) {
+        isInputRequired = true; inputsHtml = `<input type="number" id="q-val-1" class="metric-input" placeholder="Сколько раз?" value="20">`;
+    } else if (t.includes('пресс')) {
+        isInputRequired = true; inputsHtml = `<input type="number" id="q-val-1" class="metric-input" placeholder="Сколько раз?" value="20">`;
+    } else if (t.includes('планка')) {
+        isInputRequired = true; inputsHtml = `<input type="number" id="q-val-1" class="metric-input" placeholder="Сколько минут?" value="1">`;
+    } else if (t.includes('бег')) {
+        isInputRequired = true; inputsHtml = `
+            <input type="number" id="q-val-1" class="metric-input" placeholder="Км?" value="1">
+            <input type="number" id="q-val-2" class="metric-input" placeholder="Минут?" value="10">`;
+    } else if (t.includes('сон')) {
+        isInputRequired = true; inputsHtml = `
+            <input type="number" id="q-val-1" class="metric-input" placeholder="Во сколько лег? (0-23)" value="23">
+            <input type="number" id="q-val-2" class="metric-input" placeholder="Во сколько встал? (0-23)" value="7">`;
+    }
+
+    if (isInputRequired) {
+        pendingQuest = { questId, xpReward, goldReward, statName, type: t };
+        document.getElementById('quest-input-title').innerText = title;
+        document.getElementById('quest-input-fields').innerHTML = inputsHtml;
+        document.getElementById('modal-quest-input').style.display = 'flex';
+    } else {
+        if (t.includes('растяжка')) state.totalStretch++;
+        finalizeQuest(questId, xpReward, goldReward, statName);
+    }
+}
+
+window.closeQuestInput = function() { smoothClose('modal-quest-input'); pendingQuest = null; }
+
+window.submitQuestInput = function() {
+    if (!pendingQuest) return;
+    const v1 = parseFloat(document.getElementById('q-val-1')?.value);
+    const v2 = parseFloat(document.getElementById('q-val-2')?.value);
+    const t = pendingQuest.type;
+
+    if (t.includes('отжимания') && v1 > 0) state.totalPushups += v1;
+    else if (t.includes('подтягивания') && v1 > 0) state.totalPullups += v1;
+    else if (t.includes('приседания') && v1 > 0) state.totalSquats += v1;
+    else if (t.includes('пресс') && v1 > 0) state.totalAbs += v1;
+    else if (t.includes('планка') && v1 > 0) state.totalPlank += v1;
+    else if (t.includes('бег') && v1 > 0 && v2 > 0) { state.totalRunKm += v1; state.totalRunMins += v2; }
+    else if (t.includes('сон') && !isNaN(v1) && !isNaN(v2)) {
+        let hours = v2 < v1 ? (24 - v1) + v2 : v2 - v1;
+        state.energy = Math.min(state.maxEnergy, state.energy + (hours * 10));
+        showToast('Сон', `Энергия восстановлена (+${hours*10})`, 'info');
+    } else {
+        showToast('Ошибка', 'Введите корректные числа', 'error');
+        return; 
+    }
+
+    finalizeQuest(pendingQuest.questId, pendingQuest.xpReward, pendingQuest.goldReward, pendingQuest.statName);
+    closeQuestInput();
+}
+
+function finalizeQuest(questId, xpReward, goldReward, statName) {
+    state.gold += Math.floor(goldReward * getGoldMultiplier());
+    state.xp += Math.floor(xpReward * getXpMultiplier());
+    if (state.stats[statName] !== undefined) {
+        state.stats[statName] += 1;
+        const statEl = document.getElementById('stat-' + statName);
+        if (statEl) statEl.innerText = state.stats[statName];
+    }
+    while (state.xp >= state.maxXp) {
+        state.level++;
+        state.xp -= state.maxXp;
+        state.talentPoints++;
+        showToast('Уровень повышен!', `Теперь ты ${state.level} уровня.`, 'info');
+        SoundManager.playEffect('levelup');
+    }
+    state.completedQuests.push(questId);
+    state.totalCompletedQuests++;
+
+    saveGame();
+    updateUI();
+    
+    if (tg) tg.HapticFeedback.impactOccurred('light');
+    SoundManager.playEffect('quest');
+    const btn = document.getElementById(`btn-quest-${questId}`);
+    if (btn) {
+        const taskDiv = btn.closest('.task');
+        taskDiv.classList.add('completed');
+        showFloatingText(btn, `+${Math.floor(xpReward * getXpMultiplier())} XP`, 'var(--accent-green)');
+        showFloatingText(btn, `+${Math.floor(goldReward * getGoldMultiplier())} 💰`, 'gold');
+        setTimeout(() => { renderQuests(); }, 300);
+    } else {
+        renderQuests();
+    }
+}
+
 function openInventory() {
     const modal = document.getElementById('modal-inventory');
     const grid = document.getElementById('inventory-grid');
@@ -642,9 +677,6 @@ function openMetrics() {
     renderGraphs();
     renderStats();
 }
-function closeMetrics() {
-    document.getElementById('modal-metrics').style.display = 'none';
-}
 
 document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', function() {
@@ -723,7 +755,6 @@ function getLuckBonus() {
 }
 
 function openSettings() { document.getElementById('modal-settings').style.display = 'flex'; }
-function closeSettings() { document.getElementById('modal-settings').style.display = 'none'; }
 
 function openTalents() {
     document.getElementById('modal-talents').style.display = 'flex';
@@ -737,8 +768,6 @@ function openTalents() {
         container.scrollTop = 85;
     }, 10);
 }
-
-function closeTalents() { document.getElementById('modal-talents').style.display = 'none'; }
 
 function renderTalentTree() {
     const svg = document.getElementById('talent-lines');
@@ -956,9 +985,7 @@ function showChestAnimation(chestRarity, items) {
     });
     modal.style.display = 'flex';
 }
-
-function closeChestModal() { document.getElementById('modal-chest').style.display = 'none'; openInventory(); }
-                
+             
 function equipItem(invIndex) {
     const itemData = state.inventory[invIndex];
     const baseItem = itemsDatabase[itemData.id];
@@ -1031,10 +1058,7 @@ function showEquippedItemDetails(slotId) {
     document.getElementById('item-details').classList.add('show');
 }
 
-
-
 function openShop() { document.getElementById('modal-shop').style.display = 'flex'; renderShop(); }
-function closeShop() { document.getElementById('modal-shop').style.display = 'none'; }
 
 function renderShop() {
     const container = document.getElementById('shop-items');
@@ -1181,8 +1205,6 @@ function claimAchievement(id, xp, gold) {
     openAchievements(); 
     SoundManager.playEffect('victory');
 }
-
-function closeAchievements() { document.getElementById('modal-achievements').style.display = 'none'; }
 
 try {
     loadGame();     

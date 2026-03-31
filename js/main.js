@@ -1069,13 +1069,20 @@ function renderShop() {
         const div = document.createElement('div');
         div.className = 'inv-slot';
         div.style.flexDirection = 'column';
-        div.style.fontSize = '10px';
+        div.style.justifyContent = 'center';
+        
         if (item.type === 'item') {
             const base = itemsDatabase[item.id];
-            div.innerHTML = `${base.img}<br><span style="font-size:6px;">${item.price}💰</span>`;
+            // Проверяем, картинка это или эмодзи, как мы делали в инвентаре
+            let imageHtml = base.img.includes('.') 
+                ? `<img src="images/${base.img}" style="width: 60%; height: 60%; object-fit: contain; pointer-events: none; margin-bottom: 2px;">`
+                : `<span style="font-size: 16px; margin-bottom: 2px;">${base.img}</span>`;
+                
+            div.innerHTML = `${imageHtml}<span style="font-size:6px; color: gold;">${item.price} 💰</span>`;
         } else {
-            div.innerHTML = `📦<br><span style="font-size:6px;">${item.price}💰</span>`;
+            div.innerHTML = `<span style="font-size: 16px; margin-bottom: 2px;">📦</span><span style="font-size:6px; color: gold;">${item.price} 💰</span>`;
         }
+        
         div.onclick = (e) => buyItem(index, e.currentTarget);
         container.appendChild(div);
     });

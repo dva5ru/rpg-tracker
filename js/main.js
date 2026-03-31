@@ -4,9 +4,11 @@ import {
     shopItems, talentTree, mobs, bosses
 } from './data.js';
 
-const tg = window.Telegram.WebApp;
-tg.ready();
-tg.expand();   
+const tg = window?.Telegram?.WebApp;
+if (tg) {
+    tg.ready();
+    tg.expand();
+}
 
 let playerGold, playerXp, playerLevel, maxXp = 1000;
 let playerHp, maxHp = 1000;
